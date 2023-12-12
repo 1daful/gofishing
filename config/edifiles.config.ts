@@ -179,21 +179,6 @@ const home: PageView = new PageView({
     children: []
 })
 const serviceModel = new Service()
- 
-const services: PageView = new PageView({
-    id: 'services',
-    layout: 'Grid',
-    sections: [serviceList],
-})
-
-const serviceSingle = await serviceModel.getSingleData(useRoute()?.params?.categories[0])
-
-const service: PageView = {
-    id: '',
-    layout: 'Grid',
-    sections: [serviceSingle],
-    children: []
-}
 
 const mainLayout: PageView = new PageView({
     id: '',
