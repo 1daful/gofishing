@@ -139,13 +139,16 @@ onBeforeMount(async () => {
     categories = useRoute().params.categories as string[]
     type = useRoute().params.type as string
     if(type) {
+        view = GlobalView.mainLayout.children.find((child) => {
+            return child.id === type
+        })
+    if(categories) {
         
     }
-    if(categories) {
-        view = GlobalView.mainLayout.children.find((child) => {
-            console.log('Categories: ', categories)
-            return child.id === categories[categories.length - 1]
-        })
+        
+    }
+    else if(id){
+        
     }
     else {
         view = GlobalView.mainLayout.children.find((child) => {
