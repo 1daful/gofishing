@@ -1,0 +1,88 @@
+<template>
+  <QBtn :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
+  dense :icon="action.icon" 
+  :size="action.style?.size" 
+  class="q-mr-sm" v-if="event" 
+  color="primary"
+  :aria-label="action.style?.ariaLabel"></QBtn>
+  <QBtn :label="actionName" class="lt-md" v-else-if="component">
+    <QPopupProxy cover>
+      <component :is="component" v-bind="$attrs"></component>
+      <!--<component :is="g" v-bind="$attrs" v-else></component>-->
+      <!--<AwDialog v-bind="$attrs" ref="gh"></AwDialog>-->
+    </QPopupProxy>
+  </QBtn>
+</template>
+
+<script setup lang="ts">
+import { defineAsyncComponent, onMounted, ref } from "vue";
+import { Action, VComponent } from "../utils/types";
+import { useRouter } from "vue-router";
+
+const props = defineProps({
+  actionName: {
+    type: String,
+  },
+  action: {
+    type: Object as () => Action,
+    required: true
+  }
+});
+
+const type = props.action?.style?.type || 'unelevated'
+const shape = props.action?.style?.shape || 'none'
+
+let component: VComponent
+let event: Function
+
+const AwDialog = defineAsyncComponent(
+  () =>
+    import(
+      "../components/" +
+        "Aw" +
+        props.actionName?.charAt(0).toUpperCase() +
+        props.actionName?.slice(1) +
+        ".vue"
+    )
+);
+
+
+/*const defaultComponent = () => {
+  let components;
+  if (props.actionName) {
+    switch (props.actionName) {
+      case "filter":
+        components = AwFilters;
+        break;
+      case "filters":
+        break;
+      default:
+        break;
+    }
+  }
+  return components;
+};*/
+const router = useRouter()
+onMounted(() => {
+  if (props.action) {
+    switch (props.action.event) {
+      case 'route':
+        event = () => {
+          router.push(props.action?.args)
+        }
+        break;
+      case 'modal':
+        component = props.action.args
+        break;
+    
+      default:
+        break;
+    }
+    if (typeof props.action.event === 'function') {
+      event = () => {
+       props.action.event(props.action.args);
+      }
+    }
+  }
+});
+</script>
