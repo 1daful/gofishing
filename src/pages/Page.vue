@@ -139,15 +139,18 @@ onBeforeMount(async () => {
     categories = useRoute().params.categories as string[]
     type = useRoute().params.type as string
     if(type) {
-        view = GlobalView.mainLayout.children.find((child) => {
+        const data = GlobalView.mainLayout.children.find((child) => {
             return child.id === type
         })
-    if(categories) {
-        
+        if(url === type) {
+            view = data.getListData()
+        }
+    else if(url === categories) {
+        view = data.getListData(categories)
     }
-        
+    else if(url === id){
+        view = data.getSingleData(id)
     }
-    else if(id){
         
     }
     else {
