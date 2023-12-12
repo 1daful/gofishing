@@ -179,7 +179,7 @@ const home: PageView = new PageView({
     children: []
 })
 const serviceModel = new Service()
-const serviceList = await serviceModel.getListData()
+ 
 const services: PageView = new PageView({
     id: 'services',
     layout: 'Grid',
