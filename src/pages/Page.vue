@@ -11,6 +11,7 @@ import { GlobalView } from "../../config/edifiles.config";
 import { useRoute } from "vue-router";
 import EView from "../components/EView.vue";
 import { onBeforeMount, ref } from 'vue';
+import { IDataView } from '../../model/IDataView';
 
 const layout = {
     top: new View({
@@ -139,18 +140,18 @@ onBeforeMount(async () => {
     categories = useRoute().params.categories as string[]
     type = useRoute().params.type as string
     if(type) {
-        const data = GlobalView.mainLayout.children.find((child) => {
+        const data: IDataView | undefined = GlobalView.mainLayout.children.find((child) => {
             return child.id === type
         })
-        if(url === type) {
-            view = data.getListData()
+        if(type && !categories && !id) {
+            view = data?.getListData()
         }
-    else if(url === categories) {
-        view = data.getListData(categories)
-    }
-    else if(url === id){
-        view = data.getSingleData(id)
-    }
+        else if(categories && !id) {
+            view = data?.getListData(categories)
+        }
+        else if(id){
+            view = data?.getSingleData(id)
+        }
         
     }
     else {

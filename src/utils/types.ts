@@ -1,5 +1,6 @@
 import { Component } from "vue"
 import { CarouselStyle, HorizontalPosition, Slides, VerticalPosition } from "./DataTypes";
+import { IDataView } from "../../model/IDataView";
 
 export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj is T {
     return obj instanceof classType;
@@ -432,7 +433,7 @@ export class PageView implements IView {
     id!: string;
     layout!: LayoutType;
     sections: ViewSection[] = [];
-    children: PageView[] = []
+    children: (PageView | IDataView)[] = []
     /*insert(...content: ViewSection[]){
         content.forEach(element => {
             if(element instanceof View) {
