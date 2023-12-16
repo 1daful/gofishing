@@ -8,7 +8,7 @@
     <template v-else>
       <QCardSection>
           <div class="row">
-            <EDataItem v-for="item in data.items" :dataItem="item"></EDataItem>
+            <EDataItem v-for="item in data" :dataItem="item"></EDataItem>
           </div>
         <QCardActions>
           <QBtn

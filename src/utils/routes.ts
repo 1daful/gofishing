@@ -1,8 +1,6 @@
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router';
 // import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } from 'vue-router'
 import Home from '../pages/Home.vue'
-import List from "../pages/List.vue";
-import Single from "../pages/Single.vue";
 import { authGuard } from "../utils/AuthGuard";
 
 
@@ -119,19 +117,22 @@ import { authGuard } from "../utils/AuthGuard";
                 }
             },
             {
-              path: '/:categories*',
+              path: '/:type',
+              name: 'type',
               component: () => import('../pages/Page.vue'),
               children: [
                 {
-                  path: '/:type/:categories*/:id(\\d+|\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})',
+                  path: ':categories*',
+                  name: 'categories',
+                  component: () => import('../pages/Page.vue'),
+                  props: (route) => ({ id: route.query.categories })
+                },
+                {
+                  path: ':categories*/:id(\\d+|\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})',
+                  name: 'id',
                   component: () => import('../pages/Page.vue'),
                   props: (route) => ({ id: route.params.id })
                 },
-                /*{
-                  path: '/:type/:categories*',
-                  component: List,
-                  //props: (route) => ({ id: route.query.id })
-                },*/
               ]
             },
           ],

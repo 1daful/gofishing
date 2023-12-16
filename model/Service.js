@@ -1,17 +1,25 @@
 import gql from "graphql-tag";
 import { dbClient } from "../config/model";
 import { Action, DataType, FormType, QuestionType } from "../src/utils/types";
+import { Share } from "../service/shareSrv";
 export class Service {
+    constructor() {
+        this.id = 'services';
+    }
     async getCreateData() {
-        const membersQuery = gql `member {
-            firstName
-            lastName
-            avatar
+        const membersQuery = gql `{
+            member {
+                firstName
+                lastName
+                avatar
+            }
         }`;
-        const groupsQuery = gql `member {
-            name
-            members
-            admins
+        const groupsQuery = gql `{
+            member {
+                name
+                members
+                admins
+            }
         }`;
         const groupOptions = await dbClient.get('member', groupsQuery);
         const memberOptions = await dbClient.get('member', membersQuery);
@@ -53,12 +61,24 @@ export class Service {
                     },]
             })
         ]);
-        return form;
+        const view = {
+            id: "createService",
+            layout: "Grid",
+            sections: [form],
+            children: []
+        };
+        return view;
     }
     async getListData(dataArg) {
         var _a;
         let dataType = {
-            items: {}
+            items: {
+                header: undefined,
+                center: undefined,
+                footer: undefined,
+                left: undefined,
+                right: undefined
+            }
         };
         let data;
         if (dataArg) {
@@ -68,7 +88,7 @@ export class Service {
             data = await dbClient.get('service');
         }
         if (data) {
-            dataType = {
+            dataType = new DataType({
                 items: {
                     header: [
                         {
@@ -87,19 +107,35 @@ export class Service {
                         {
                             action: new Action({
                                 label: 'open',
-                                event: 'route',
+                                event: 'Route',
                                 args: data.id,
                                 onResult: [],
                                 onError: []
                             })
                         }
                     ]
-                }
-            };
+                },
+                actions: [
+                    new Action({
+                        label: 'Create',
+                        event: 'Route',
+                        args: '/create',
+                        onResult: [],
+                        onError: []
+                    })
+                ]
+            });
         }
-        return dataType;
+        const view = {
+            id: "services",
+            layout: "Grid",
+            sections: [dataType],
+            children: []
+        };
+        return view;
     }
     async getSingleData(id, argData) {
+        const share = new Share();
         let dataType = {
             items: {
                 header: undefined,
@@ -110,13 +146,19 @@ export class Service {
             }
         };
         let data;
-        if (id) {
-            const query = gql `service (id: ${id})`;
-            data = await dbClient.get('', query);
-        }
-        else {
+        if (argData) {
             data = argData;
         }
+        else {
+            const query = gql `{service (id: ${id})}`;
+            data = await dbClient.get('', query);
+        }
+        let media = {
+            url: '',
+            description: data.content,
+            thumbnail: data.name,
+            title: data.name
+        };
         const getStatus = () => {
             const now = new Date();
             let status = '';
@@ -153,24 +195,18 @@ export class Service {
                     footer: [
                         new Action({
                             icon: 'video',
-                            event: 'modal',
+                            event: 'Modal',
                             args: 'video',
                             onResult: [],
                             onError: []
                         }),
+                        share.getShare(media),
                         new Action({
-                            icon: 'share',
-                            event: 'modal',
-                            args: 'share',
-                            onResult: [],
-                            onError: []
-                        }),
-                        new Action({
+                            label: 'edit',
                             icon: 'pencil',
-                            event: 'route',
+                            event: 'Route',
                             args: {
-                                path: '/service',
-                                query: JSON.stringify(await this.getCreateData())
+                                name: 'services',
                             },
                             onResult: [],
                             onError: []
@@ -182,7 +218,12 @@ export class Service {
                 }
             });
         }
-        return dataType;
+        const view = {
+            id: data.id,
+            layout: "Grid",
+            sections: [dataType],
+            children: []
+        };
+        return view;
     }
 }
-export const serviceModel = new Service();

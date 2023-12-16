@@ -74,8 +74,23 @@ const routes = [
                 }
             },
             {
-                path: '/:categories*',
+                path: '/:type',
+                name: 'type',
                 component: () => import('../pages/Page.vue'),
+                children: [
+                    {
+                        path: ':categories*',
+                        name: 'categories',
+                        component: () => import('../pages/Page.vue'),
+                        props: (route) => ({ id: route.query.categories })
+                    },
+                    {
+                        path: ':categories*/:id(\\d+|\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})',
+                        name: 'id',
+                        component: () => import('../pages/Page.vue'),
+                        props: (route) => ({ id: route.params.id })
+                    },
+                ]
             },
         ],
     },

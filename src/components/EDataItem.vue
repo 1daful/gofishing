@@ -1,13 +1,13 @@
 <template>
       <!--div class="text-h6">{{ header.title }}</div>-->
-      <template v-for="(v, k) in dataItem">
-        <template v-for="dataContent in v">
+      <template v-for="dataContent in dataItem">
+        <template v-for="(v, k) in dataContent">
             <div class="col-lg q-pa-xs">
-                <QAvatar :icon="dataContent.icon" v-if="dataContent.icon"></QAvatar>
-                <QAvatar v-if="dataContent.avatar">
-                    <QImg :src="dataContent.avatar"></QImg>
+                <QAvatar :icon="v.icon" v-if="v?.icon"></QAvatar>
+                <QAvatar v-if="v?.avatar">
+                    <QImg :src="v.avatar"></QImg>
                 </QAvatar>
-                <QImg style="height: 12em; min-width: 60px" :src="dataContent.thumbnail" v-if="dataContent.thumbnail">
+                <QImg style="height: 12em; min-width: 60px" :src="v.thumbnail" v-if="v?.thumbnail">
                     <template v-slot:error>
                         <div class="absolute-full flex flex-center bg-negative text-white">
                         <q-icon name="error" /> Cannot load image
@@ -15,11 +15,17 @@
                     </template>
                 </QImg>
             </div>
-            <div class="col-lg q-pa-xs" v-if="dataContent.label">
-                <QItemLabel> {{ dataContent.label }} </QItemLabel>
+            <div class="col-lg q-pa-xs" v-if="v?.label">
+                <QItemLabel> {{ v.label }} </QItemLabel>
             </div>
-            <div class="col-lg q-pa-xs" v-if="dataContent.action">
-                <EAction :action="dataContent.action"></EAction>
+            <div class="col-lg q-pa-xs" v-if="v?.action">
+                <QBtn @click="router.push({
+                    name: 'id',
+                    params: {
+                        id: v.action.args
+                    }
+                })">{{ v.action.label }}</QBtn>
+                <EAction :action-name="v.action.event" :action="v.action"></EAction>
             </div>
         </template>
       </template>
@@ -31,7 +37,8 @@
 <script setup lang="ts">
 import { DataItem } from '../utils/types';
 import EAction from "./EAction.vue";
-
+import { useRouter } from "vue-router";
+const router = useRouter()
 defineProps({
     dataItem: {
         type: Object as () => DataItem,

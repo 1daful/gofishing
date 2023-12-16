@@ -173,7 +173,7 @@ export type ActionState = {
     diasble?: boolean
 }
 
-export type ActionString = 'Submit' | 'Filter' | 'Route' | 'Modal'
+export type ActionString = 'Submit' | 'Filter' | 'Route' | 'Modal' | 'Upload'
 
 export class Action {
     constructor(action: Action) {
@@ -185,7 +185,7 @@ export class Action {
     icon?: string
     iconRight?: string
     args?: any
-    event!: Function | string
+    event!: Function | ActionString
     onResult!: Function[]
     onError!: Function[]
     style?: ActionStyle

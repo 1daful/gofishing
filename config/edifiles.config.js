@@ -1,4 +1,3 @@
-var _a, _b;
 import { EAuth, Mailer } from '@edifiles/services';
 import { View, Action, FormType, PageView, QuestionType } from "../src/utils/types";
 import Search from "../src/components/ESearch.vue";
@@ -6,8 +5,7 @@ import { menus } from "./menus";
 import Home from "../src/pages/Home.vue";
 import { config } from "../public/config";
 import { firstTimer } from "./model";
-import { serviceModel } from "../model/Service";
-import { useRoute } from "vue-router";
+import { Service } from "../model/Service";
 const auth = new EAuth(config.api.Supabase);
 const search = new View({
     id: 'search',
@@ -153,19 +151,7 @@ const home = new PageView({
     sections: [Home, firstTimer],
     children: []
 });
-const serviceList = await serviceModel.getListData();
-const services = new PageView({
-    id: 'services',
-    layout: 'Grid',
-    sections: [serviceList],
-});
-const serviceSingle = await serviceModel.getSingleData((_b = (_a = useRoute()) === null || _a === void 0 ? void 0 : _a.params) === null || _b === void 0 ? void 0 : _b.categories[0]);
-const service = {
-    id: '',
-    layout: 'Grid',
-    sections: [serviceSingle],
-    children: []
-};
+const serviceModel = new Service();
 const mainLayout = new PageView({
     id: '',
     layout: 'Grid',
@@ -173,7 +159,7 @@ const mainLayout = new PageView({
         menus, search, signIn, signUp,
     ],
     children: [
-        home, services, service
+        home, serviceModel
     ]
 });
 export const GlobalView = {

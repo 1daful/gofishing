@@ -1,13 +1,15 @@
 <template>
-  <QBtn :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
+  <!--QBtn :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
   dense :icon="action.icon" 
   :size="action.style?.size" 
   class="q-mr-sm" v-if="event" 
   color="primary"
-  :aria-label="action.style?.ariaLabel"></QBtn>
+  :aria-label="action.style?.ariaLabel"></QBtn-->
+
+  <QBtn v-if="event" :label="action.label" @click="event()"></QBtn>
   <QBtn :label="actionName" class="lt-md" v-else-if="component">
     <QPopupProxy cover>
-      <component :is="component" v-bind="$attrs"></component>
+      <EView :view="component" v-bind="$attrs"></EView>
       <!--<component :is="g" v-bind="$attrs" v-else></component>-->
       <!--<AwDialog v-bind="$attrs" ref="gh"></AwDialog>-->
     </QPopupProxy>
@@ -16,8 +18,9 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, onMounted, ref } from "vue";
-import { Action, VComponent } from "../utils/types";
+import { Action, VComponent, View } from "../utils/types";
 import { useRouter } from "vue-router";
+import EView from "./EView.vue";
 
 const props = defineProps({
   actionName: {
@@ -32,7 +35,7 @@ const props = defineProps({
 const type = props.action?.style?.type || 'unelevated'
 const shape = props.action?.style?.shape || 'none'
 
-let component: VComponent
+let component: View
 let event: Function
 
 const AwDialog = defineAsyncComponent(
@@ -66,12 +69,12 @@ const router = useRouter()
 onMounted(() => {
   if (props.action) {
     switch (props.action.event) {
-      case 'route':
+      case 'Route':
         event = () => {
           router.push(props.action?.args)
         }
         break;
-      case 'modal':
+      case 'Modal':
         component = props.action.args
         break;
     

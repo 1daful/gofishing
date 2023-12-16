@@ -1,6 +1,7 @@
 import gql from "graphql-tag";
 import { dbClient } from "../config/model";
-import { Action, DataType, FormType, QuestionType } from "../src/utils/types";
+import { Action, DataType, FormType, PageView, QuestionType } from "../src/utils/types";
+import { Share } from "../service/shareSrv";
 
 export class Service {
     /*id: string
@@ -12,18 +13,22 @@ export class Service {
     content: string
     timeElapse: number
     date: DateLocale*/
-
+    id: string = 'services'
     async getCreateData() {
-        const membersQuery = gql `member {
-            firstName
-            lastName
-            avatar
+        const membersQuery = gql `{
+            member {
+                firstName
+                lastName
+                avatar
+            }
         }`
 
-        const groupsQuery = gql `member {
-            name
-            members
-            admins
+        const groupsQuery = gql `{
+            member {
+                name
+                members
+                admins
+            }
         }`
         
         const groupOptions = await dbClient.get('member', groupsQuery)
@@ -67,12 +72,26 @@ export class Service {
                 },]
             })
         ])
-        return form
+        const view: PageView = {
+            id: "createService",
+            layout: "Grid",
+            sections: [form],
+            children: []
+        }
+        return view
     }
 
     async getListData(dataArg?: any) {
         //const query = gql `service (id: ${id})`
-        let dataType: DataType = {}
+        let dataType: DataType = {
+            items: {
+                header: undefined,
+                center: undefined,
+                footer: undefined,
+                left: undefined,
+                right: undefined
+            }
+        }
         let data
         if(dataArg) {
             data = dataArg
@@ -80,7 +99,8 @@ export class Service {
         else {
             data = await dbClient.get('service')
         }
-        if (data) { = {
+        if (data) { 
+            dataType = new DataType({
                 items: {
                     header: [
                         {
@@ -99,21 +119,36 @@ export class Service {
                         {
                             action: new Action({
                                 label: 'open',
-                                event: 'route',
+                                event: 'Route',
                                 args: data.id,
                                 onResult: [],
                                 onError: []
                             })
                         }
                     ]
-                }
-            }
+                },
+                actions: [
+                    new Action({
+                        label: 'Create',
+                        event: 'Route',
+                        args: '/create',
+                        onResult: [],
+                        onError: []
+                    })
+                ]
+            })
         }
-
-        return dataType
+        const view: PageView = {
+            id: "services",
+            layout: "Grid",
+            sections: [dataType],
+            children: []
+        }
+        return view
     }
 
-    async getSingleData(id?: string, argData?: any) {
+    async getSingleData(id: string, argData?: any) {
+        const share = new Share()
         let dataType: DataType = {
             items: {
                 header: undefined,
@@ -123,13 +158,21 @@ export class Service {
                 right: undefined
             }
         }
-        let data: { start: Date; end: Date; name: any; createdAt: any; timeElapse: any; content: any; }
-        if (id) {
-            const query = gql `service (id: ${id})`
-            data = await dbClient.get('', query)
+        let data: {
+            id: string; start: Date; end: Date; name: any; createdAt: any; timeElapse: any; content: any; 
+}
+        if (argData) {
+            data = argData
         }
         else {
-            data = argData
+            const query = gql `{service (id: ${id})}`
+            data = await dbClient.get('', query)
+        }
+        let media = {
+            url: '',
+            description: data.content,
+            thumbnail: data.name,
+            title: data.name
         }
         const getStatus = () => {
             const now = new Date()
@@ -167,24 +210,18 @@ export class Service {
                     footer: [
                         new Action({
                             icon: 'video',
-                            event: 'modal',
+                            event: 'Modal',
                             args: 'video',
                             onResult: [],
                             onError: []
                         }),
+                        share.getShare(media),
                         new Action({
-                            icon: 'share',
-                            event: 'modal',
-                            args: 'share',
-                            onResult: [],
-                            onError: []
-                        }),
-                        new Action({
+                            label: 'edit',
                             icon: 'pencil',
-                            event: 'route',
+                            event: 'Route',
                             args: {
-                                path: '/service',
-                                query: JSON.stringify(await this.getCreateData())
+                                name: 'services',
                             },
                             onResult: [],
                             onError: []
@@ -196,8 +233,12 @@ export class Service {
                 }
             })
         }
-        return dataType
+        const view: PageView = {
+            id: data.id,
+            layout: "Grid",
+            sections: [dataType],
+            children: []
+        }
+        return view
     }
 }
-
-export const serviceModel = new Service()

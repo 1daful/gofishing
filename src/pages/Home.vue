@@ -51,8 +51,6 @@ const filterData: Filters = {
   ],
 };
 
-const util = new Utility()
-
 const pr = { hello: "Hello Btn" };
 const params = {
   params: {
@@ -63,7 +61,7 @@ const params = {
 //const viewa = useWidgets();
 const data: DataType = {
   //icon: "schedule",
-  overlay: "../../public/hero_sunset.jpeg",
+  //overlay: "../../public/hero_sunset.jpeg",
   card: true,
   items: {
       header: [
@@ -150,18 +148,6 @@ const headerView = new View({
 
 const view2 = view
 
-const tabs: NavList = {
-  id: "",
-  content: [{
-    path: 'services',
-    name: 'Services'
-  },{
-    path: 'services',
-    name: 'Services'
-  }
-  ],
-  navType: "top"
-}
 
 //let SBL = viewa.get('Header')
 

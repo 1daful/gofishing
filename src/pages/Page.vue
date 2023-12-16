@@ -1,19 +1,25 @@
 <template>
-    <div v-for="(view, key) in layout">
-        <EView :view="view" :key="view.id"></EView>
-    </div>
-    <!--RouterView></RouterView>-->
+  <div v-for="(view, key) in layout">
+      <EView :view="view" :key="view.id"></EView>
+  </div>
+  <!--RouterView></RouterView>-->
 </template>
 
-<script setup lang="ts">
-import { View, isType, NavList, PageView } from '../utils/types';
-import { GlobalView } from "../../config/edifiles.config";
-import { useRoute } from "vue-router";
+<script lang="ts">
+import { ref, onBeforeMount } from 'vue';
+import { useRoute } from 'vue-router';
 import EView from "../components/EView.vue";
-import { onBeforeMount, ref } from 'vue';
 import { IDataView } from '../../model/IDataView';
+import { data } from '../../config/model';
+import { GlobalView } from '../../config/edifiles.config';
+import { View, isType, NavList, PageView } from '../utils/types';
+import { defineComponent } from "vue";
 
-const layout = {
+export default defineComponent({
+  data() {
+    const route = useRoute();
+
+    const layout = {
     top: new View({
         id: '',
         layout: 'Grid',
@@ -51,115 +57,74 @@ const layout = {
     })
 }
 
-let view: PageView = new PageView({
-    id: 'listView',
-    layout: 'Grid',
-    sections: [],
-})
+    const view: PageView = new PageView({
+      id: 'listView',
+      layout: 'Grid',
+      sections: [],
+    });
 
-const view2 = new PageView({
-    id: 'listView',
-    layout: 'Grid',
-    sections: [
-    {
-          //icon: "schedule",
-          img: "../../public/hero_sunset.jpeg",
-          overlay: "g",
-          meta: {
-            title: "The Black Skirt",
-            description: "This is about man's fallacy and illusion that leads to infactuation.",
-            created: "27-03-34",
-            author: "Wonders Ayanfe",
-          },
-          actions: [
-            {
-              name: "Create",
-              type: "Create",
-              label: "Create",
-              icon: "whatshot",
-              event: "Create",
-              onResult: [],
-              onError: []
-            },
-            {
-              name: "Read",
-              type: "Read",
-              label: "Read",
-              icon: "bluetooth",
-              event: "",
-              onResult: [],
-              onError: []
-            },
-          ],
-          setHeader: true,
-        }
-    ],
-})
+    const id: string | number = route.params.id as string;
+    const type: string = route.params.type as string;
+    const categories: string[] = route.params.categories as string[];
 
-let id: string | number
-let type: string
-let categories: string[]
+    
+    
 
-/*const processMenus = (view: View) => {
-    const filteredSections = view.sections.filter(section =>
-    isType(section, View) && section.navType !== 'center') as View[];
+    // Return reactive properties or methods here
+    return {
+      layout,
+      view,
+      id,
+      type,
+      categories,
+    };
+  },
+  components: {
+    EView
+  },
 
-    const extractlink = (section: View): NavLink => ({
-    path: section.id,
-    name: section.id,
-    params: {
-        type: useRoute().params.type,
-        categories: useRoute().params.categories
+  methods: {
+  processMenus (){
+        this.view?.sections.forEach(section => {
+            if(isType(section, View) || isType(section, NavList)) {
+                this.layout[section.navType].sections.push(section)
+            }
+            else {
+                this.layout.center.sections.push(section)
+            }
+        });
     },
-    query: {}
-    });
 
-    const top: NavLink[] = filteredSections
-    .filter(section => section.navType === 'top')
-    .map(extractlink);
-
-    const left: NavLink[] = filteredSections
-    .filter(section => section.navType === 'y-tab')
-    .map(extractlink);
-
-    return { top, left };
-};*/
-
-const processMenus = () => {
-    view.sections.forEach(section => {
-        if(isType(section, View) || isType(section, NavList)) {
-            layout[section.navType].sections.push(section)
+    async processView () {
+      if (this.type) {
+        const dataView: IDataView | undefined = GlobalView.mainLayout.children.find((child) => {
+         
+          return child.id === this.type;
+        });
+        if (!this.categories && !this.id) {
+          console.log('children ', GlobalView.mainLayout.children)
+          console.log('DataView ', dataView)
+          this.view = await dataView?.getListData(data);
+        } else if (this.categories && !this.id) {
+          this.view = await dataView?.getListData(this.categories);
+        } else if (this.id) {
+          this.view = await dataView?.getSingleData(this.id);
+        } else if (this.categories[0] === 'create') {
+          this.view = await dataView?.getCreateData();
         }
-        else {
-            layout.center.sections.push(section)
-        }
-    });
-}
-onBeforeMount(async () => {
-    id = useRoute().params.id as string
-    categories = useRoute().params.categories as string[]
-    type = useRoute().params.type as string
-    if(type) {
-        const data: IDataView | undefined = GlobalView.mainLayout.children.find((child) => {
-            return child.id === type
-        })
-        if(type && !categories && !id) {
-            view = data?.getListData()
-        }
-        else if(categories && !id) {
-            view = data?.getListData(categories)
-        }
-        else if(id){
-            view = data?.getSingleData(id)
-        }
-        
+      } else {
+        this.view = GlobalView.mainLayout.children.find((child) => {
+          return child.id === 'home';
+        }) as PageView;
+      }
+      console.log('WTF');
+      console.log('type', this.$route.params);
+      console.log('view', this.view);
     }
-    else {
-        view = GlobalView.mainLayout.children.find((child) => {
-            return child.id === 'home'
-        })
-    }
-    console.log('view', view)
-    processMenus()
-})
+  },
+  async beforeMount() {
+    await this.processView()
+    this.processMenus()
+  }
+});
 </script>

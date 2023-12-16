@@ -16,11 +16,10 @@
       </div>
     </div>
     <div class="q-gutter-xs">
-      <QBtn
+      <EAction
         v-for="action in data.actions"
-        :label="action.label"
-        @click="$emit(action.event.toString())"
-        :icon="action.icon"></QBtn>
+        actionName=""
+        :action="action"></EAction>
     </div>
   </q-list>
 </template>
@@ -28,11 +27,13 @@
 import { defineComponent } from "vue";
 import { DataType } from "../utils/types";
 import EDataItem from "./EDataItem.vue"
+import EAction from "./EAction.vue";
 
 export default defineComponent({
   name: "awlist",
   components: {
-    EDataItem
+    EDataItem,
+    EAction
   },
   props: {
     data: {
