@@ -82,7 +82,7 @@ const routes = [
                         path: ':categories*',
                         name: 'categories',
                         component: () => import('../pages/Page.vue'),
-                        props: (route) => ({ id: route.query.categories })
+                        props: (route) => ({ categories: route.query.categories })
                     },
                     {
                         path: ':categories*/:id(\\d+|\\w{8}-\\w{4}-\\w{4}-\\w{4}-\\w{12})',

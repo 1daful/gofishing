@@ -2,9 +2,17 @@ import gql from "graphql-tag";
 import { dbClient } from "../config/model";
 import { Action, DataType, FormType, QuestionType } from "../src/utils/types";
 import { Share } from "../service/shareSrv";
+import EUpload from "../src/components/EUpload.vue";
 export class Service {
     constructor() {
         this.id = 'services';
+        this.view = {
+            sections: [EUpload],
+            id: "videoView",
+            layout: "Grid",
+            size: "",
+            navType: "top"
+        };
     }
     async getCreateData() {
         const membersQuery = gql `{
@@ -36,7 +44,7 @@ export class Service {
         const form = new FormType('Service', 'Submit', [
             new QuestionType({
                 title: "Create new service",
-                index: 0,
+                index: 1,
                 actions: {},
                 content: [{
                         question: 'name',
@@ -46,8 +54,8 @@ export class Service {
                     }, {
                         question: 'schedule',
                         answer: '',
-                        name: '',
-                        inputType: 'date'
+                        name: 'schedule',
+                        inputType: 'schedule'
                     }, {
                         question: 'anchors',
                         answer: '',
@@ -108,7 +116,12 @@ export class Service {
                             action: new Action({
                                 label: 'open',
                                 event: 'Route',
-                                args: data.id,
+                                args: {
+                                    name: 'id',
+                                    params: {
+                                        id: data.id
+                                    }
+                                },
                                 onResult: [],
                                 onError: []
                             })
@@ -193,24 +206,31 @@ export class Service {
                         }
                     ],
                     footer: [
-                        new Action({
-                            icon: 'video',
-                            event: 'Modal',
-                            args: 'video',
-                            onResult: [],
-                            onError: []
-                        }),
-                        share.getShare(media),
-                        new Action({
-                            label: 'edit',
-                            icon: 'pencil',
-                            event: 'Route',
-                            args: {
-                                name: 'services',
-                            },
-                            onResult: [],
-                            onError: []
-                        }),
+                        {
+                            action: new Action({
+                                icon: 'video',
+                                label: 'Add video',
+                                event: 'Modal',
+                                args: this.view,
+                                onResult: [],
+                                onError: []
+                            }),
+                        },
+                        {
+                            action: share.getShare(media),
+                        },
+                        {
+                            action: new Action({
+                                label: 'edit',
+                                icon: 'pencil',
+                                event: 'Route',
+                                args: {
+                                    name: 'services',
+                                },
+                                onResult: [],
+                                onError: []
+                            })
+                        },
                         {
                             label: getStatus()
                         }

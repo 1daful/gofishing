@@ -1,5 +1,6 @@
 <template>
-  <div class="row jstify-start" v-if="view.navType === 'left' || view.navType === 'right'">
+  <div class="row jstify-start" 
+  v-if="view.navType === 'left' || view.navType === 'right'">
     <div class="col-3 header-link" v-show="view">
       <QList :bordered="style?.border" :dense="style?.dense" :dark="style?.dark">
         <EView :view="view"></EView>
@@ -8,14 +9,17 @@
     </div>
   </div>
 
-  <q-layout class="hero-header row" :style="heroStyle" style="min-height: 50px" v-else view="'lHh Lpr lFf'">
+  <q-layout class="hero-header row" :style="heroStyle" style="min-height: 50px" 
+  v-else view="'lHh Lpr lFf'">
     <q-header
       :class="{ 'fixed-nav': heroStyle?.fixedNav }"
       :style="{ backgroundColor: `${headerColor}` }"
     >
       <q-toolbar class="text-h5 text-weight-bolder justify-end">
         <q-item-label v-if="brand" class="logo"> {{ brand }}</q-item-label>
-        <EView :view="view"></EView>
+        <div  class="gt-sm">
+          <EView :view="view"></EView>
+        </div>
         <slot name="nav"></slot>
         <q-btn
           size="20px"
@@ -43,7 +47,7 @@
       side="left"
       :width="200"
       bordered
-      class="bg-grey-2 q-pa-sm"
+      class="bg-grey-2 q-pa-sm lt-md"
       :breakpoint="500"
     >
       <q-list padding>

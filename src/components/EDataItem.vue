@@ -19,12 +19,6 @@
                 <QItemLabel> {{ v.label }} </QItemLabel>
             </div>
             <div class="col-lg q-pa-xs" v-if="v?.action">
-                <QBtn @click="router.push({
-                    name: 'id',
-                    params: {
-                        id: v.action.args
-                    }
-                })">{{ v.action.label }}</QBtn>
                 <EAction :action-name="v.action.event" :action="v.action"></EAction>
             </div>
         </template>

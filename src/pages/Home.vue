@@ -16,7 +16,6 @@
     :query="query"
     :data="filterData">
   </EView>
-  <ENav navType="top" :menuList="tabs"></ENav>
 </template>
 
 <script setup lang="ts">

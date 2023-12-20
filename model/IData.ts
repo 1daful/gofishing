@@ -1,7 +1,7 @@
 export interface IData {
-    create()
-    readSingle(id: string)
-    readList()
-    update()
-    delete()
+    create(query?: any)
+    readSingle(query?: any)
+    readList(query?: any)
+    update(query?: any)
+    delete(query?: any)
 }

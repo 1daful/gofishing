@@ -41,19 +41,35 @@ export class Attendance implements IData, IDataView{
         if (newFace) {
             const storage = new EdiStorage()
             storage.post('member', '/member', blob)
-            const client = new SDKClient(storage)
-            client.post('newFace', blob)
+            //const client = new SDKClient(storage)
+            //client.post('newFace', blob)
             newFace.forEach(face => {
                 dbClient.post('member', face)
                 dbClient.post('attendance', face)
             });
+
+            useRouter().push({
+                name: 'type',
+                params: {
+                    type: 'members' 
+                }
+            })
         }
 
         if(existingFace) {
+            const query =`{
+                member(id: ${existingFace})
+            }`
             existingFace.forEach(face => {
                 dbClient.post('attendance', face)
             });
-            useRouter().push('/member/add')
+            useRouter().push({
+                name: 'type',
+                params: {
+                    type: 'members',
+                    filters: query
+                }
+            })
         }
     }
     

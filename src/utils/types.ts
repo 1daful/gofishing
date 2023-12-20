@@ -277,7 +277,7 @@ export class QuestionType {
         index: number,
         content?: {
             question: string,
-            inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date',
+            inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule',
             options?: any[],
             component?: Component,
             answer: any,
@@ -317,7 +317,7 @@ export class QuestionType {
     index: number;
     content?: {
         question: string;
-        inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date';
+        inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule';
         component?: Component;
         answer: any;
         options?: any[];

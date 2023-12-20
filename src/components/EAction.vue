@@ -7,7 +7,7 @@
   :aria-label="action.style?.ariaLabel"></QBtn-->
 
   <QBtn v-if="event" :label="action.label" @click="event()"></QBtn>
-  <QBtn :label="actionName" class="lt-md" v-else-if="component">
+  <QBtn :label="action.label" v-else-if="component">
     <QPopupProxy cover>
       <EView :view="component" v-bind="$attrs"></EView>
       <!--<component :is="g" v-bind="$attrs" v-else></component>-->
@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, ref } from "vue";
 import { Action, VComponent, View } from "../utils/types";
 import { useRouter } from "vue-router";
 import EView from "./EView.vue";
@@ -66,7 +66,7 @@ const AwDialog = defineAsyncComponent(
   return components;
 };*/
 const router = useRouter()
-onMounted(() => {
+onBeforeMount(() => {
   if (props.action) {
     switch (props.action.event) {
       case 'Route':

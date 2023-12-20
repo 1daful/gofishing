@@ -1,7 +1,9 @@
 import gql from "graphql-tag";
 import { dbClient } from "../config/model";
-import { Action, DataType, FormType, PageView, QuestionType } from "../src/utils/types";
+import { Action, DataType, FormType, PageView, QuestionType, View } from "../src/utils/types";
 import { Share } from "../service/shareSrv";
+import EUpload from "../src/components/EUpload.vue";
+import { DocumentNode } from "graphql";
 
 export class Service {
     /*id: string
@@ -14,6 +16,13 @@ export class Service {
     timeElapse: number
     date: DateLocale*/
     id: string = 'services'
+    view: View = {
+        sections: [EUpload],
+        id: "videoView",
+        layout: "Grid",
+        size: "",
+        navType: "top"
+    }
     async getCreateData() {
         const membersQuery = gql `{
             member {
@@ -47,7 +56,7 @@ export class Service {
         const form: FormType = new FormType('Service', 'Submit', [
             new QuestionType({
                 title: "Create new service",
-                index: 0,
+                index: 1,
                 actions: {},
                 content: [{
                     question: 'name',
@@ -57,8 +66,8 @@ export class Service {
                 },{
                     question: 'schedule',
                     answer: '',
-                    name: '',
-                    inputType: 'date'
+                    name: 'schedule',
+                    inputType: 'schedule'
                 },{
                     question: 'anchors',
                     answer: '',
@@ -81,7 +90,7 @@ export class Service {
         return view
     }
 
-    async getListData(dataArg?: any) {
+    async getListData(filters?: DocumentNode, dataArg?: any) {
         //const query = gql `service (id: ${id})`
         let dataType: DataType = {
             items: {
@@ -97,7 +106,12 @@ export class Service {
             data = dataArg
         }
         else {
-            data = await dbClient.get('service')
+            if (filters) {
+                data = await dbClient.get('', filters)
+            }
+            else {
+                data = await dbClient.get('service')
+            }
         }
         if (data) { 
             dataType = new DataType({
@@ -120,7 +134,12 @@ export class Service {
                             action: new Action({
                                 label: 'open',
                                 event: 'Route',
-                                args: data.id,
+                                args: {
+                                    name: 'id',
+                                    params: {
+                                        id: data.id
+                                    }
+                                },
                                 onResult: [],
                                 onError: []
                             })
@@ -147,7 +166,7 @@ export class Service {
         return view
     }
 
-    async getSingleData(id: string, argData?: any) {
+    async getSingleData(id?: string, filters?: DocumentNode, argData?: any) {
         const share = new Share()
         let dataType: DataType = {
             items: {
@@ -165,7 +184,13 @@ export class Service {
             data = argData
         }
         else {
-            const query = gql `{service (id: ${id})}`
+            let query
+            if(id) {
+                query = gql `{service (id: ${id})}`
+            }
+            else if (filters) {
+                query = filters
+            }
             data = await dbClient.get('', query)
         }
         let media = {
@@ -208,24 +233,34 @@ export class Service {
                         }
                     ],
                     footer: [
-                        new Action({
-                            icon: 'video',
-                            event: 'Modal',
-                            args: 'video',
-                            onResult: [],
-                            onError: []
-                        }),
-                        share.getShare(media),
-                        new Action({
-                            label: 'edit',
-                            icon: 'pencil',
-                            event: 'Route',
-                            args: {
-                                name: 'services',
-                            },
-                            onResult: [],
-                            onError: []
-                        }),
+                        {
+                            action: 
+                            new Action({
+                                icon: 'video',
+                                label: 'Add video',
+                                event: 'Modal',
+                                args: this.view,
+                                onResult: [],
+                                onError: []
+                            }),
+                        },
+                        {
+                            action: 
+                            share.getShare(media),
+                        },
+                        {
+                            action: 
+                            new Action({
+                                label: 'edit',
+                                icon: 'pencil',
+                                event: 'Route',
+                                args: {
+                                    name: 'services',
+                                },
+                                onResult: [],
+                                onError: []
+                            })
+                        },
                         {
                             label: getStatus()
                         }

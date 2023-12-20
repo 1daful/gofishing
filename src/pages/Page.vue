@@ -17,6 +17,7 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   data() {
+    let dataView: IDataView | PageView | undefined
     const route = useRoute();
 
     const layout = {
@@ -66,17 +67,18 @@ export default defineComponent({
     const id: string | number = route.params.id as string;
     const type: string = route.params.type as string;
     const categories: string[] = route.params.categories as string[];
-
-    
+    const filters = route.params.filters    
     
 
     // Return reactive properties or methods here
     return {
+      dataView,
       layout,
       view,
       id,
       type,
       categories,
+      filters
     };
   },
   components: {
@@ -97,21 +99,21 @@ export default defineComponent({
 
     async processView () {
       if (this.type) {
-        const dataView: IDataView | undefined = GlobalView.mainLayout.children.find((child) => {
+        this.dataView = GlobalView.mainLayout.children.find((child) => {
          
           return child.id === this.type;
         });
         if (!this.categories && !this.id) {
-          console.log('children ', GlobalView.mainLayout.children)
-          console.log('DataView ', dataView)
-          this.view = await dataView?.getListData(data);
+          this.view = await this.dataView?.getListData(this.filters, data);
         } else if (this.categories && !this.id) {
-          this.view = await dataView?.getListData(this.categories);
+          if (this.categories[0] === 'create') {
+            this.view = await this.dataView?.getCreateData(this.filters);
+          }
+          else 
+          this.view = await this.dataView?.getListData(this.filters);
         } else if (this.id) {
-          this.view = await dataView?.getSingleData(this.id);
-        } else if (this.categories[0] === 'create') {
-          this.view = await dataView?.getCreateData();
-        }
+          this.view = await this.dataView?.getSingleData(this.id, data);
+        } 
       } else {
         this.view = GlobalView.mainLayout.children.find((child) => {
           return child.id === 'home';
@@ -120,11 +122,14 @@ export default defineComponent({
       console.log('WTF');
       console.log('type', this.$route.params);
       console.log('view', this.view);
+    },
+    async processData() {
+      await this.processView()
+      this.processMenus()
     }
   },
-  async beforeMount() {
-    await this.processView()
-    this.processMenus()
+  mounted() {
+    this.processData()
   }
 });
 </script>

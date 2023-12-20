@@ -24,7 +24,7 @@
     <template v-for="data in menuList.content" :key="data.path">
       <!--QAvatar :icon="data.icon" v-if="data.icon"></QAvatar-->
       <RouterLink
-        class="q-ma-sm header-link gt-sm"
+        class="q-ma-sm header-link"
         :to="{
           path: data.path,
         }">

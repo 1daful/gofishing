@@ -149,7 +149,7 @@ const processData = async () => {
     processMenus();
 }
 
-onBeforeMount(async () => {
+onBeforeMount(() => {
     processData()
 })
 

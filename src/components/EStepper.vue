@@ -1,9 +1,11 @@
 <template>
   <div class="q-pa-md">
-    <q-stepper v-model="step" ref="stepper" color="primary" animated>
+    <q-stepper v-model="step" 
+    ref="stepper" 
+    color="primary" animated>
       <q-step
         v-for="section in form.content"
-        :name="section.index"
+        :name="1"
         :title="section.title"
         :icon="section.icon"
         :caption="section.description"
@@ -38,19 +40,37 @@
               </q-item>
               <q-item v-if="scope.opt.group"
                   v-bind="scope.itemProps"
-              >              
-                <q-item-label header>{{ scope.opt.group }}</q-item-label>
+              >
+              <q-item-label header>{{ scope.opt.group }}</q-item-label>
               </q-item>
             </template>
+
+
+
+            <template v-slot:after-options>
+              <p v-if="dialogue.options.group"> Hey</p>
+            </template>
+
           </QSelect>
-          
-          <QInput
-            :type="dialogue.inputType"
-            v-model="dialogue.answer"
-            outlined
-            v-else-if="dialogue.inputType"
-            :ref="dialogue.name"
-          ></QInput>
+
+          <template 
+            v-else-if="dialogue.inputType">
+            <QInput
+              type="date"
+              v-model="dialogue.answer"
+              outlined
+              :ref="dialogue.name"
+              v-if="dialogue.inputType === 'schedule'"
+              @update:model-value="schedule"
+            ></QInput>
+            <QInput
+              :type="dialogue.inputType"
+              v-model="dialogue.answer"
+              outlined
+              :ref="dialogue.name"
+              v-else
+            ></QInput>
+          </template>
         </div>
       </q-step>
 
@@ -75,7 +95,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Repository } from "@edifiles/services";
+import { Repository, RestClient } from "@edifiles/services";
 import { FormType } from "../utils/types";
 import { config } from "../../public/config";
 
@@ -119,6 +139,11 @@ export default defineComponent({
     },
   },
   methods: {
+    schedule(value: string) {
+      //const client = new RestClient(config.api.Auth)
+      //client.post('schedule', new Date(value))
+      console.log("Schedule: ", value)
+    },
     submit() {
       const { data, error } = this.form.actions.submit.event(...this.form.actions.submit.args);
       if (data) {

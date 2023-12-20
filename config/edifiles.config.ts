@@ -1,12 +1,11 @@
-import { Repository, Recommender, EAuth, Mailer } from '@edifiles/services';
+import { EAuth, Mailer } from '@edifiles/services';
 import { View, Action, FormType, PageView, QuestionType } from "../src/utils/types";
 import Search from "../src/components/ESearch.vue";
 import { menus } from "./menus";
 import Home from "../src/pages/Home.vue";
 import { config } from "../public/config";
-import { firstTimer, data } from "./model";
+import { firstTimer } from "./model";
 import { Service } from "../model/Service";
-import { useRoute } from "vue-router";
 
 /*const postQuery = `
   query GetPost($postId: ID!) {
