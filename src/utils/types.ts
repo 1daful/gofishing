@@ -118,11 +118,11 @@ export type DataContent = {
 }
 
 export type DataItem = {
-    header?: DataContent[],
-    center?: DataContent[],
-    footer?: DataContent[],
-    left?: DataContent[],
-    right?: DataContent[]
+    header?: DataContent[] | (DataItem | DataType)[],
+    center?: DataContent[] | (DataItem | DataType)[],
+    footer?: DataContent[] | (DataItem | DataType)[],
+    left?: DataContent[] | (DataItem | DataType)[],
+    right?: DataContent[] | (DataItem | DataType)[],
 }
 
 export type CardStyle = {
@@ -139,6 +139,7 @@ export class DataType {
         Object.assign(this, data)
         
     }
+    [x: string]: any;
     id?: any;
     overlay?: string;
     items!: DataItem
@@ -147,7 +148,8 @@ export class DataType {
     class?: string
     actions?: Action[]
     card?: boolean = true
-    actionOverlay?: Function | string //the main action when the whole card is clicked
+    actionOverlay?: Function | ActionString //the main action when the whole card is clicked
+    computeAction?: Function 
 }
 
 export type ActionStyle = {
@@ -325,7 +327,7 @@ export class QuestionType {
         name: string;
         image?: string;
         icon?: string,
-        rules?: any
+        rules?: any,
     }[];
     icon?: string;
     description?: string;
@@ -535,3 +537,33 @@ export type Client = {
     name: string,
     auth: any
 }
+
+
+const dataType: DataType = new DataType({
+    items: {
+        header: [
+            {
+                label: session.name
+            },
+            {
+                label: session.author.name
+            },
+            {
+                label: timeRemaining
+            }
+        ],
+        center: [
+            {
+                label: session.content
+            }
+        ],
+        footer: [
+            {
+            }
+        ],
+    },
+    computeAction: ()=> {
+        this.item
+        setInterval(this.calculateTime, 1000);
+    }
+})

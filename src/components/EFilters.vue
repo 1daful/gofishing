@@ -1,7 +1,7 @@
 <template>
   <QCard>
     <QCardSection>
-      <!--<QSelect :options="data.options" v-model="select" v-if="data.options"></QSelect>-->
+      <QSelect :options="data.options" v-model="select" v-if="data.options"></QSelect>
       <div v-for="(range, i) in filt.rangeList" :key="i" ref="rangeRef">
         {{ range.title }}
         <QInput ref="from" label="From" v-model="min[i]"></QInput>
@@ -63,6 +63,7 @@ const filter = () => {
   const filters: Filter = {
     check,
     range,
+    custom: []
   };
   const search = new Search();
   console.log("filters ", filters);

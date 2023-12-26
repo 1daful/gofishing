@@ -45,12 +45,6 @@
               </q-item>
             </template>
 
-
-
-            <template v-slot:after-options>
-              <p v-if="dialogue.options.group"> Hey</p>
-            </template>
-
           </QSelect>
 
           <template 
@@ -76,6 +70,7 @@
 
       <template v-slot:navigation>
         <q-stepper-navigation>
+          <EAction :action="action" v-for="(action, k) in form.content[step].actions" :key="k"></EAction>
           <q-btn
             @click="step === form.content.length ? submit() : $refs.stepper.next()"
             color="primary"
@@ -95,14 +90,18 @@
   </div>
 </template>
 <script lang="ts">
-import { Repository, RestClient } from "@edifiles/services";
+import { Repository } from "@edifiles/services";
 import { FormType } from "../utils/types";
 import { config } from "../../public/config";
+import EAction from "./EAction.vue";
 
 import { defineComponent } from "vue";
 const repository = new Repository(config.api.Supabase);
 
 export default defineComponent({
+  component: {
+    EAction
+  },
   data() {
     return {
       step: 1,
@@ -120,7 +119,6 @@ export default defineComponent({
       required: true,
     },
     dynamicComponent: {
-      required: false,
       type: String,
     },
   },
@@ -133,9 +131,7 @@ export default defineComponent({
           [ref]: ref,
         });
       });
-
-
-      return;
+      return form;
     },
   },
   methods: {

@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
-import { DataType, QuestionType, View } from "../src/utils/types";
+import { Action, DataType, Filters, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient } from "../config/model";
 
-export class Message implements IDataView {
+export class Announcement implements IDataView {
     async getCreateData() {
         const membersQuery = gql `member {
             firstName
@@ -24,6 +24,36 @@ export class Message implements IDataView {
             groups: groupOptions,
             members: memberOptions,
         }
+
+        const groupFilters: Filters = {
+            index: "",
+            rangeList: [{
+                title: ''
+            }],
+            checks: [
+                {
+                    attribute: '',
+                    values: groupOptions.filter((group)=>{
+                        return {label: group.name.firstName}
+                    })
+                }
+            ]
+        }
+        const memberFilters: Filters = {
+            index: "",
+            rangeList: [{
+                title: ''
+            }],
+            checks: [
+                {
+                    attribute: 'Members',
+                    values: memberOptions.filter((member)=>{
+                        return {label: member.firstName + ' ' + member.lastName}
+                    })
+                }
+            ]
+        }
+
         const form: QuestionType = {
             title: "",
             index: 0,
@@ -62,6 +92,29 @@ export class Message implements IDataView {
                     answer: '',
                     inputType: 'textarea',
                     name: 'content'
+                },
+                {
+                    question: 'send',
+                    answer: '',
+                    options: [
+                        'All',
+                        new Action({
+                            label: 'Groups',
+                            event: 'Modal',
+                            args: groupFilters,
+                            onResult: [],
+                            onError: []
+                        }),
+                        'First timers',
+                        new Action({
+                            label: 'Select contacts',
+                            event: 'Modal',
+                            args: memberFilters,
+                            onResult: [],
+                            onError: []
+                        }),
+                    ],
+                    name: 'sendOption'
                 }
             ]
         }

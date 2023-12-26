@@ -9,7 +9,7 @@
 	</component>
 </template>
 
-<script setup>
+<script setup lang="ts">
 defineProps({
 	file: { type: Object, required: true },
 	tag: { type: String, default: 'div' },

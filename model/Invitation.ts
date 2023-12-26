@@ -1,9 +1,9 @@
 import gql from "graphql-tag";
-import { DataType, QuestionType, View } from "../src/utils/types";
+import { Action, DataType, Filters, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient } from "../config/model";
 
-export class Message implements IDataView {
+export class Invitation implements IDataView {
     async getCreateData() {
         const membersQuery = gql `member {
             firstName
@@ -16,14 +16,39 @@ export class Message implements IDataView {
             members
             admins
         }`
+
+        const eventQuery = gql `event {
+            name
+            startAt
+            status
+        }`
         
         const memberOptions = await dbClient.get('', membersQuery)
         const groupOptions = await dbClient.get('', groupsQuery)
+        const eventOptions = await dbClient.get('', eventQuery)
 
-        const options = {
+        const senderOptions = {
             groups: groupOptions,
             members: memberOptions,
         }
+
+        const groupFilters: Filters = {
+            index: "",
+            rangeList: [{
+                title: ''
+            }],
+            checks: [
+                {
+                    attribute: '',
+                    values: groupOptions.filter((group)=>{
+                        return {label: group.name.firstName}
+                    })
+                }
+            ]
+        }
+
+        const contactView
+
         const form: QuestionType = {
             title: "",
             index: 0,
@@ -38,13 +63,13 @@ export class Message implements IDataView {
                 {
                     question: 'sender',
                     answer: '',
-                    options: options,
+                    options: senderOptions,
                     name: 'senderId'
                 },
                 {
                     question: 'recipients',
                     answer: '',
-                    options: options,
+                    options: senderOptions,
                     name: 'recipientIds'
                 },
                 {
@@ -62,6 +87,35 @@ export class Message implements IDataView {
                     answer: '',
                     inputType: 'textarea',
                     name: 'content'
+                },
+                {
+                    question: 'send',
+                    answer: '',
+                    options: [
+                        'All',
+                        new Action({
+                            label: 'Groups',
+                            event: 'Modal',
+                            args: groupFilters,
+                            onResult: [],
+                            onError: []
+                        }),
+                        'First timers',
+                        new Action({
+                            label: 'Import Contacts',
+                            event: 'Modal',
+                            args: contactView,
+                            onResult: [],
+                            onError: []
+                        })
+                    ],
+                    name: 'sendOption'
+                },
+                {
+                    question: 'event',
+                    answer: '',
+                    options: eventOptions,
+                    name: 'event'
                 }
             ]
         }

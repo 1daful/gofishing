@@ -6,10 +6,11 @@ import { config } from "../public/config";
 import { useRouter } from "vue-router";
 import { Series } from "../src/utils/DataTypes";
 import gql from "graphql-tag";
+import { Action, Filters, FormType, PageView, QuestionType } from "../src/utils/types";
 
-export class Attendance implements IData, IDataView{
+export class Attendance implements IDataView{
     client = new RestClient(config)
-    async create() {
+    async captureFaces() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
         video.srcObject = mediaStream;
@@ -136,7 +137,7 @@ export class Attendance implements IData, IDataView{
     readSingle(id: string) {
     }
 
-    async readList(userId: string) {
+    async getAnalytics(userId: string) {
         const series: Series = [{
             type: "area",
             data: [{
@@ -154,27 +155,76 @@ export class Attendance implements IData, IDataView{
                 y: 0
             }
 
-            data.x = attendance.joined - attendance.event.time_started
-            data.y = new Date().getTime()
+            data.x = attendance.event.startAt
+            data.y = attendance.timeliness
             series[0].data.push(data)
         });
 
-    }
+        const dateOptions: QuestionType = {
+            title: "",
+            index: 0,
+            actions: {},
+            content: [
+                {
+                    question: '',
+                    name: '',
+                    answer: '',
+                    inputType: 'date'
+                }
+            ]
+        }
 
-    read() {
-        throw new Error("Method not implemented.");
-    }
+        const average: Filters = {
+            index: "",
+            rangeList: [],
+            checks: [
+                {
+                    attribute: '',
+                    values: [
+                        {
+                            label: 'Show Church Average'
+                        }
+                    ],
+                }
+            ]
+        }
 
-    update() {
-        throw new Error("Method not implemented.");
-    }
-
-    delete() {
-        throw new Error("Method not implemented.");
+        const view: PageView = {
+            id: "",
+            layout: "Grid",
+            sections: [
+                dateOptions,
+                average,
+                series
+            ],
+            children: []
+        }
     }
 
     getCreateData(data?: any) {
-        throw new Error("Method not implemented.");
+        const form: FormType = new FormType('', 'Submit', [
+            {
+                index: 1,
+                title: '',
+                actions: {
+                    upload: new Action({
+                        event: this.captureFaces,
+                        label: 'capture faces',
+                        args: undefined,
+                        onResult: [],
+                        onError: []
+                    })
+                }
+            }
+        ])
+
+        const view: PageView = new PageView({
+            id: "",
+            layout: "Grid",
+            sections: [form],
+            children: []
+        })
+
     }
 
     getListData(query?: any) {

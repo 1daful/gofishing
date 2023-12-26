@@ -3,7 +3,7 @@ import { DataType, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient } from "../config/model";
 
-export class Message implements IDataView {
+export class ReachOut implements IDataView {
     async getCreateData() {
         const membersQuery = gql `member {
             firstName
@@ -62,6 +62,15 @@ export class Message implements IDataView {
                     answer: '',
                     inputType: 'textarea',
                     name: 'content'
+                },
+                {
+                    question: 'send',
+                    answer: '',
+                    options: [
+                        'Attendance',
+                        'Schedule'
+                    ],
+                    name: 'sendOption'
                 }
             ]
         }
