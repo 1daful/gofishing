@@ -69,9 +69,9 @@ export class Share {
     getShare(media) {
         const action = new Action({
             event: 'Modal',
-            args: [this.getCreateData(media)],
-            onResult: [],
-            onError: []
+            icon: 'share',
+            label: 'share',
+            args: this.getCreateData(media),
         });
         return action;
     }

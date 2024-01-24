@@ -1,26 +1,23 @@
 import gql from "graphql-tag";
-import { DataType, PageView, QuestionType, View } from "../src/utils/types";
-import { IDataView } from "./IDataView";
+import { DataType } from "../src/utils/types";
 import { dbClient } from "../config/model";
-
-export class Message implements IDataView {
-    id: string = "message"
+export class Message {
+    constructor() {
+        this.id = "message";
+    }
     async getCreateData() {
         const membersQuery = gql `member {
             firstName
             lastName
             avatar
-        }`
-
+        }`;
         const groupsQuery = gql `group {
             name
             members
             admins
-        }`
-        
-        const members = await dbClient.get('', membersQuery)
-        const groups = await dbClient.get('', groupsQuery)
-
+        }`;
+        const members = await dbClient.get('', membersQuery);
+        const groups = await dbClient.get('', groupsQuery);
         const options = [
             {
                 label: 'groups',
@@ -28,7 +25,7 @@ export class Message implements IDataView {
                     return {
                         label: group.name,
                         id: group.id
-                    }
+                    };
                 }),
             },
             {
@@ -37,11 +34,11 @@ export class Message implements IDataView {
                     return {
                         label: member.name,
                         id: member.id
-                    }
-                }),          
+                    };
+                }),
             }
-        ]
-        const form: QuestionType = {
+        ];
+        const form = {
             title: "",
             index: 0,
             actions: {},
@@ -81,30 +78,29 @@ export class Message implements IDataView {
                     name: 'content'
                 }
             ]
-        }
-
-        const view: PageView = {
+        };
+        const view = {
             sections: [form],
             id: "",
             layout: "Grid",
             children: []
-        }
-        return view
+        };
+        return view;
     }
-    async getListData(senderUserId?: string, senderGroupId?: string, ...recipientIds: string[]) {
-        let query
+    async getListData(senderUserId, senderGroupId, ...recipientIds) {
+        let query;
         if (senderUserId) {
-            query = gql`message (sender_user_id: ${senderUserId})`
+            query = gql `message (sender_user_id: ${senderUserId})`;
         }
         else if (senderGroupId) {
-            query = gql`message (sender_group_id: ${senderGroupId})`
+            query = gql `message (sender_group_id: ${senderGroupId})`;
         }
         if (recipientIds) {
-            query = gql`message (recipient_ids: ${recipientIds})`
+            query = gql `message (recipient_ids: ${recipientIds})`;
         }
-        const data = await dbClient.get('', query)
-        const dataType: DataType = new DataType({
-            actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+        const data = await dbClient.get('', query);
+        const dataType = new DataType({
+            actionOverlay: data.actionPoint,
             items: {
                 header: [
                     {
@@ -125,14 +121,13 @@ export class Message implements IDataView {
                     }
                 ]
             }
-        })
-        const view: PageView = {
+        });
+        const view = {
             sections: [dataType],
             id: "",
             layout: "Grid",
             children: []
-        }
-        return view
+        };
+        return view;
     }
-    
 }

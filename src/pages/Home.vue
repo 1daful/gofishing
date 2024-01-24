@@ -19,11 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeMount, shallowRef } from "vue";
+import { onBeforeMount, shallowRef } from "vue";
 import EView from "../components/EView.vue";
-import ENav from "../components/ENav.vue";
 import { DataType, Filters, View, NavList } from "../utils/types";
-import { Utility } from '@edifiles/services';
 import Buton from "../components/Buton.vue";
 //import { mount } from "mount-vue-component";
 
@@ -86,18 +84,14 @@ const data: DataType = {
       type: "Create",
       label: "Create",
       icon: "whatshot",
-      event: "Create",
-      onResult: [],
-      onError: []
+      event: 'Route',
     },
     {
       name: "Read",
       type: "Read",
       label: "Read",
       icon: "bluetooth",
-      event: "",
-      onResult: [],
-      onError: []
+      event: 'Route',
     },
   ],
   setHeader: true,
@@ -110,14 +104,14 @@ const data: DataType = {
     },
   ],
 };*/
-const view = new View({
+const view = shallowRef(new View({
   heading: 'Welcome',
   id: 'home',
   layout: "Grid",
   navType: 'center',
   size: 'col-8',
   sections: [data],
-});
+}));
 
 const navList: NavList = new NavList({
   id: "first",

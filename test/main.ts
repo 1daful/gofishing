@@ -331,3 +331,61 @@ export function get2<T>(Type: new (data: any) => T, params?: string, value?: str
       @decoFunc2() avatar: number
       @decoFunc2() firstName: string
     }*/
+
+import { SupabaseRepo } from "@edifiles/services";
+import { config } from "../public/config";
+import { QueryType } from "@edifiles/services";
+import { foreignColumns, filter } from "@edifiles/services/dist/module/utility/Query";
+import { HorizontalPosition } from "../src/utils/DataTypes";
+import { Action, DataItem } from "../src/utils/types";
+import { content } from "../src/utils/DataView";
+
+const repo = new SupabaseRepo(config.api.Supabase)
+const q: QueryType = {
+  name: "User",
+  data: undefined,
+  filter: [
+    filter('lt', 'age', 20),
+    {
+      op: 'lt',
+      args: [
+        'age',
+        20
+      ]
+    }
+  ],
+  columns: [
+    'title',
+    foreignColumns('user', ['name', 'age']),
+  ]
+}
+
+function header(target: any, key: any) {
+  const item: DataItem = {
+    header: []
+}
+
+  item.header?.push({
+    key: key,
+    prop: 'label'
+  })
+
+  target["items"] = item;
+}
+
+class Person{
+  constructor(name: string, age: number) {
+    
+    this.age = age
+    this.name = name
+  }
+  @header name: string
+  age: number
+  items!: any
+}
+
+let paul = new Person('Paul', 20)
+console.log("First person ", paul)
+
+let peter = new Person('Peter', 23)
+console.log("Second person ", peter)

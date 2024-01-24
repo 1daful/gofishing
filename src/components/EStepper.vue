@@ -82,10 +82,8 @@ export default defineComponent({
         })
       })
       const { data, error } = this.form.actions.submit.event(...this.form.actions.submit.args);
-      if (data) {
-        this.form.actions.submit.onResult.forEach(func => {
-          func()
-        });
+      if (data && this.form.actions.submit.onResult) {
+        this.form.actions.submit.onResult();
       }
     }
   },

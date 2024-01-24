@@ -11,12 +11,7 @@
             <EDataItem v-for="item in data" :dataItem="item"></EDataItem>
           </div>
         <QCardActions>
-          <QBtn
-            v-for="action in data.actions"
-            :label="action.label"
-            @click="$emit(action.event.toString())"
-            :icon="action.icon"
-          ></QBtn>
+          <EAction :action="action" v-for="action in data.actions"></EAction>
         </QCardActions>
       </QCardSection>
     </template>

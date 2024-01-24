@@ -56,13 +56,14 @@ export function isActionString(value: any): value is ActionString {
     return value === 'submit' || value === 'filter'
 }
 
-export type Filters = {
-    index: string,
-    options?: [],
-    rangeList: {
-        title: string
-    }[],
-    checks: {
+export class Filters{
+    constructor(filters: Filters) {
+        Object.assign(this, filters)
+    }
+    indexName!: string
+    options?: []
+    rangeList?: []
+    checks?: {
         attribute: string,
         values: {
             label: string,
@@ -306,15 +307,24 @@ export class Table {}
 
 export class Form {}
 
+export type InputType = 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule'
+export type OptionsType = ({
+    id?: string | number,
+    label: string,
+    inputType?: InputType,
+    children?: OptionsType,
+    params?: any
+} | string)[]
+
 export class QuestionType {
     constructor(data: {
         title: string,
         index: number,
-        compute: Function,
+        compute?: Function,
         content?: {
             question: string,
-            inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule',
-            options?: any[],
+            inputType?: InputType
+            options?: OptionsType
             component?: Component,
             answer: any,
             action?: Action,
@@ -357,7 +367,7 @@ export class QuestionType {
         inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule';
         component?: Component;
         answer: any;
-        options?: any[];
+        options?: OptionsType;
         action?: Action;
         name: string;
         image?: string;

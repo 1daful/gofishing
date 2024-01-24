@@ -1,36 +1,32 @@
 import gql from "graphql-tag";
-import { Action, DataType, Filters, PageView, QuestionType, View } from "../src/utils/types";
-import { IDataView } from "./IDataView";
+import { Action, DataType, PageView } from "../src/utils/types";
 import { dbClient } from "../config/model";
 import { useUser } from "../src/utils/useUser";
 import EFileParse from "../src/components/EFileParse.vue";
-import { EmailType, Mailer } from "@edifiles/services";
-
-export class Invitation implements IDataView {
-    id = "Invitation"
-    async getCreateData(userId: string) {
+import { Mailer } from "@edifiles/services";
+export class Invitation {
+    constructor() {
+        this.id = "Invitation";
+    }
+    async getCreateData(userId) {
         const membersQuery = gql `member {
             firstName
             lastName
             avatar
-        }`
-
+        }`;
         const groupsQuery = gql `group {
             name
             members
             admins
-        }`
-
+        }`;
         const eventQuery = gql `event {
             name
             startAt
             status
-        }`
-        
-        const members = await dbClient.get(membersQuery)
-        const groups = await dbClient.get(groupsQuery)
-        const events = await dbClient.get(eventQuery)
-
+        }`;
+        const members = await dbClient.get(membersQuery);
+        const groups = await dbClient.get(groupsQuery);
+        const events = await dbClient.get(eventQuery);
         const senderOptions = [
             {
                 label: 'groups',
@@ -38,7 +34,7 @@ export class Invitation implements IDataView {
                     return {
                         label: group.name,
                         id: group.id
-                    }
+                    };
                 }),
             },
             {
@@ -47,43 +43,28 @@ export class Invitation implements IDataView {
                     return {
                         label: member.name,
                         id: member.id
-                    }
-                }),          
-            }]
-
-        /*const groupFilters: Filters = {
-            index: "",
-            rangeList: [{
-                title: ''
-            }],
-            checks: [
-                {
-                    attribute: '',
-                    values: groupOptions.filter((group)=>{
-                        return {label: group.name}
-                    })
-                }
-            ]
-        }*/
-
-        const contactView: View = {
+                    };
+                }),
+            }
+        ];
+        const contactView = {
             sections: [{
-                VComponent: EFileParse,
-                props: useUser
-            }],
+                    VComponent: EFileParse,
+                    props: useUser
+                }],
             id: "",
             layout: "Grid",
             size: "",
             navType: "top"
-        }
-        const form: QuestionType = {
+        };
+        const form = {
             title: "",
             index: 0,
             actions: {
                 submit: new Action({
                     label: 'send now',
-                    event(filledForm: any) {
-                        const email: EmailType = {
+                    event(filledForm) {
+                        const email = {
                             name: filledForm.title,
                             subject: "",
                             text: "",
@@ -95,8 +76,7 @@ export class Invitation implements IDataView {
                             messenger: filledForm.messenger,
                             body: filledForm.content,
                             date: new Date()
-                        }
-
+                        };
                         const invitation = {
                             id: `${userId}${new Date()}`,
                             eventId: filledForm.event.id,
@@ -104,31 +84,29 @@ export class Invitation implements IDataView {
                             sender: filledForm.sender,
                             schedule: filledForm.schedule,
                             createdAt: filledForm.createdAt
-                        }
-
+                        };
                         const invitees = useUser().users.map(user => {
-                            const obj = user
-                            obj.invitationId = invitation.id
-                            return obj
-                        })
-                        new Mailer().sendEmail(email)
-
-                        const invitationQuery = gql`{
+                            const obj = user;
+                            obj.invitationId = invitation.id;
+                            return obj;
+                        });
+                        new Mailer().sendEmail(email);
+                        const invitationQuery = gql `{
                             invitation(${invitation})
                         }
-                        `
-                        const inviteesQuery = gql`{
+                        `;
+                        const inviteesQuery = gql `{
                             invitation(${invitees})
                         }
-                        `
-                        dbClient.post(invitationQuery)
-                        dbClient.post(inviteesQuery)
+                        `;
+                        dbClient.post(invitationQuery);
+                        dbClient.post(inviteesQuery);
                     }
                 }),
                 sendLater: new Action({
                     label: "send later",
-                    event(filledForm: any) {
-                        const email: EmailType = {
+                    event(filledForm) {
+                        const email = {
                             name: filledForm.title,
                             subject: "",
                             text: "",
@@ -140,11 +118,8 @@ export class Invitation implements IDataView {
                             messenger: filledForm.messenger,
                             sendAt: filledForm.schedule,
                             body: filledForm.content
-                        }
-                        new Mailer().sendEmail(email)
-                        /*const mailResource = new ListMonk().campaign(email)
-                       const scheduler: Scheduler = new Scheduler(config.backURL)
-                       scheduler.post(mailResource)*/
+                        };
+                        new Mailer().sendEmail(email);
                     }
                 })
             },
@@ -191,8 +166,8 @@ export class Invitation implements IDataView {
                         label: 'Import Contacts',
                         event: 'Modal',
                         args: contactView,
-                        onResult() {},
-                        onError() {}
+                        onResult() { },
+                        onError() { }
                     })
                 },
                 {
@@ -208,30 +183,29 @@ export class Invitation implements IDataView {
                     name: 'schedule'
                 },
             ],
-        }
-
-        const view: PageView = new PageView({
+        };
+        const view = new PageView({
             sections: [form],
             id: "",
             layout: "Grid",
             children: []
-        })
-        return view
+        });
+        return view;
     }
-    async getListData(senderUserId?: string, senderGroupId?: string, ...recipientIds: string[]) {
-        let query
+    async getListData(senderUserId, senderGroupId, ...recipientIds) {
+        let query;
         if (senderUserId) {
-            query = gql`message (sender_user_id: ${senderUserId})`
+            query = gql `message (sender_user_id: ${senderUserId})`;
         }
         else if (senderGroupId) {
-            query = gql`message (sender_group_id: ${senderGroupId})`
+            query = gql `message (sender_group_id: ${senderGroupId})`;
         }
         if (recipientIds) {
-            query = gql`message (recipient_ids: ${recipientIds})`
+            query = gql `message (recipient_ids: ${recipientIds})`;
         }
-        const data = await dbClient.get(query)
-        const dataType: DataType = new DataType({
-            actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+        const data = await dbClient.get(query);
+        const dataType = new DataType({
+            actionOverlay: data.actionPoint,
             items: {
                 header: [
                     {
@@ -247,30 +221,29 @@ export class Invitation implements IDataView {
                     }
                 ]
             }
-        })
-        const view: PageView = new PageView({
+        });
+        const view = new PageView({
             sections: [dataType],
             id: "",
             layout: "Grid",
             children: []
-        })
-        return view
+        });
+        return view;
     }
-    
-    async getSingleData(senderUserId?: string, senderGroupId?: string, ...recipientIds: string[]) {
-        let query
+    async getSingleData(senderUserId, senderGroupId, ...recipientIds) {
+        let query;
         if (senderUserId) {
-            query = gql`message (sender_user_id: ${senderUserId})`
+            query = gql `message (sender_user_id: ${senderUserId})`;
         }
         else if (senderGroupId) {
-            query = gql`message (sender_group_id: ${senderGroupId})`
+            query = gql `message (sender_group_id: ${senderGroupId})`;
         }
         if (recipientIds) {
-            query = gql`message (recipient_ids: ${recipientIds})`
+            query = gql `message (recipient_ids: ${recipientIds})`;
         }
-        const data = await dbClient.get('', query)
-        const dataType: DataType = new DataType({
-            actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+        const data = await dbClient.get('', query);
+        const dataType = new DataType({
+            actionOverlay: data.actionPoint,
             items: {
                 header: [
                     {
@@ -289,14 +262,13 @@ export class Invitation implements IDataView {
                     }
                 ]
             }
-        })
-        const view: PageView = {
+        });
+        const view = {
             sections: [dataType],
             id: "",
             layout: "Grid",
             children: []
-        }
-        return view
+        };
+        return view;
     }
-    
 }

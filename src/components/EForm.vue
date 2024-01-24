@@ -15,22 +15,43 @@
     >
 
       <template v-slot:option="scope">
-        <q-item v-if="!scope.opt.group"
-          v-bind="scope.itemProps"
-        >              
-          <q-item-section avatar>
-            <q-icon :name="scope.opt.icon" ></q-icon>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label v-html="scope.opt.label" ></q-item-label>
-            <q-item-label caption>{{ scope.opt.description }}</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item v-if="scope.opt.group"
-            v-bind="scope.itemProps"
+        <q-expansion-item
+          expand-separator
+          group="somegroup"
+          :default-opened="hasChild(scope, dialogue.name)"
+            header-class="text-weight-bold"
+          :label="scope.opt.label"
         >
-        <q-item-label header>{{ scope.opt.group }}</q-item-label>
-        </q-item>
+            <q-item
+            v-if="!scope.opt.children"
+              clickable
+              v-ripple
+              v-close-popup
+              @click="filledForm[dialogue.name] = scope.opt.id || scope.opt.label"
+              :class="{ 'bg-light-blue-1': filledForm[dialogue.name] === scope.opt.label }"
+            >
+              <q-item-section>
+                <q-item-label v-html="scope.opt.label" class="q-ml-md" ></q-item-label>
+              </q-item-section>
+              <q-item-section>
+                <q-input class="q-ml-md" :type="scope.opt.inputType" v-model="scope.opt.answer"></q-input>
+              </q-item-section>
+            </q-item>
+          <template v-for="child in scope.opt.children"
+          :key="child.id">
+            <q-item
+              clickable
+              v-ripple
+              v-close-popup
+              @click="filledForm[dialogue.name] = child.id || child.label"
+              :class="{ 'bg-light-blue-1': filledForm[dialogue.name] === child.label }"
+            >
+              <q-item-section>
+                <q-item-label v-html="child.label" class="q-ml-md" ></q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-expansion-item>
       </template>
 
     </QSelect>
@@ -56,13 +77,13 @@
       ></QInput>
     </template>
   </div>
-  <template v-for="(action, key) in form.actions">
-    <EAction :action="submit" v-if="key === 'submit'"></EAction>
+  <template v-for="(action, key) in form.actions" :key="key">
+    <EAction :action=action :args="filledForm"></EAction>
   </template>
   </template>
 
   <script lang="ts">
-  import { Action, QuestionType } from "../utils/types";
+  import { QuestionType } from "../utils/types";
   import { defineComponent } from "vue";
   import EAction from "./EAction.vue";
   
@@ -102,6 +123,12 @@
         //client.post('schedule', new Date(value))
         console.log("Schedule: ", value)
       },
+      getValue (scope: any) {
+        return scope.label
+      },
+      hasChild (scope: any, name: string) {
+        return scope.opt.children.some(c => c.label === this.filledForm[name])
+      }
     },
     onBeforeMount() {
     }

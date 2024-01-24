@@ -17,7 +17,8 @@
           v-bind="{...$attrs }" :key="section.name">
         </Component>
         <EDataView v-if="isDataType(section)" :data="section" :key="section.id"></EDataView>
-        <EDataView v-if="isType(section, FormType)" :form="section" :key="section.name"></EDataView>
+        <EDataView v-if="isType(section, QuestionType)" :form="section" :key="section.index"></EDataView>
+        <EDataView v-if="isType(section, FormType)" :formsSteppers="section" :key="section.name"></EDataView>
         <EDataView v-if="isType(section, Slides)" :slide="section"></EDataView>
         <EAction v-if="isType(section, Action)" :action="section"></EAction>
         <EView v-if="isType(section, View) || isType(section, PageView)" :view="section" :key="section.id"></EView>
@@ -50,9 +51,12 @@
 <script lang="ts">
 import EDataView from "./EDataView.vue";
 import ENav from "./ENav.vue";
-import { Layout, View, TabView, SectionView, PageView, isVComponent, isDataType, 
-  isQuestionType, isView,isComponent, isNavList, isType, NavLink, 
+import { Layout, View, TabView, SectionView,
+   PageView, isVComponent, isDataType, 
+  isQuestionType, isView,isComponent, 
+  isNavList, isType, NavLink, 
   FormType, VComponent, 
+  QuestionType,
   NavList, IView, DataType, Action } from "../utils/types";
 import { Menu, Slides } from "../utils/DataTypes";
 import ETabView from "./ETabView.vue";
@@ -101,6 +105,7 @@ export default defineComponent({
       isType,
       Action,
       NavList,
+      QuestionType,
       FormType,
       View,
       TabView,
@@ -110,7 +115,7 @@ export default defineComponent({
       review,
       widgets,
       navViews,
-      menu
+      menu,
       /*menuList,
       views,
       dataList,

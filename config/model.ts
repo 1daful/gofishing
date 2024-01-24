@@ -1,11 +1,13 @@
-import { DataItem, DataType } from '../src/utils/types';
-import { Repository, SDKClient, View } from "@edifiles/services";
-import { header, footer, content, Model } from '../src/utils/DataView';
+import { DataType, NavList, View, isType } from '../src/utils/types';
+import { Repository, SDKClient } from "@edifiles/services";
+import { header } from '../src/utils/DataView';
 import { DateLocale } from 'quasar';
 import { SupabaseRepo } from '@edifiles/services/dist/module/model/SupabaseRepo';
 import { gql } from 'graphql-tag';
 import { config } from "../public/config";
 import { Slides } from '../src/utils/DataTypes';
+import { IDataView } from '../model/IDataView';
+import { GlobalView } from './edifiles.config';
 
 export const domainNames = []
 
@@ -232,4 +234,42 @@ export const getMilestones = async () => {
     }`
     const milestones = await dbClient.get('milestone', query)
     return milestones
+}
+
+export async function addModel(childView: IDataView, parentView?: IDataView, id?: string, ...query: any) {
+    let view
+    const navList: NavList = new NavList({
+        id: childView.id,
+        content: [
+            {
+                path: '/' + childView.id,
+                name: childView.id
+            }
+        ],
+        navType: 'top'
+    })
+
+    if (parentView) {
+        view = await parentView.getListData(...query)
+        view.sections.push(navList)
+        view.children.push(childView)
+    }
+    else {
+        if (id) {
+            GlobalView.mainLayout.sections.forEach((view) => {
+                if(isType(view,NavList) && view.id === id) {view.content.push(
+                    {
+                        path: '/' + childView.id,
+                        name: childView.id
+                    })}
+            })
+            GlobalView.mainLayout.children.push(childView)
+        }
+        else {
+            GlobalView.mainLayout.sections.push(navList)
+            GlobalView.mainLayout.children.push(childView)
+        }
+    }
+    console.log("GlobalView: ", GlobalView)
+    //const view2 = await childView.getListData()
 }

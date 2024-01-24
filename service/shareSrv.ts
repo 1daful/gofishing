@@ -83,9 +83,9 @@ export class Share implements IDataView {
     }) {
         const action: Action = new Action({
             event: 'Modal',
-            args: [this.getCreateData(media)],
-            onResult: [],
-            onError: []
+            icon: 'share',
+            label: 'share',
+            args: this.getCreateData(media),
         })
         return action
     }

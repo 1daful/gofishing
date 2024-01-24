@@ -31,9 +31,24 @@ export function isTabType(value) {
 export function isActionString(value) {
     return value === 'submit' || value === 'filter';
 }
+export class Filters {
+    constructor(filters) {
+        Object.assign(this, filters);
+    }
+}
 export class NavList {
     constructor(navList) {
         Object.assign(this, navList);
+    }
+}
+export class DataGraph {
+    constructor(data) {
+        Object.assign(this, data);
+    }
+}
+export class DataTable {
+    constructor(data) {
+        Object.assign(this, data);
     }
 }
 export class DataType {
@@ -119,8 +134,8 @@ export class QuestionType {
                 submit: new Action({
                     label: data.actions,
                     event: data.actions,
-                    onResult: [],
-                    onError: [],
+                    onResult() { },
+                    onError() { },
                     args: [this.content],
                     icon: data.actions
                 })
@@ -143,8 +158,8 @@ export class FormType {
                     event: submit,
                     args: [this.content],
                     icon: submit,
-                    onResult: [],
-                    onError: []
+                    onResult() { },
+                    onError() { }
                 })
             };
         }

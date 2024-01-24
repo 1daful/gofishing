@@ -18,13 +18,11 @@
 </template>
 <script setup lang="ts">
 import { useQuasar } from "quasar";
-import { onBeforeMount, onMounted, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { onBeforeMount, ref } from "vue";
+import { useRoute } from "vue-router";
 import { GlobalView } from "../../config/edifiles.config";
 import config2 from "../../public/config.json";
-import EView from "../components/EView.vue";
 import ELayout from "../components/ELayout.vue";
-import Page from "../pages/About.vue";
 import { View } from "../utils/types";
 
 const hero = config2.hero;

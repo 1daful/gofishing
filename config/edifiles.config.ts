@@ -4,8 +4,9 @@ import Search from "../src/components/ESearch.vue";
 import { menus } from "./menus";
 import Home from "../src/pages/Home.vue";
 import { config } from "../public/config";
-import { firstTimer } from "./model";
+//import { firstTimer } from "./model";
 import { Service } from "../model/Service";
+import { ReachOut } from '../model/ReachOut';
 
 /*const postQuery = `
   query GetPost($postId: ID!) {
@@ -108,24 +109,22 @@ export const userBiodata =  new QuestionType({
     actions: {
     submit: new Action({
         label: 'Sign Up',
-        event: auth.signUp,
-        onResult: [
-            ()=> {
-                new Mailer().sendEmail({
-                    name: 'Welcome New User',
-                    subject: '',
-                    text: '',
-                    templateKey: '',
-                    html: '',
-                    attachments: [],
-                    inline_images: [],
-                    headers: [],
-                    messenger: '',
-                    body: ''
-                })
-            }
-        ],
-        onError: []
+        event: ()=> {
+            auth.signUp,
+            new Mailer().sendEmail({
+                name: 'Welcome New User',
+                subject: '',
+                text: '',
+                templateKey: '',
+                html: '',
+                attachments: [],
+                inline_images: [],
+                headers: [],
+                messenger: '',
+                body: '',
+                date: new Date()
+            })
+        }
     })},
     meta: {
         isNew: false
@@ -142,10 +141,8 @@ export const userView: View = new View({
 
 const signIn: Action = new Action({
     label: 'Sign In',
-    event: 'route',
+    event: 'Route',
     args: '/signin',
-    onResult: [],
-    onError: [],
     style: {
         type: 'outline'
     }
@@ -153,10 +150,8 @@ const signIn: Action = new Action({
 
 const signUp = new Action({
     label: 'Sign Up',
-    event: 'route',
+    event: 'Route',
     args: '/signup',
-    onResult: [],
-    onError: []
 });
 
 export const userViewResolver = () => {
@@ -174,7 +169,7 @@ export const brand = {
 const home: PageView = new PageView({
     id: 'home',
     layout: 'Grid',
-    sections: [Home, firstTimer],
+    sections: [Home],
     children: []
 })
 const serviceModel = new Service()
@@ -192,6 +187,7 @@ const mainLayout: PageView = new PageView({
 export const GlobalView = {
     mainLayout
 }
+const reachout = new ReachOut()
 
 /*export const setGlobal = () => {
     Object.keys(GlobalView).forEach((key) => {

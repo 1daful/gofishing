@@ -1,9 +1,24 @@
-import { cacheExchange, fetchExchange } from "@edifiles/services";
+import { EmailAddress, EmailType, cacheExchange, fetchExchange } from "@edifiles/services";
 
 export const config = {
     "title": "Edifeeds",
     "baseUrl": "/",
-    "backURL": "http://localhost:2000/api",
+    "backEndApi": {
+      baseUrl: "http://localhost:2000/api",
+      baseConfig: {},
+      requests: {
+        schedule(params: Record<string, any>, data: Record<string, any>) {
+          return {
+            url: '/schedule',
+            params: params,
+            data: data
+          }
+        },
+        callback: {
+          url: '/call'
+        }
+      }
+    },
     "logo": "../logo.png",
     "email": {
       "bounceAddress": "admin@bounce.edifeeds.com",
@@ -134,60 +149,29 @@ export const config = {
             "clientSecret": "tRctqxf33O6MrHUwNj-DqFkTGfdlrZqKai3oF134_CiK1-Ya31EPS2L_Uc3x3sVy"
     },
 
-        "GoogleBooks": {
-          "baseUrl": "https://books.googleapis.com/books/v1",
-          "config": {
-            "baseParams": {
-              "apikey": "AIzaSyAlbER-HPdipvFgKJc-PWWZYhBIBSPxBNQ"
+        Infobip: {
+          baseUrl: "https://yrlnmj.api.infobip.com",
+          baseConfig: {
+            headers: {
+              'Authorization': 'App 7ca8a7b599ebdf21e0915e6f15c21c59-c39394c8-7161-412f-8df9-d2b2dc7c1033',
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
             }
-          }
-        },
-
-        "PaperQuotes": {
-          "baseUrl": "https://api.paperquotes.com/apiv1",
-            "id": "",
-            "key": ""
-        },
-
-        "SoundCloud": {
-          "baseUrl" : "api.soundcloud.com",
-          "baseParams": {
-            "id": "",
-            "key": ""}
-        },
-
-        "TheySaidSo": {
-          "baseUrl": "http://quotes.rest",
-            "id": "",
-            "key": ""
-        },
-
-        "ZenQuotes": {
-            "baseUrl": "https://zenquotes.io/api",
-              "id": "",
-              "key": "",
-              "baseParams": {
-                "headers": {
-                    "accept": "application/json",
-                    "Access-Control-Allow-Origin": "*"
+          },
+          request: {
+            sms(msg: EmailType){
+              return {
+                url: '/sms/2/text/advanced',
+                data: {
+                  messages: [{
+                    destinations: [{ to: msg.address }],
+                    from: 'ServiceSMS',
+                    text: msg.body,
+                  }],
                 }
               }
-          },
-
-        "Youtube": {
-          "baseUrl": "https://googleapis.com/youtube/v3",
-          "config": {
-            "baseParams": {
-              "id": "",
-              "key": ""}
+            }
           }
-        },
-
-        "InternetArchive": {
-          "baseUrl": "archive.org/services/search/v1/scrape",
-
-            "id": "",
-            "key": ""
         },
 
         "Gorse": {
@@ -223,7 +207,6 @@ export const config = {
               exchanges: [cacheExchange, fetchExchange]
             }
         },
-    
         Supabase : {
             "url": "https://liagcjidevdramrvncxm.supabase.co",
             "key": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpYWdjamlkZXZkcmFtcnZuY3htIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODc2MzU1ODcsImV4cCI6MjAwMzIxMTU4N30.D4yhnLSCJHOeQJnfvv7aRVBQ8KX42PRyvzcEsp-uIJs",
@@ -233,6 +216,10 @@ export const config = {
               "persistSession": true,
               "detectSessionInUrl": true
             }
+        },
+        supabaseGql: {
+          url: '',
+          key: ''
         },
         "zenserp" : {
             "baseUrl" : "https://app.zenserp.com/api/v2",
@@ -249,11 +236,62 @@ export const config = {
           "appName": "Edifeeds",
           "apiDomain": "http://localhost:2000/api"
         },
-        "ListMonk": {
+        ListMonk: {
           "baseUrl": "http://localhost:8000/api",
-          "config": {
-            "baseParams": {
-              "apikey": "AIzaSyAlbER-HPdipvFgKJc-PWWZYhBIBSPxBNQ"
+          "baseConfig": {
+            "apikey": "AIzaSyAlbER-HPdipvFgKJc-PWWZYhBIBSPxBNQ"
+          },
+          requests: {
+            transact: (format: EmailType) => {
+                    return {
+                        url: "/api/tx",
+                        params: {},
+                        data: {
+                            subscriber_email: format.address,
+                            subscriber_id: format.userId,
+                            template_id: format.templateKey,
+                            data: format.data,
+                            headers: format.headers /*[]*/,
+                            content_type: format.contentType /*"html" | "markdown" | "plain"*/
+                        }
+                    }
+            },
+            campaign: (format: EmailType) => {
+                    return {
+                        url: "/api/campaigns",
+                        params: {},
+                        data: {
+                            name: format.name,
+                            subject: format.subject,
+                            lists: format.lists,	
+                            from_email: format.address,
+                            type: format.type,/*"regular" | "optin"*/
+                            content_type: format.contentType, /*"richtext" | "html" | "markdown" | "plain"*/
+                            body: format.body,
+                            //altbody: format.altbody,
+                            send_at: format.date,
+                            messenger: format.messenger,
+                            template_id: format.templateKey,	
+                            tags: format.tags
+                        }
+                    }
+            },
+            subscriber: (format: Record<string, any>, data: EmailAddress) => {
+                    return {
+                        url: "/subscribers",
+                        params: {
+                            page: format.page,
+                            per_page: format.per_page
+                        },
+                        data: {
+                            name: data.name,
+                            email: data.address,
+                            status:	data.status,/*"enabled" | "disabled" | "blocked"*/
+                            lists: data.lists,
+                            attribs: data.attributes,
+                            preconfirm_subscriptions: data.preconfirmedSub
+                            }
+                    }
             }
           }
         },
@@ -264,13 +302,6 @@ export const config = {
               "username": "admin",
               "password": "Complexpass#123"
             }
-          }
-        },
-        "Deezer": {
-          "baseUrl": "https://api.deezer.com",
-          "config": {
-            "app_id": "573262",
-            "output": "json"
           }
         },
         "Meilisearch": {

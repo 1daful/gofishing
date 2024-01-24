@@ -2,7 +2,22 @@ import { cacheExchange, fetchExchange } from "@edifiles/services";
 export const config = {
     "title": "Edifeeds",
     "baseUrl": "/",
-    "backURL": "http://localhost:2000/api",
+    "backEndApi": {
+        baseUrl: "http://localhost:2000/api",
+        baseConfig: {},
+        requests: {
+            schedule(params, data) {
+                return {
+                    url: '/schedule',
+                    params: params,
+                    data: data
+                };
+            },
+            callback: {
+                url: '/call'
+            }
+        }
+    },
     "logo": "../logo.png",
     "email": {
         "bounceAddress": "admin@bounce.edifeeds.com",
@@ -217,6 +232,10 @@ export const config = {
                 "detectSessionInUrl": true
             }
         },
+        supabaseGql: {
+            url: '',
+            key: ''
+        },
         "zenserp": {
             "baseUrl": "https://app.zenserp.com/api/v2",
             "config": {
@@ -232,11 +251,61 @@ export const config = {
             "appName": "Edifeeds",
             "apiDomain": "http://localhost:2000/api"
         },
-        "ListMonk": {
+        ListMonk: {
             "baseUrl": "http://localhost:8000/api",
-            "config": {
-                "baseParams": {
-                    "apikey": "AIzaSyAlbER-HPdipvFgKJc-PWWZYhBIBSPxBNQ"
+            "baseConfig": {
+                "apikey": "AIzaSyAlbER-HPdipvFgKJc-PWWZYhBIBSPxBNQ"
+            },
+            requests: {
+                transact: (format) => {
+                    return {
+                        url: "/api/tx",
+                        params: {},
+                        data: {
+                            subscriber_email: format.address,
+                            subscriber_id: format.userId,
+                            template_id: format.templateKey,
+                            data: format.data,
+                            headers: format.headers,
+                            content_type: format.contentType
+                        }
+                    };
+                },
+                campaign: (format) => {
+                    return {
+                        url: "/api/campaigns",
+                        params: {},
+                        data: {
+                            name: format.name,
+                            subject: format.subject,
+                            lists: format.lists,
+                            from_email: format.address,
+                            type: format.type,
+                            content_type: format.contentType,
+                            body: format.body,
+                            send_at: format.date,
+                            messenger: format.messenger,
+                            template_id: format.templateKey,
+                            tags: format.tags
+                        }
+                    };
+                },
+                subscriber: (format, data) => {
+                    return {
+                        url: "/subscribers",
+                        params: {
+                            page: format.page,
+                            per_page: format.per_page
+                        },
+                        data: {
+                            name: data.name,
+                            email: data.address,
+                            status: data.status,
+                            lists: data.lists,
+                            attribs: data.attributes,
+                            preconfirm_subscriptions: data.preconfirmedSub
+                        }
+                    };
                 }
             }
         },

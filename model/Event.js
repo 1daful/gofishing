@@ -1,11 +1,9 @@
 import gql from "graphql-tag";
-import { FormType, DataType, PageView, QuestionType, Action, View } from "../src/utils/types";
-import { IDataView } from "./IDataView";
+import { FormType, DataType, PageView, Action } from "../src/utils/types";
 import { dbClient } from "../config/model";
-export class Event implements IDataView {
-    id!: string;
-    async getCreateData(data?: any) {
-        const form: FormType = new FormType('', 'Submit', [
+export class Event {
+    async getCreateData(data) {
+        const form = new FormType('', 'Submit', [
             {
                 title: '',
                 index: 1,
@@ -31,130 +29,119 @@ export class Event implements IDataView {
                     },
                 ]
             },
-        ])
-        const view: PageView = new PageView({
+        ]);
+        const view = new PageView({
             id: "",
             layout: "Grid",
             sections: [form],
             children: []
-        })
-        return view
+        });
+        return view;
     }
-    async getListData(filters?: any) {
+    async getListData(filters) {
         const upcomingView = {
             id: 'upcoming',
             sections: await this.getEvents('upcoming')
-        }
-          
+        };
         const markedView = {
             id: 'marked',
             sections: await this.getEvents('marked')
-        }
-          
+        };
         const todayView = {
             id: 'today',
             sections: await this.getEvents('today')
-        }
-        const view: PageView = new PageView({
+        };
+        const view = new PageView({
             id: "",
             layout: "Grid",
             sections: [upcomingView, markedView, todayView],
             children: []
-        })
-        return view
+        });
+        return view;
     }
-    async getSingleData(id: string) {
-        const query = gql`{
+    async getSingleData(id) {
+        const query = gql `{
             event(id: ${id})
-        }`
-        const data = await dbClient.get(query)
-        const dataType: DataType = {
-          items: {
-              header: [
-              {label: data.name}
-              ],
-              center: [
-                  {
-                      label: data.startAt
-                  },
-                  {label: "to"},
-                  {label: data.endAt}
-              ],
-              footer: [
-                data.sessions.filter((session)=> {
-                    this.getSessionDataView(session)
-                }),
-                {
-                    action:  new Action({
-                        event: 'Modal',
-                        args: await this.createSessionDataView(data.id)
-                    })
-                }
-              ]
-          },
-        }
-
-        const view: PageView = new PageView({
+        }`;
+        const data = await dbClient.get(query);
+        const dataType = {
+            items: {
+                header: [
+                    { label: data.name }
+                ],
+                center: [
+                    {
+                        label: data.startAt
+                    },
+                    { label: "to" },
+                    { label: data.endAt }
+                ],
+                footer: [
+                    data.sessions.filter((session) => {
+                        this.getSessionDataView(session);
+                    }),
+                    {
+                        action: new Action({
+                            event: 'Modal',
+                            args: await this.createSessionDataView(data.id)
+                        })
+                    }
+                ]
+            },
+        };
+        const view = new PageView({
             sections: [
                 dataType
             ],
             id: "",
             layout: "Grid",
             children: []
-        })
-        return view
+        });
+        return view;
     }
-
-    async getEvents(eventStatus: string) {
-        let query
-        switch(eventStatus) {
+    async getEvents(eventStatus) {
+        let query;
+        switch (eventStatus) {
             case 'upcoming':
                 query = gql `{
                 events (startAt {
                     gt: {${new Date()}}})
-                }`
-            break
-            
+                }`;
+                break;
             case 'marked':
-            query = gql`{
+                query = gql `{
                 events (startAt {
                     lt: {
                     ${new Date()}
                     }
                     })
-                }`
-            
-            break
-            
-            case'today':
-            query = gql`{
+                }`;
+                break;
+            case 'today':
+                query = gql `{
                 events (startAt ${new Date()})
-            }`
-            break
+            }`;
+                break;
         }
-        
-        const data = await dbClient.get(query)
-
-        const dataType: DataType = new DataType({
+        const data = await dbClient.get(query);
+        const dataType = new DataType({
             items: {
                 header: [
-                    {label: data.name}
+                    { label: data.name }
                 ],
                 center: [
-                    {label: data.startAt},
-                    {label: data.endAt}
+                    { label: data.startAt },
+                    { label: data.endAt }
                 ]
             }
-        })
-        return dataType
+        });
+        return dataType;
     }
-
-
-    async getSessionDataView(session: { startAt: any; name: any; author: { name: any; }; content: any; }) {
-        let startTime = session.startAt
-        let timeRemaining
-        let timeElapse
-        const dataType: DataType = new DataType({
+    async getSessionDataView(session) {
+        let startTime = session.startAt;
+        let timeRemaining;
+        let timeElapse;
+        const dataType = new DataType({
             items: {
                 header: [
                     {
@@ -173,59 +160,46 @@ export class Event implements IDataView {
                     }
                 ],
                 footer: [
-                    {
-                    }
+                    {}
                 ],
             },
             calculateTime() {
-                const currentTime = new Date().getTime(); // Get current time in milliseconds
-        
+                const currentTime = new Date().getTime();
                 const elapsedTime = currentTime - startTime;
-                
-                // Total duration of the event in milliseconds (replace with your event's duration)
-                const totalEventDuration = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
-        
+                const totalEventDuration = 3 * 60 * 60 * 1000;
                 const remainingTime = totalEventDuration - elapsedTime;
-        
-                // Convert milliseconds to hours, minutes, seconds
                 const elapsedHours = Math.floor(elapsedTime / (1000 * 60 * 60));
                 const elapsedMinutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
                 const elapsedSeconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-        
                 const remainingHours = Math.floor(remainingTime / (1000 * 60 * 60));
                 const remainingMinutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
                 const remainingSeconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-        
                 timeElapse = `Time Elapsed: ${elapsedHours}h ${elapsedMinutes}m ${elapsedSeconds}s`;
                 timeRemaining = `Time Remaining: ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
             },
-            computeAction (){
+            computeAction() {
                 setInterval(this.calculateTime, 1000);
             }
-        })
-
-        return dataType
+        });
+        return dataType;
     }
-
-    async createSessionDataView(eventId: string) {
+    async createSessionDataView(eventId) {
         const membersQuery = gql `{
             member {
                 firstName
                 lastName
                 avatar
             }
-        }`
-
+        }`;
         const groupsQuery = gql `{
             member {
                 name
                 members
                 admins
             }
-        }`
-        
-        const groupOptions = await dbClient.get(groupsQuery)
-        const memberOptions = await dbClient.get(membersQuery)
+        }`;
+        const groupOptions = await dbClient.get(groupsQuery);
+        const memberOptions = await dbClient.get(membersQuery);
         const options = [
             {
                 label: 'members',
@@ -235,14 +209,13 @@ export class Event implements IDataView {
                 label: 'groups',
                 data: groupOptions
             }
-        ]
-
-        const question: QuestionType = {
+        ];
+        const question = {
             title: "",
             index: 2,
             actions: {
                 submit: new Action({
-                    event(filledForm: any) {
+                    event(filledForm) {
                         const session = {
                             eventId: eventId,
                             name: filledForm.name,
@@ -250,8 +223,8 @@ export class Event implements IDataView {
                             endAt: filledForm.endAt,
                             anchor: filledForm.anchor,
                             content: filledForm.content
-                        }
-                        dbClient.post(gql`{session(${session}) }`)
+                        };
+                        dbClient.post(gql `{session(${session}) }`);
                     }
                 })
             },
@@ -287,15 +260,14 @@ export class Event implements IDataView {
                     inputType: 'textarea'
                 }
             ]
-        }
-        const view: View = {
+        };
+        const view = {
             id: "",
             layout: "Grid",
             sections: [question],
             size: "",
             navType: "center"
-        }
-
-        return view
+        };
+        return view;
     }
 }

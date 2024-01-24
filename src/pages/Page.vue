@@ -6,14 +6,13 @@
 </template>
 
 <script lang="ts">
-import { ref, onBeforeMount } from 'vue';
 import { useRoute } from 'vue-router';
 import EView from "../components/EView.vue";
 import { IDataView } from '../../model/IDataView';
 import { data } from '../../config/model';
 import { GlobalView } from '../../config/edifiles.config';
 import { View, isType, NavList, PageView } from '../utils/types';
-import { defineComponent } from "vue";
+import { defineComponent, shallowRef } from "vue";
 
 export default defineComponent({
   data() {
@@ -31,7 +30,7 @@ export default defineComponent({
     left: new View({
         id: '',
         layout: 'Grid',
-        navType: 'top',
+        navType: 'left',
         size: '',
         sections: []
     }),
@@ -52,13 +51,13 @@ export default defineComponent({
     right: new View({
         id: '',
         layout: 'Grid',
-        navType: 'top',
+        navType: 'right',
         size: '',
         sections: []
     })
 }
 
-    const view: PageView = new PageView({
+    const sView: PageView = new PageView({
       id: 'listView',
       layout: 'Grid',
       sections: [],
@@ -74,7 +73,7 @@ export default defineComponent({
     return {
       dataView,
       layout,
-      view,
+      view: shallowRef(sView),
       id,
       type,
       categories,

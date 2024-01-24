@@ -3,7 +3,7 @@
     <QCardSection>
       <QSelect :options="data.options" v-model="select" v-if="data.options"></QSelect>
       <div v-for="(range, i) in filt.rangeList" :key="i" ref="rangeRef">
-        {{ range.title }}
+        {{ range }}
         <QInput ref="from" label="From" v-model="min[i]"></QInput>
         <QInput ref="to" label="To" v-model="max[i]"></QInput>
       </div>
@@ -54,6 +54,7 @@ const props = defineProps({
   },
 });
 
+let select = ref('')
 //const emit = defineEmits([props.action.event]);
 const filt = ref(props.data);
 
@@ -67,7 +68,7 @@ const filter = () => {
   };
   const search = new Search();
   console.log("filters ", filters);
-  const result = search.search(props.data.index, props.query, filters);
+  const result = search.search(props.data.indexName, props.query, filters);
   //emit(defaultAction.event, result);
 };
 
@@ -75,17 +76,18 @@ let min = ref([]);
 let max = ref([]);
 let model = ref([]);
 
-let defaultAction = {
+let defaultAction: Action = {
   label: "Filter",
-  event: filter.toString(),
+  event: "Filter",
   icon: "sort",
   //|| "sort_by_alpha" || "category",
 };
 const filterRange = () => {
   let filters: FilterRange[] = [];
+  if(props.data.rangeList)
   props.data.rangeList.forEach((range, i) => {
     let filter: FilterRange = {
-      attribute: range.title,
+      attribute: range,
       lower: min.value[i],
       upper: max.value[i],
     };
@@ -95,6 +97,7 @@ const filterRange = () => {
 };
 const filterCheck = () => {
   let filters: FilterCheck[] = [];
+  if (props.data.checks)
   props.data.checks.forEach((check) => {
     let filter: FilterCheck = {
       attribute: check.attribute,
@@ -106,7 +109,6 @@ const filterCheck = () => {
 };
 
 onMounted(() => {
-  console.log("filters ", filter());
   if (props.action) {
     defaultAction = props.action;
   }

@@ -80,7 +80,7 @@ import { Action, DataItem } from "./types";
     class?: string
   }) => {
     return (target: any, key: any) => {
-      let value: any
+        let value: any
         let items: DataItem[] = target.constructor.items || (target.constructor.items = []);
         //let items: DataItem[] = this["items"]
         const item: DataItem = {

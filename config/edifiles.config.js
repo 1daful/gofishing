@@ -4,8 +4,8 @@ import Search from "../src/components/ESearch.vue";
 import { menus } from "./menus";
 import Home from "../src/pages/Home.vue";
 import { config } from "../public/config";
-import { firstTimer } from "./model";
 import { Service } from "../model/Service";
+import { ReachOut } from '../model/ReachOut';
 const auth = new EAuth(config.api.Supabase);
 const search = new View({
     id: 'search',
@@ -87,9 +87,8 @@ export const userBiodata = new QuestionType({
     actions: {
         submit: new Action({
             label: 'Sign Up',
-            event: auth.signUp,
-            onResult: [
-                () => {
+            event: () => {
+                auth.signUp,
                     new Mailer().sendEmail({
                         name: 'Welcome New User',
                         subject: '',
@@ -100,11 +99,10 @@ export const userBiodata = new QuestionType({
                         inline_images: [],
                         headers: [],
                         messenger: '',
-                        body: ''
+                        body: '',
+                        date: new Date()
                     });
-                }
-            ],
-            onError: []
+            }
         })
     },
     meta: {
@@ -120,20 +118,16 @@ export const userView = new View({
 });
 const signIn = new Action({
     label: 'Sign In',
-    event: 'route',
+    event: 'Route',
     args: '/signin',
-    onResult: [],
-    onError: [],
     style: {
         type: 'outline'
     }
 });
 const signUp = new Action({
     label: 'Sign Up',
-    event: 'route',
+    event: 'Route',
     args: '/signup',
-    onResult: [],
-    onError: []
 });
 export const userViewResolver = () => {
     const mailer = new Mailer();
@@ -148,7 +142,7 @@ export const brand = {
 const home = new PageView({
     id: 'home',
     layout: 'Grid',
-    sections: [Home, firstTimer],
+    sections: [Home],
     children: []
 });
 const serviceModel = new Service();
@@ -165,6 +159,7 @@ const mainLayout = new PageView({
 export const GlobalView = {
     mainLayout
 };
+const reachout = new ReachOut();
 export const view = new PageView({
     id: '',
     layout: 'Grid',

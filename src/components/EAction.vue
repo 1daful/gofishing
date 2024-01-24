@@ -1,13 +1,11 @@
 <template>
-  <!--QBtn :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
+  <QBtn :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
   dense :icon="action.icon" 
   :size="action.style?.size" 
   class="q-mr-sm" v-if="event" 
   color="primary"
-  :aria-label="action.style?.ariaLabel"></QBtn-->
-
-  <QBtn v-if="event" :label="action.label" @click="event()"></QBtn>
-  <QBtn :label="action.label" v-else-if="component">
+  :aria-label="action.style?.ariaLabel"></QBtn>
+  <QBtn :label="action.label" :icon="action.icon" v-else-if="component">
     <QPopupProxy cover>
       <EView :view="component" v-bind="$attrs"></EView>
       <!--<component :is="g" v-bind="$attrs" v-else></component>-->
@@ -18,7 +16,7 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Action, VComponent, View, isActionString, isType } from "../utils/types";
+import { Action, View } from "../utils/types";
 import { useRouter } from "vue-router";
 import EView from "./EView.vue";
 
@@ -29,6 +27,8 @@ const props = defineProps({
   action: {
     type: Object as () => Action,
     required: true
+  },
+  args: {
   }
 });
 
@@ -71,18 +71,20 @@ onBeforeMount(() => {
     switch (props.action.event) {
       case 'Route':
         event = () => {
-          router.push(props.action?.args)
+          router.push(props.action?.args || props.args)
         }
         break;
       case 'Modal':
-        component = props.action.args
+        component = props.action.args || props.args
         break;
     
       default:
         break;
     }
-    if (!isActionString(props.action.event)) {
-      event = props.action.event;
+    if (typeof props.action.event === 'function') {
+      event = () => {
+       props.action.event(props.action.args || props.args);
+      }
     }
   }
 });

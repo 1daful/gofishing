@@ -68,7 +68,7 @@
   </q-layout>
 </template>
 <script setup lang="ts">
-import { TabType, View } from "../utils/types";
+import { View } from "../utils/types";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { EAuth } from '@edifiles/services';
 import EView from "./EView.vue";

@@ -1,11 +1,12 @@
 import gql from "graphql-tag";
 import { dbClient } from "../config/model";
-import { Action, DataType, FormType, PageView, QuestionType, View } from "../src/utils/types";
+import { Action, DataType, PageView, QuestionType, View } from "../src/utils/types";
 import { Share } from "../service/shareSrv";
 import EUpload from "../src/components/EUpload.vue";
 import { DocumentNode } from "graphql";
+import { IDataView } from "./IDataView";
 
-export class Service {
+export class Service implements IDataView {
     /*id: string
     name: string;
     anchors: [];
@@ -26,6 +27,7 @@ export class Service {
     async getCreateData() {
         const membersQuery = gql `{
             member {
+                id
                 firstName
                 lastName
                 avatar
@@ -34,53 +36,74 @@ export class Service {
 
         const groupsQuery = gql `{
             member {
+                id
                 name
-                members
-                admins
             }
         }`
         
-        const groupOptions = await dbClient.get('member', groupsQuery)
-        const memberOptions = await dbClient.get('member', membersQuery)
+        const groups = await dbClient.get(groupsQuery)
+        const members = await dbClient.get(membersQuery)
         const options = [
             {
-                label: 'members',
-                data: memberOptions
+                label: 'groups',
+                children: groups.map((group) => {
+                    return {
+                        label: group.name,
+                        id: group.id,
+                    }
+                }),
             },
             {
-                label: 'groups',
-                data: groupOptions
+                label: 'members',
+                children: members.map((member) => {
+                    return {
+                        label: `${member.firstName} ${member.lastName}` ,
+                        id: member.id,
+                        avatar: member.avatar
+                    }
+                }),          
             }
         ]
 
-        const form: FormType = new FormType('Service', 'Submit', [
-            new QuestionType({
-                title: "Create new service",
-                index: 1,
-                actions: {},
-                content: [{
-                    question: 'name',
-                    answer: '',
-                    name: 'name',
-                    inputType: 'text'
-                },{
-                    question: 'schedule',
-                    answer: '',
-                    name: 'schedule',
-                    inputType: 'schedule'
-                },{
-                    question: 'anchors',
-                    answer: '',
-                    name: 'anchors',
-                    options: options
-                },{
-                    question: 'content',
-                    answer: '',
-                    name: 'content',
-                    inputType: 'textarea'
-                },]
-            })
-        ])
+        const form: QuestionType = new QuestionType({
+            title: "Create new service",
+            index: 1,
+            actions: {
+                submit: new Action({
+                    event(filledForm: any) {
+                        const service = {
+                            name: filledForm.name,
+                            startAt: filledForm.startAt,
+                            anchors: filledForm.anchors,
+                            content: filledForm,
+                        }
+                        dbClient.post(gql`{service (data: ${service})}`)
+                    }
+                })
+            },
+            content: [{
+                question: 'name',
+                answer: '',
+                name: 'name',
+                inputType: 'text'
+            },{
+                question: 'schedule',
+                answer: '',
+                name: 'startAt',
+                inputType: 'schedule'
+            },{
+                question: 'anchors',
+                answer: '',
+                name: 'anchors',
+                options: options
+            },{
+                question: 'content',
+                answer: '',
+                name: 'content',
+                inputType: 'textarea'
+            },]
+        })
+            
         const view: PageView = {
             id: "createService",
             layout: "Grid",
@@ -107,7 +130,7 @@ export class Service {
         }
         else {
             if (filters) {
-                data = await dbClient.get('', filters)
+                data = await dbClient.get(filters)
             }
             else {
                 data = await dbClient.get('service')
@@ -140,8 +163,6 @@ export class Service {
                                         id: data.id
                                     }
                                 },
-                                onResult: [],
-                                onError: []
                             })
                         }
                     ]
@@ -149,10 +170,14 @@ export class Service {
                 actions: [
                     new Action({
                         label: 'Create',
+                        icon: 'add',
                         event: 'Route',
-                        args: '/create',
-                        onResult: [],
-                        onError: []
+                        args: {
+                            name: 'categories',
+                            params: {
+                                categories: ['create']
+                            }
+                        },
                     })
                 ]
             })
@@ -191,7 +216,7 @@ export class Service {
             else if (filters) {
                 query = filters
             }
-            data = await dbClient.get('', query)
+            data = await dbClient.get(query)
         }
         let media = {
             url: '',
@@ -236,29 +261,22 @@ export class Service {
                         {
                             action: 
                             new Action({
-                                icon: 'video',
+                                icon: 'videocam',
                                 label: 'Add video',
                                 event: 'Modal',
                                 args: this.view,
-                                onResult: [],
-                                onError: []
                             }),
                         },
                         {
-                            action: 
-                            share.getShare(media),
+                            action: share.getShare(media),
                         },
                         {
                             action: 
                             new Action({
                                 label: 'edit',
-                                icon: 'pencil',
-                                event: 'Route',
-                                args: {
-                                    name: 'services',
+                                icon: 'edit',
+                                event() {
                                 },
-                                onResult: [],
-                                onError: []
                             })
                         },
                         {
