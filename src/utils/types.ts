@@ -1,5 +1,5 @@
 import { Component } from "vue"
-import { CarouselStyle, HorizontalPosition, Slides, VerticalPosition } from "./DataTypes";
+import { CarouselStyle, DataPoint, HorizontalPosition, Slides, VerticalPosition } from "./DataTypes";
 import { IDataView } from "../../model/IDataView";
 
 export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj is T {
@@ -134,6 +134,39 @@ export type CardStyle = {
     actionsAlign: 'left' | 'right' | 'center' | 'between' | 'around' | 'evenly' | 'stretch'
 }
 
+export class DataGraph {
+    constructor(data: DataGraph) {
+        Object.assign(this, data)
+    }
+    chartType?: string
+    series?: []
+    label?: []
+    data?: DataPoint[]
+    xaxisType!: 'category' | 'number'
+}
+
+export class DataTable {
+    constructor(data: DataTable) {
+        Object.assign(this, data)   
+    }
+    [x: string]: any;
+    id?: any;
+    columns?: {
+        name: string,
+        align: string,
+        label: string,
+        field: string
+        sortable: boolean
+    }[]
+    row!: Record<string, any>[]
+    setHeader?: boolean;
+    style?: CardStyle | CarouselStyle
+    class?: string
+    actions?: Action[]
+    separator?: string
+    computeAction?: Function 
+}
+
 export class DataType {
     constructor(data: DataType) {
         Object.assign(this, data)
@@ -188,8 +221,8 @@ export class Action {
     iconRight?: string
     args?: any
     event!: Function | ActionString
-    onResult!: Function[]
-    onError!: Function[]
+    onResult?: Function
+    onError?: Function
     style?: ActionStyle
     state?: ActionState
     class?: string
@@ -277,6 +310,7 @@ export class QuestionType {
     constructor(data: {
         title: string,
         index: number,
+        compute: Function,
         content?: {
             question: string,
             inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule',
@@ -304,8 +338,8 @@ export class QuestionType {
                 submit: new Action({
                 label: data.actions,
                 event: data.actions,
-                onResult: [],
-                onError: [],
+                onResult() {},
+                onError() {},
                 args: [this.content],
                 icon: data.actions
             })}
@@ -317,6 +351,7 @@ export class QuestionType {
     }
     title: string;
     index: number;
+    compute?: Function;
     content?: {
         question: string;
         inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule';
@@ -346,8 +381,8 @@ export class FormType {
                     event: submit,
                     args: [this.content],
                     icon: submit,
-                    onResult: [],
-                    onError: []
+                    onResult() {},
+                    onError() {}
                 })
             }
         }
@@ -378,7 +413,7 @@ export interface IView {
     class?: string
 }
 
-export type ViewSection = View | DataType | QuestionType | VComponent | Component | NavList | Slides
+export type ViewSection = View | DataType | QuestionType | VComponent | Component | NavList | Slides | DataGraph
 
 function insert(view: IView, ...content: ViewSection[]) {
     view.sections?.push(...content)
@@ -537,33 +572,3 @@ export type Client = {
     name: string,
     auth: any
 }
-
-
-const dataType: DataType = new DataType({
-    items: {
-        header: [
-            {
-                label: session.name
-            },
-            {
-                label: session.author.name
-            },
-            {
-                label: timeRemaining
-            }
-        ],
-        center: [
-            {
-                label: session.content
-            }
-        ],
-        footer: [
-            {
-            }
-        ],
-    },
-    computeAction: ()=> {
-        this.item
-        setInterval(this.calculateTime, 1000);
-    }
-})

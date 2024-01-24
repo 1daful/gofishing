@@ -3,12 +3,13 @@
     <EPanel :data="data" v-if="data.card"></EPanel>
     <EList :data="data" v-else></EList>
   </div>
-  <EStepper :form="form" v-if="form"> </EStepper>
+  <EStepper :form="formsStepper" v-if="formsStepper"></EStepper>
+  <EForm :form="form"></EForm>
   <ESlides :slides="slides" v-if="slides"></ESlides>
 </template>
 
 <script lang="ts" setup>
-import { DataType, LayoutType, FormType } from "../utils/types";
+import { DataType, LayoutType, FormType, QuestionType } from "../utils/types";
 import EList from "./EList.vue";
 import EPanel from "./EPanel.vue";
 import EStepper from "./EStepper.vue";
@@ -19,6 +20,9 @@ defineProps({
     type: Object as () => DataType,
   },
   form: {
+    type: Object as () => QuestionType,
+  },
+  formsStepper: {
     type: Object as () => FormType,
   },
   slides: {

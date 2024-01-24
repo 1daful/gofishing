@@ -5,6 +5,17 @@
 
 <script setup lang="ts">
 import * as Papa from "papaparse";
+import { useUser } from "../utils/useUser";
+import { Store } from "pinia";
+
+let us: Store = useUser()
+
+defineProps({
+  store: {
+    type: Object as ()=> Store,
+    required: true
+  }
+})
 let selectedFile: Blob
 let parsedData
 
@@ -25,7 +36,8 @@ function handleSingleFile(event: { target: { files: any[]; removeEventListener: 
       header: true,
       dynamicTyping: true,
       complete: function (results: { data: any; }) {
-        parsedData = results
+        parsedData = results.data
+        useUser().insert(parsedData)
       },
       error: function (error: any) {
         console.error('Error occurred while parsing: ', error);

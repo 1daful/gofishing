@@ -11,61 +11,7 @@
         :caption="section.description"
         :done="step > section.index"
       >
-        <div v-for="dialogue in section.content">
-          <component
-            :is="dialogue.component"
-            v-if="dialogue.component"
-            v-bind="$attrs"
-            :ref="dialogue.name"
-          ></component>
-          <q-item-label> {{ dialogue.question }} </q-item-label>
-          <QSelect
-            v-model="dialogue.answer"
-            :options="dialogue.options"
-            v-if="dialogue.options"
-            :ref="dialogue.name"
-          >
-      
-            <template v-slot:option="scope">
-              <q-item v-if="!scope.opt.group"
-                v-bind="scope.itemProps"
-              >              
-                <q-item-section avatar>
-                  <q-icon :name="scope.opt.icon" ></q-icon>
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label v-html="scope.opt.label" ></q-item-label>
-                  <q-item-label caption>{{ scope.opt.description }}</q-item-label>
-                </q-item-section>
-              </q-item>
-              <q-item v-if="scope.opt.group"
-                  v-bind="scope.itemProps"
-              >
-              <q-item-label header>{{ scope.opt.group }}</q-item-label>
-              </q-item>
-            </template>
-
-          </QSelect>
-
-          <template 
-            v-else-if="dialogue.inputType">
-            <QInput
-              type="date"
-              v-model="dialogue.answer"
-              outlined
-              :ref="dialogue.name"
-              v-if="dialogue.inputType === 'schedule'"
-              @update:model-value="schedule"
-            ></QInput>
-            <QInput
-              :type="dialogue.inputType"
-              v-model="dialogue.answer"
-              outlined
-              :ref="dialogue.name"
-              v-else
-            ></QInput>
-          </template>
-        </div>
+      <EForm :form="section"></EForm>
       </q-step>
 
       <template v-slot:navigation>
@@ -94,13 +40,15 @@ import { Repository } from "@edifiles/services";
 import { FormType } from "../utils/types";
 import { config } from "../../public/config";
 import EAction from "./EAction.vue";
+import EForm from "./EForm.vue";
 
 import { defineComponent } from "vue";
 const repository = new Repository(config.api.Supabase);
 
 export default defineComponent({
   component: {
-    EAction
+    EAction,
+    EForm
   },
   data() {
     return {
@@ -118,21 +66,6 @@ export default defineComponent({
       type: Object as () => FormType,
       required: true,
     },
-    dynamicComponent: {
-      type: String,
-    },
-  },
-  computed: {
-    filledForm() {
-      let form = {};
-
-      Object.values(this.$refs).forEach((ref) => {
-        Object.assign(form, {
-          [ref]: ref,
-        });
-      });
-      return form;
-    },
   },
   methods: {
     schedule(value: string) {
@@ -141,6 +74,13 @@ export default defineComponent({
       console.log("Schedule: ", value)
     },
     submit() {
+      const fo = this.form.content.map((data)=> {
+        data.content?.map((dat)=> {
+          return {
+            [dat.name]: dat.answer
+          }
+        })
+      })
       const { data, error } = this.form.actions.submit.event(...this.form.actions.submit.args);
       if (data) {
         this.form.actions.submit.onResult.forEach(func => {

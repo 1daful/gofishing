@@ -1,120 +1,109 @@
 <template>
-    <div class="q-pa-md">
-      <div class="q-gutter-y-md column" style="max-width: 300px">
-        <q-input :label="input.name" rounded filled v-model="input.answer" v-for="input in form.content">
-          <template v-slot:prepend>
-            <q-icon :name="input.icon" />
-            <q-avatar>
-              <img :src="input.image">
-            </q-avatar>
-          </template>
-        </q-input>
-  
-        <q-input rounded outlined v-model="input.answer" v-for="input in form.content">
-          <template v-slot:append>
-            <q-icon :name="input.icon" />
-            <q-avatar>
-              <img :src="input.image">
-            </q-avatar>
-          </template>
-        </q-input>
+  <div v-for="dialogue in form.content">
+    <component
+      :is="dialogue.component"
+      v-if="dialogue.component"
+      v-bind="$attrs"
+      :ref="dialogue.name"
+    ></component>
+    <QSelect
+    :label="dialogue.question"
+      v-model="filledForm[dialogue.name]"
+      :options="dialogue.options"
+      v-if="dialogue.options"
+      :ref="dialogue.name"
+    >
 
-        <div v-for="input in form.content">
-          <component
-            :is="input.component"
-            v-if="input.component"
-            v-bind="$attrs"
-            :ref="input.name"
-          ></component>
+      <template v-slot:option="scope">
+        <q-item v-if="!scope.opt.group"
+          v-bind="scope.itemProps"
+        >              
+          <q-item-section avatar>
+            <q-icon :name="scope.opt.icon" ></q-icon>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label v-html="scope.opt.label" ></q-item-label>
+            <q-item-label caption>{{ scope.opt.description }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item v-if="scope.opt.group"
+            v-bind="scope.itemProps"
+        >
+        <q-item-label header>{{ scope.opt.group }}</q-item-label>
+        </q-item>
+      </template>
 
-          <QImg
-            v-if="input.image"
-            :src="input.image"
-          ></QImg>
+    </QSelect>
 
-          <QSelect
-            v-model="input.answer"
-            :options="input.options"
-            v-if="input.options"
-            :ref="input.name"
-          >
-            <template v-slot:option="scope">
-              <q-item v-bind="scope.itemProps">
-                <q-item-section avatar>
-                  <q-icon :name="scope.opt.icon" />
-                </q-item-section>
-                <q-item-section>
-                  <q-item-label> {{ scope.opt.label }} </q-item-label>
-                  <q-item-label caption> {{ scope.opt.description }} </q-item-label>
-                </q-item-section>
-              </q-item>
-            </template>
-          </QSelect>
-
-          <QInput
-            v-else
-            :label="input.question"
-            :type="input.inputType"
-            v-model="input.answer"
-            outlined
-            :ref="input.name"
-          >
-          <template v-slot:prepend>
-            <q-icon :name="input.icon" />
-            <q-avatar>
-              <img :src="input.image">
-            </q-avatar>
-          </template>
-          
-        </QInput>
-        </div>
-      </div>
-    </div>
+    <template 
+      v-else-if="dialogue.inputType">
+      <QInput
+        :label="dialogue.question"
+        type="date"
+        v-model="filledForm[dialogue.name]"
+        outlined
+        :ref="dialogue.name"
+        v-if="dialogue.inputType === 'schedule'"
+        @update:model-value="schedule"
+      ></QInput>
+      <QInput
+        :label="dialogue.question"
+        :type="dialogue.inputType"
+        v-model="filledForm[dialogue.name]"
+        outlined
+        :ref="dialogue.name"
+        v-else
+      ></QInput>
+    </template>
+  </div>
+  <template v-for="(action, key) in form.actions">
+    <EAction :action="submit" v-if="key === 'submit'"></EAction>
+  </template>
   </template>
 
   <script lang="ts">
-  import { QuestionType } from "../utils/types";
+  import { Action, QuestionType } from "../utils/types";
   import { defineComponent } from "vue";
+  import EAction from "./EAction.vue";
+  
+  let filledForm: Record<string, any> = {}
   
   export default defineComponent({
     data() {
       return {
-        step: 1,
-        repository,
+        filledForm,
       };
+    },
+    computed: {
+      submit() {
+        if(this.form.compute) {
+          this.form.compute(this.filledForm)
+        }
+        return this.form.actions.submit
+      }
     },
     /*setup () {
       return {
         step: ref(1)
       }
     },*/
+    components: {
+      EAction
+    },
     props: {
       form: {
         type: Object as () => QuestionType,
         required: true,
-      },
-      dynamicComponent: {
-        required: false,
-        type: String,
-      },
-    },
-    computed: {
-      filledForm() {
-        let form = {};
-        this.$refs.forEach((element: any) => {
-          Object.assign(form, {
-            [element]: element,
-          });
-        });
-        return;
-      },
-    },
-    methods: {
-      submit() {
-        this.form.submit.event(...this.form.submit.args);
-        
       }
     },
+    methods: {
+      schedule(value: string) {
+        //const client = new RestClient(config.api.Auth)
+        //client.post('schedule', new Date(value))
+        console.log("Schedule: ", value)
+      },
+    },
+    onBeforeMount() {
+    }
   });
   </script>
-  

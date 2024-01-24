@@ -6,7 +6,7 @@ import { config } from "../public/config";
 import { useRouter } from "vue-router";
 import { Series } from "../src/utils/DataTypes";
 import gql from "graphql-tag";
-import { Action, Filters, FormType, PageView, QuestionType } from "../src/utils/types";
+import { Action, DataGraph, DataTable, Filters, FormType, PageView, QuestionType, View } from "../src/utils/types";
 
 export class Attendance implements IDataView{
     client = new RestClient(config)
@@ -189,7 +189,7 @@ export class Attendance implements IDataView{
             ]
         }
 
-        const view: PageView = {
+        const graphView: View = {
             id: "",
             layout: "Grid",
             sections: [
@@ -197,8 +197,95 @@ export class Attendance implements IDataView{
                 average,
                 series
             ],
-            children: []
+            size: "",
+            navType: "top"
         }
+        const date: QuestionType = {
+            title: "",
+            index: 0,
+            actions: {},
+            content: [
+                {
+                    question: '',
+                    name: '',
+                    answer: '',
+                    inputType: 'date'
+                }
+            ]
+        }
+
+        const getDonut = async (timeDiff: string)=> {
+            const earlyDonutData = await this.getTimelinessCount(userId, timeDiff)
+            const earlyDonut: DataGraph = new DataGraph({
+                xaxisType: "number",
+                chartType: 'donut',
+                series: earlyDonutData.series,
+                label: earlyDonutData.label
+            })
+        }
+
+        const lateView: View = {
+            sections: [await this.getTimeliness('late', date.content[0].answer), getDonut('late')],
+            heading: 'Your Late Arrival',
+            id: "lateView",
+            layout: "Grid",
+            size: "",
+            navType: "top"
+        }
+
+        const earlyView: View = {
+            sections: [await this.getTimeliness('early', date.content[0].answer), getDonut('early')],
+            heading: 'Your Early Arrival',
+            id: "earlyView",
+            layout: "Grid",
+            size: "",
+            navType: "top"
+        }
+
+    }
+
+    async getTimeliness (timeDiff: string, date: string) {
+        const query = gql `
+        {
+            attendance(timeStatus: ${timeDiff}) {
+                timeDiff
+                event(startAt: ${date}) {
+                    startAt
+                    name
+                }
+            }
+        }`
+        const data = await dbClient.get('', query)
+
+        const table: DataTable = {
+            row: data.filter((attendance)=> {
+                return {
+                    date: attendance.event.startAt,
+                    name: attendance.event.name,
+                    time: attendance.timeDiff
+                }
+            })
+        }
+
+        return table
+    }
+
+    async getTimelinessCount(userId: string, timeDiff: string) {
+        const query = gql`
+        {
+            timelinessCount(userId: ${userId}, timeDiff: ${timeDiff}){
+                count
+                event {
+                    id
+                    name
+                }
+            }
+        }`
+
+        const data = await dbClient.get('', query)
+        const series: [] = data.map(entry => entry.eventName)
+        const label: [] = data.map(entry => entry)
+        return { series, label }
     }
 
     getCreateData(data?: any) {
@@ -224,6 +311,7 @@ export class Attendance implements IDataView{
             sections: [form],
             children: []
         })
+        return view
 
     }
 

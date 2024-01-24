@@ -18,7 +18,7 @@
 
 <script setup lang="ts">
 import { defineAsyncComponent, onBeforeMount, ref } from "vue";
-import { Action, VComponent, View } from "../utils/types";
+import { Action, VComponent, View, isActionString, isType } from "../utils/types";
 import { useRouter } from "vue-router";
 import EView from "./EView.vue";
 
@@ -81,10 +81,8 @@ onBeforeMount(() => {
       default:
         break;
     }
-    if (typeof props.action.event === 'function') {
-      event = () => {
-       props.action.event(props.action.args);
-      }
+    if (!isActionString(props.action.event)) {
+      event = props.action.event;
     }
   }
 });

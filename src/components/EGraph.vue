@@ -3,48 +3,31 @@
 </template>
 <script setup lang="ts">
 import ApexCharts from "apexcharts";
-import { DataPoint } from "../utils/DataTypes";
+import { DataGraph } from "../utils/types";
 const props = defineProps({
-    chartType: {
-        type: String
-    },
-    series: {
-      type: Array
-    },
-    data: {
-        type: Array as () => DataPoint[],
-    },
-    xaxisType: {
-        type: String as () => 'category' | 'number',
-        required: true
-    },
-    options: {
-        type: Object
-    }
+  graphData: {
+    type: Object as () => DataGraph,
+    required: true
+  }
 })
 const options = {
-    chart: {
-      type: props.chartType
-    },
-    series: [{
-      name: 'Data',
-      data: props.data,
-      markers: {
-        size: 4, // Enable markers and set their size
-        fillColors: '#fff', // Set marker fill color to white
-        strokeColors: '#000', // Set marker stroke color to black
-        strokeWidth: 2 // Set marker stroke width to 2px
-      }
-    }],
-    xaxis: {
-        type: props.xaxisType
+  chart: {
+    type: props.graphData.chartType
+  },
+  series: [{
+    name: 'Data',
+    data: props.graphData.data,
+    markers: {
+      size: 4, // Enable markers and set their size
+      fillColors: '#fff', // Set marker fill color to white
+      strokeColors: '#000', // Set marker stroke color to black
+      strokeWidth: 2 // Set marker stroke width to 2px
     }
-  };
-  
-  var chart = new ApexCharts(document.querySelector('#chart'), options);
-  
-  chart.render();
-  
+  }],
+  xaxis: {
+      type: props.graphData.xaxisType
+  }
+};
 
 var chart = new ApexCharts(document.querySelector('#chart'), options);
 
