@@ -1,32 +1,36 @@
-<template>
-    <template :key="view.id" :class="`${view.size} ${view.viewport}`" v-if="view.layout === 'Grid'">
+<template class="row">
+    <div :key="view.id" :class="`col-${view.size} ${view.viewport}`" v-if="view.layout === 'Grid'">
     <!--template :key="view.id" class="col-md" v-if="view.layout === 'Grid'"-->
       <h4 v-if="view.heading">{{ view.heading }}</h4>
-      <template v-for="section in view.sections">
-      <QList :bordered="menu.listStyle?.bordered"
-        :dense="menu.listStyle?.dense"
-        :dark="menu.listStyle?.dark">
-        <ENav v-if="isType(section, NavList)" :menuList="section" :navType="section.navType"></ENav>
-      </QList>
-        <Component v-if="isVComponent(section)"
-          :is="section.content"
-          v-bind="{...section.props, ...$attrs }" :key="section.content.name">
-        </Component>
-        <Component v-if="isComponent(section)"
-          :is="section"
-          v-bind="{...$attrs }" :key="section.name">
-        </Component>
-        <EDataView v-if="isDataType(section)" :data="section" :key="section.id"></EDataView>
-        <EDataView v-if="isType(section, QuestionType)" :form="section" :key="section.index"></EDataView>
-        <EDataView v-if="isType(section, FormType)" :formsSteppers="section" :key="section.name"></EDataView>
-        <EDataView v-if="isType(section, Slides)" :slide="section"></EDataView>
-        <EAction v-if="isType(section, Action)" :action="section"></EAction>
-        <EView v-if="isType(section, View) || isType(section, PageView)" :view="section" :key="section.id"></EView>
-        <!--<ENav
-        navType="y-tab"
-        :menuList="processMenus(view).yMenus"></ENav>
-        <RouterView :key="$route.fullPath"></RouterView>-->
-      </template>
+      <div class="row">
+        <div class="col-auto" v-for="section in view.sections">
+        <QList :bordered="menu.listStyle?.bordered"
+          :dense="menu.listStyle?.dense"
+          :dark="menu.listStyle?.dark">
+          <ENav v-if="isType(section, NavList)" :menuList="section" :navType="section.navType"></ENav>
+        </QList>
+          <Component v-if="isVComponent(section)"
+            :is="section.content"
+            v-bind="{...section.props, ...$attrs }" :key="section.content.name">
+          </Component>
+          <Component v-if="isComponent(section)"
+            :is="section"
+            v-bind="{...$attrs }" :key="section.name">
+          </Component>
+          <EDataView v-if="isDataType(section)" :data="section" :key="section.id"></EDataView>
+          <EDataView v-if="isType(section, QuestionType)" :form="section" :key="section.index"></EDataView>
+          <EDataView v-if="isType(section, FormType)" :formsSteppers="section" :key="section.name"></EDataView>
+          <EDataView v-if="isType(section, Slides)" :slide="section"></EDataView>
+          <EAction v-if="isType(section, Action)" :action="section"></EAction>
+          <EActionBar v-if="isType(section, ActionGroup)" :actions="section"></EActionBar>
+          <EView v-if="isType(section, View) || isType(section, PageView)" :view="section" :key="section.id"></EView>
+          
+          <!--<ENav
+          navType="y-tab"
+          :menuList="processMenus(view).yMenus"></ENav>
+          <RouterView :key="$route.fullPath"></RouterView>-->
+          </div>
+      </div>
 
 <!--<div v-for="section in view.sections">
         <ENav v-if="isNavList(section)" :menuList="section.content" :navType="section.navType"></ENav>
@@ -42,10 +46,9 @@
         <EView v-if="isType(section, View)" :view="section" :key="section.id"></EView>
 </div>-->
 
-
       <!--<ETabView :widgets="view">
       </ETabView>-->
-    </template>
+    </div>
 </template>
 
 <script lang="ts">
@@ -57,10 +60,11 @@ import { Layout, View, TabView, SectionView,
   isNavList, isType, NavLink, 
   FormType, VComponent, 
   QuestionType,
-  NavList, IView, DataType, Action } from "../utils/types";
+  NavList, IView, DataType, Action, ActionGroup } from "../utils/types";
 import { Menu, Slides } from "../utils/DataTypes";
 import ETabView from "./ETabView.vue";
 import EAction from "./EAction.vue";
+import EActionBar from "./EActionBar.vue";
 import { Component, defineComponent } from "vue";
 
 let topMenus: NavLink[] = []
@@ -104,6 +108,7 @@ export default defineComponent({
       isNavList,
       isType,
       Action,
+      ActionGroup,
       NavList,
       QuestionType,
       FormType,
@@ -124,7 +129,7 @@ export default defineComponent({
       vComponents*/
     }
   },
-  components: { EDataView, ETabView, ENav, EAction },
+  components: { EDataView, ETabView, ENav, EAction, EActionBar },
 
   props: {
     view: {

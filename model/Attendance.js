@@ -1,12 +1,23 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import { dbClient } from "../config/model";
 import { EdiStorage } from "@edifiles/services";
 import { useRouter } from "vue-router";
 import gql from "graphql-tag";
-import { Action, DataGraph, FormType, PageView, View } from "../src/utils/types";
-export class Attendance {
-    constructor() {
-        this.id = "Attendance";
-    }
+import { Action, DataGraph, PageView, View } from "../src/utils/types";
+import { Member } from "./Member";
+import { Event } from "./Event";
+import { filter } from "@edifiles/services/dist/module/utility/Query";
+import { useDate } from "../src/utils/useDate";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+let Attendance = class Attendance {
     async captureFaces() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
@@ -25,7 +36,7 @@ export class Attendance {
         if (newFace) {
             const storage = new EdiStorage();
             storage.post('member', '/member', blob);
-            newFace.forEach(face => {
+            newFace.forEach((face) => {
                 dbClient.post('member', face);
                 dbClient.post('attendance', face);
             });
@@ -40,7 +51,7 @@ export class Attendance {
             const query = `{
                 member(id: ${existingFace})
             }`;
-            existingFace.forEach(face => {
+            existingFace.forEach((face) => {
                 dbClient.post('attendance', face);
             });
             useRouter().push({
@@ -87,33 +98,24 @@ export class Attendance {
                         y: ''
                     }]
             }];
-        const query = gql `attendance (user_id: ${userId})`;
-        const attendanceList = await dbClient.get('', query);
-        attendanceList.forEach(attendance => {
+        const query = {
+            name: "",
+            data: undefined,
+            filter: [filter('eq', "user_id", userId)],
+            columns: []
+        };
+        const attendanceList = await dbClient.get(query);
+        attendanceList.forEach((attendance) => {
             let data = {
                 x: 0,
                 y: 0
             };
-            data.x = attendance.event.startAt;
+            data.x = attendance.event.start_at.getDate();
             data.y = attendance.timeliness;
             series[0].data.push(data);
         });
-        const dateOptions = {
-            title: "",
-            index: 0,
-            actions: {},
-            content: [
-                {
-                    question: '',
-                    name: '',
-                    answer: '',
-                    inputType: 'date'
-                }
-            ]
-        };
         const average = {
-            index: "",
-            rangeList: [],
+            indexName: "",
             checks: [
                 {
                     attribute: '',
@@ -124,17 +126,6 @@ export class Attendance {
                     ],
                 }
             ]
-        };
-        const graphView = {
-            id: "",
-            layout: "Grid",
-            sections: [
-                dateOptions,
-                average,
-                series
-            ],
-            size: "",
-            navType: "top"
         };
         const date = {
             title: "",
@@ -149,6 +140,17 @@ export class Attendance {
                 }
             ]
         };
+        const graphView = {
+            id: "",
+            layout: "Grid",
+            sections: [
+                date,
+                average,
+                series
+            ],
+            size: "",
+            navType: "top"
+        };
         const getDonut = async (timeDiff) => {
             const earlyDonutData = await this.getTimelinessCount(userId, timeDiff);
             const earlyDonut = new DataGraph({
@@ -160,7 +162,7 @@ export class Attendance {
             return earlyDonut;
         };
         const lateView = {
-            sections: [await this.getTimeliness('late', date.content[0].answer), getDonut('late')],
+            sections: [await this.getTimeliness('late', useDate().get().getDate().toString()), getDonut('late')],
             heading: 'Your Late Arrival',
             id: "lateView",
             layout: "Grid",
@@ -168,7 +170,7 @@ export class Attendance {
             navType: "top"
         };
         const earlyView = {
-            sections: [await this.getTimeliness('early', date.content[0].answer), getDonut('early')],
+            sections: [await this.getTimeliness('early', useDate().get().toDateString()), getDonut('early')],
             heading: 'Your Early Arrival',
             id: "earlyView",
             layout: "Grid",
@@ -223,12 +225,12 @@ export class Attendance {
                 }
             }
         }`;
-        const data = await dbClient.get('', query);
-        const series = data.map(entry => entry.eventName);
-        const label = data.map(entry => entry);
+        const data = await dbClient.get(query);
+        const series = data.map((entry) => entry.eventName);
+        const label = data.map((entry) => entry);
         return { series, label };
     }
-    async getCreateData(data) {
+    async getCreateData(eventId) {
         const members = await dbClient.get(gql `{members}`);
         const filter = {
             indexName: "Members",
@@ -236,7 +238,7 @@ export class Attendance {
             checks: [
                 {
                     attribute: 'Members',
-                    values: members.filter((member) => {
+                    values: members.map((member) => {
                         return {
                             label: `${member.firstName} ${member.lastName}`
                         };
@@ -246,36 +248,67 @@ export class Attendance {
         };
         const memberView = new View({
             sections: [
-                filter
+                filter,
+                new Action({
+                    event() {
+                        const query = {
+                            name: "member",
+                            data: members.map((member) => {
+                                return {
+                                    eventId,
+                                    userId: member.id,
+                                    timeTaken: new Date()
+                                };
+                            }),
+                            filter: [],
+                            columns: []
+                        };
+                        dbClient.post(query);
+                    }
+                })
             ],
             id: "",
             layout: "Grid",
             size: "",
             navType: "top"
         });
-        const form = new FormType('', 'Submit', [
-            {
-                index: 1,
-                title: '',
-                actions: {
-                    captureFaces: new Action({
-                        event: this.captureFaces,
-                        label: 'capture faces',
-                    }),
-                    markMembers: new Action({
-                        event: "Modal",
-                        args: memberView,
-                        label: "Mark members"
-                    })
-                }
-            }
-        ]);
+        const actions = [
+            new Action({
+                event: this.captureFaces,
+                label: 'capture faces',
+            }),
+            new Action({
+                event: "Modal",
+                args: memberView,
+                label: "Mark members"
+            })
+        ];
         const view = new PageView({
             id: "",
             layout: "Grid",
-            sections: [form],
+            sections: actions,
             children: []
         });
         return view;
     }
-}
+};
+__decorate([
+    PrimaryGeneratedColumn('uuid'),
+    __metadata("design:type", String)
+], Attendance.prototype, "id", void 0);
+__decorate([
+    ManyToOne(() => Event, event => event.attendances),
+    __metadata("design:type", Object)
+], Attendance.prototype, "event", void 0);
+__decorate([
+    ManyToOne(() => Member, member => member.attendances),
+    __metadata("design:type", Object)
+], Attendance.prototype, "member", void 0);
+__decorate([
+    Column({ type: 'int' }),
+    __metadata("design:type", Number)
+], Attendance.prototype, "timeliness", void 0);
+Attendance = __decorate([
+    Entity()
+], Attendance);
+export { Attendance };

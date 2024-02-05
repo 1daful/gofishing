@@ -1,5 +1,5 @@
 <template>
-  <QCard>
+  <QCard :class="data.class" :id="data.id">
     <QImg v-if="data.overlay" :src="data.overlay" style="max-width: 30em; max-height: 50em">
       <div class="row">
         <EList :data="data"></EList>

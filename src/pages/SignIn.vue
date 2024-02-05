@@ -87,14 +87,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { EAuth } from "@edifiles/services";
-//import { FirebaseAuth } from "../api/auth/FirebaseAuth";
-import { Axiosi } from "@edifiles/services";
 import { config } from "../../public/config";
+//import { FirebaseAuth } from "../api/auth/FirebaseAuth";
+//import { Axiosi } from "@edifiles/services";
 //import Userfront, {SignupForm} from "@userfront/vue"
+import { auth } from "../../config/model";
 
-let client = new Axiosi();
-const auth = new EAuth(config.api.Supabase)
+//let client = new Axiosi();
 
 let socials = config.socials;
 //let auth = new FirebaseAuth()
@@ -120,7 +119,6 @@ export default defineComponent({
       loading: false,
       emailRef,
       isPwd: true,
-      client,
       auth,
       socials,
       bgImg: "a",
@@ -201,7 +199,7 @@ export default defineComponent({
       //this.emailRef.value.validate()
       if (await this.validate()) {
         this.loading = true;
-        const { user, session, error } = await this.auth.login(undefined, this.user);
+        const { user, session, error } = await this.auth.auth.login(undefined, this.user);
         if (error) {
           this.errors.signUpErrMsg = error.message;
           //console.log("sign in error try:", error)

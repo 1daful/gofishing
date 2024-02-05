@@ -1,20 +1,29 @@
 import { Recommender } from "@edifiles/services";
 import { DataType, Recommendation, View } from "./types";
-import { config } from "../../edifiles.config";
+import { config2 } from "../../config/edifiles.config";
 import mitt from "mitt";
 import { defineStore } from "pinia";
-import { useWidgets } from "./useWidgets";
+import { InputType } from "./types";
 
-const emitter = mitt()
-const Main = useWidgets().get('Main')
+//const emitter = mitt()
+//onst Main = useWidgets().get('Main')
 
-export const useService = defineStore({
+export const useData = defineStore({
     id: "useData",
     state: () => ({
-        services: config.template.services,
+        //services: config2.template.services,
+        data: undefined
     }),
     actions: {
-        async exec(name: string, action: string, ...args: any) {
+        async get(type: InputType, filters: any) {
+            const data = await import(`/use${type}`)
+            return data().get(filters)
+        },
+        async set(type: InputType, value: any) {
+            const data = await import(`/use${type}`)
+            data().set(value)
+        }
+        /*async exec(name: string, action: string, ...args: any) {
             const service = this.services[name]
             if (service[name] instanceof Function) {
               // Synchronous function
@@ -32,11 +41,11 @@ export const useService = defineStore({
         },
         register(viewId: string, ...actions: Function[]) {
             
-        }
+        }*/
     }
 })
 
-const recomm = new Recommender()
+//const recomm = new Recommender()
 
 /*export const getRecommendations =  async (section: Recommendation, navType: navType, category?: string, userId?: string, itemId?: string) => {
     let res

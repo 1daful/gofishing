@@ -12,7 +12,7 @@
   </ENavMenus>-->
   <div class="row">
     <!--EView :view="GlobalView.mainLayout"></EView-->
-    <ELayout :view="view"></ELayout>
+    <ELayout :view="view" :heroStyle="heroStyle"></ELayout>
   </div>
   <RouterView :key="useRoute().fullPath"></RouterView>
 </template>
@@ -24,12 +24,13 @@ import { GlobalView } from "../../config/edifiles.config";
 import config2 from "../../public/config.json";
 import ELayout from "../components/ELayout.vue";
 import { View } from "../utils/types";
+import { HeroStyle } from "../utils/typeStyle";
 
 const hero = config2.hero;
 const $q = useQuasar();
 const mainHeader = ref(null);
 const bgImg = "../public/hero_blue.jpeg";
-let heroStyle = {
+let heroStyle: HeroStyle | undefined = {
   backgroundImage: "url(" + bgImg + ")",
   position: "relative",
   height: "500px",
@@ -41,12 +42,12 @@ let heroStyle = {
   justifyContent: "center",
   alignItems: "center",
   fixedNav: true,
-  headerColor: "rgba(255, 0,0,1)",
+  headerColor: "rgba(255, 0,255,1)",
 };
 
 const view: View = new View({
   sections: GlobalView.mainLayout.sections,
-  id: "",
+  id: "mainHeader",
   layout: "Grid",
   size: "",
   navType: "top"
@@ -64,6 +65,7 @@ console.log($q.dark.mode); // "auto", true, false
 $q.dark.toggle();
 
 onBeforeMount(() => {
+    console.log("MYView ", view)
   /*GlobalView.mainLayout.children.forEach(child => {
     useRouter().addRoute('MainLayout', {
       path: `/${child.id}`,
@@ -73,7 +75,7 @@ onBeforeMount(() => {
   });*/
 
   if (useRoute().path !== "/") {
-    heroStyle = {};
+    heroStyle = undefined;
   }
 });
 </script>

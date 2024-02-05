@@ -141,55 +141,29 @@ export const config = {
             "domain": "dev-x-wx5tsn.auth0.com",
             "clientSecret": "tRctqxf33O6MrHUwNj-DqFkTGfdlrZqKai3oF134_CiK1-Ya31EPS2L_Uc3x3sVy"
         },
-        "GoogleBooks": {
-            "baseUrl": "https://books.googleapis.com/books/v1",
-            "config": {
-                "baseParams": {
-                    "apikey": "AIzaSyAlbER-HPdipvFgKJc-PWWZYhBIBSPxBNQ"
+        Infobip: {
+            baseUrl: "https://yrlnmj.api.infobip.com",
+            baseConfig: {
+                headers: {
+                    'Authorization': 'App 7ca8a7b599ebdf21e0915e6f15c21c59-c39394c8-7161-412f-8df9-d2b2dc7c1033',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            },
+            request: {
+                sms(msg) {
+                    return {
+                        url: '/sms/2/text/advanced',
+                        data: {
+                            messages: [{
+                                    destinations: [{ to: msg.address }],
+                                    from: 'ServiceSMS',
+                                    text: msg.body,
+                                }],
+                        }
+                    };
                 }
             }
-        },
-        "PaperQuotes": {
-            "baseUrl": "https://api.paperquotes.com/apiv1",
-            "id": "",
-            "key": ""
-        },
-        "SoundCloud": {
-            "baseUrl": "api.soundcloud.com",
-            "baseParams": {
-                "id": "",
-                "key": ""
-            }
-        },
-        "TheySaidSo": {
-            "baseUrl": "http://quotes.rest",
-            "id": "",
-            "key": ""
-        },
-        "ZenQuotes": {
-            "baseUrl": "https://zenquotes.io/api",
-            "id": "",
-            "key": "",
-            "baseParams": {
-                "headers": {
-                    "accept": "application/json",
-                    "Access-Control-Allow-Origin": "*"
-                }
-            }
-        },
-        "Youtube": {
-            "baseUrl": "https://googleapis.com/youtube/v3",
-            "config": {
-                "baseParams": {
-                    "id": "",
-                    "key": ""
-                }
-            }
-        },
-        "InternetArchive": {
-            "baseUrl": "archive.org/services/search/v1/scrape",
-            "id": "",
-            "key": ""
         },
         "Gorse": {
             "id": "http://127.0.0.1:8088",
@@ -316,13 +290,6 @@ export const config = {
                     "username": "admin",
                     "password": "Complexpass#123"
                 }
-            }
-        },
-        "Deezer": {
-            "baseUrl": "https://api.deezer.com",
-            "config": {
-                "app_id": "573262",
-                "output": "json"
             }
         },
         "Meilisearch": {

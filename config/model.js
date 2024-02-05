@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { DataType, NavList, View, isType } from '../src/utils/types';
-import { Repository, SDKClient } from "@edifiles/services";
+import { EAuth, Repository, SDKClient } from "@edifiles/services";
 import { header } from '../src/utils/DataView';
 import { SupabaseRepo } from '@edifiles/services/dist/module/model/SupabaseRepo';
 import { gql } from 'graphql-tag';
@@ -27,7 +27,7 @@ export class MemberList2 {
     constructor(data) {
         this.card = true;
         Object.assign(this, data);
-        this.items.header.forEach(content => {
+        this.items.header.forEach((content) => {
             let key = content[content.prop];
             let value = this[content.key];
             let gh = [];
@@ -54,6 +54,7 @@ __decorate([
     __metadata("design:type", String)
 ], MemberList2.prototype, "thumbnail", void 0);
 export const dbClient = new SDKClient(new SupabaseRepo(config.api.Supabase));
+export const auth = new EAuth(config.api.Supabase);
 export class Service extends DataType {
     constructor(data) {
         super(data);

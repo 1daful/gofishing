@@ -43,7 +43,7 @@ export async function getListData(name?: string, query?: DocumentNode) {
 }
 
 export async function getSingleData(query: DocumentNode) {
-    const data = await dbClient.get('', query)
+    const data = await dbClient.get(query)
     const items = {
         header: {
             name: {

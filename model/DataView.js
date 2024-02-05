@@ -35,7 +35,7 @@ export async function getListData(name, query) {
     return dataType;
 }
 export async function getSingleData(query) {
-    const data = await dbClient.get('', query);
+    const data = await dbClient.get(query);
     const items = {
         header: {
             name: {

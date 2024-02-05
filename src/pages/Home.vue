@@ -8,30 +8,20 @@
     </div>
     <AwHorizontal :dataList="[data, data, data, data]" layout="Grid"></AwHorizontal>
   </QLayout>-->
-  <EView :view="headerView" hello="hello"></EView>
-  <EView
-    :view="view2"
-    :hello="pr.hello"
-    actionName="filters"
-    :query="query"
-    :data="filterData">
-  </EView>
+  <EView :view="view"></EView>
+  
 </template>
 
 <script setup lang="ts">
 import { onBeforeMount, shallowRef } from "vue";
 import EView from "../components/EView.vue";
 import { DataType, Filters, View, NavList } from "../utils/types";
-import Buton from "../components/Buton.vue";
 //import { mount } from "mount-vue-component";
 
-const query = "Hello there";
 const filterData: Filters = {
-  index: "",
+  indexName: "",
   rangeList: [
-    {
-      title: "Hello",
-    },
+    "Hello"
   ],
   checks: [
     {
@@ -46,13 +36,6 @@ const filterData: Filters = {
       ],
     },
   ],
-};
-
-const pr = { hello: "Hello Btn" };
-const params = {
-  params: {
-    name: "Home",
-  },
 };
 
 //const viewa = useWidgets();
@@ -110,36 +93,8 @@ const view = shallowRef(new View({
   layout: "Grid",
   navType: 'center',
   size: 'col-8',
-  sections: [data],
+  sections: [data, filterData],
 }));
-
-const navList: NavList = new NavList({
-  id: "first",
-  content: [
-    {
-      path: '/blog',
-      name: 'Blog',
-      params: {},
-      query: {}
-    },
-    {
-      path: '/videos',
-      name: 'Videos',
-      params: {},
-      query: {}
-    }
-  ],
-  navType: "top"
-})
-const headerView = new View({
-  id: 'header',
-  layout: 'Grid',
-  navType: 'top',
-  size: 'col-12',
-  sections: [Buton, Buton, navList]
-})
-
-const view2 = view
 
 
 //let SBL = viewa.get('Header')

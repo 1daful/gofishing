@@ -1,13 +1,41 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import gql from "graphql-tag";
 import { FormType, DataType, PageView, Action } from "../src/utils/types";
-import { dbClient } from "../config/model";
-export class Event {
+import { auth, dbClient } from "../config/model";
+import { Session } from "./Session";
+import { Invitation } from "./Invitation";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Attendance } from "./Attendance";
+import { Service } from "./Service";
+let Event = class Event {
     async getCreateData(data) {
         const form = new FormType('', 'Submit', [
             {
                 title: '',
                 index: 1,
-                actions: {},
+                actions: {
+                    submit: new Action({
+                        async event(filledForm) {
+                            const user = await auth.getUser();
+                            filledForm.user_id = user.id;
+                            const query = {
+                                name: "",
+                                data: filledForm,
+                                filter: [],
+                                columns: []
+                            };
+                            dbClient.post(query);
+                        }
+                    })
+                },
                 content: [
                     {
                         question: 'name of event',
@@ -17,13 +45,13 @@ export class Event {
                     },
                     {
                         question: 'start',
-                        name: 'startAt',
+                        name: "start_at",
                         answer: '',
                         inputType: 'schedule',
                     },
                     {
                         question: 'end',
-                        name: 'endAt',
+                        name: 'end_at',
                         answer: '',
                         inputType: 'date'
                     },
@@ -71,10 +99,10 @@ export class Event {
                 ],
                 center: [
                     {
-                        label: data.startAt
+                        label: data.start_at.toUTCString()
                     },
                     { label: "to" },
-                    { label: data.endAt }
+                    { label: data.end_at.toUTCString() }
                 ],
                 footer: [
                     data.sessions.filter((session) => {
@@ -130,15 +158,15 @@ export class Event {
                     { label: data.name }
                 ],
                 center: [
-                    { label: data.startAt },
-                    { label: data.endAt }
+                    { label: data.start_at },
+                    { label: data.end_at }
                 ]
             }
         });
         return dataType;
     }
     async getSessionDataView(session) {
-        let startTime = session.startAt;
+        let startTime = session.start_at;
         let timeRemaining;
         let timeElapse;
         const dataType = new DataType({
@@ -148,7 +176,10 @@ export class Event {
                         label: session.name
                     },
                     {
-                        label: session.author.name
+                        label: session.author.firstName
+                    },
+                    {
+                        label: session.author.lastName
                     },
                     {
                         label: timeRemaining
@@ -165,7 +196,7 @@ export class Event {
             },
             calculateTime() {
                 const currentTime = new Date().getTime();
-                const elapsedTime = currentTime - startTime;
+                const elapsedTime = currentTime - startTime.getTime();
                 const totalEventDuration = 3 * 60 * 60 * 1000;
                 const remainingTime = totalEventDuration - elapsedTime;
                 const elapsedHours = Math.floor(elapsedTime / (1000 * 60 * 60));
@@ -217,10 +248,10 @@ export class Event {
                 submit: new Action({
                     event(filledForm) {
                         const session = {
-                            eventId: eventId,
+                            event_id: eventId,
                             name: filledForm.name,
-                            startAt: filledForm.startAt,
-                            endAt: filledForm.endAt,
+                            start_at: filledForm.start_at,
+                            end_at: filledForm.end_at,
                             anchor: filledForm.anchor,
                             content: filledForm.content
                         };
@@ -237,13 +268,13 @@ export class Event {
                 },
                 {
                     question: 'start',
-                    name: 'startAt',
+                    name: 'start_at',
                     answer: '',
                     inputType: 'schedule'
                 },
                 {
                     question: 'end',
-                    name: 'endAt',
+                    name: 'end_at',
                     answer: '',
                     inputType: 'date'
                 },
@@ -270,4 +301,44 @@ export class Event {
         };
         return view;
     }
-}
+};
+__decorate([
+    PrimaryGeneratedColumn('uuid'),
+    __metadata("design:type", String)
+], Event.prototype, "id", void 0);
+__decorate([
+    Column({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Event.prototype, "create_at", void 0);
+__decorate([
+    Column({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Event.prototype, "start_at", void 0);
+__decorate([
+    Column({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Event.prototype, "end_at", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], Event.prototype, "name", void 0);
+__decorate([
+    OneToMany(() => Session, session => session.event),
+    __metadata("design:type", Object)
+], Event.prototype, "sessions", void 0);
+__decorate([
+    OneToMany(() => Invitation, invitation => invitation.event),
+    __metadata("design:type", Object)
+], Event.prototype, "invitations", void 0);
+__decorate([
+    OneToMany(() => Attendance, (attendance) => attendance.event),
+    __metadata("design:type", Object)
+], Event.prototype, "attendances", void 0);
+__decorate([
+    ManyToOne(() => Service, (service) => service.events),
+    __metadata("design:type", Object)
+], Event.prototype, "service", void 0);
+Event = __decorate([
+    Entity()
+], Event);
+export { Event };

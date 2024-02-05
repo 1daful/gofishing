@@ -1,11 +1,21 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import gql from "graphql-tag";
 import { Action, DataType } from "../src/utils/types";
 import { addModel, dbClient } from "../config/model";
 import { RestClient, Callback } from "@edifiles/services";
 import { config } from "../public/config";
-export class ReachOut {
+import { Member } from "./Member";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+let ReachOut = class ReachOut {
     constructor() {
-        this.id = 'reachout';
         addModel(this, undefined, "mainMenu");
     }
     async getCreateData() {
@@ -49,6 +59,22 @@ export class ReachOut {
         const form = {
             title: "",
             index: 0,
+            compute(filledForm) {
+                const email = {
+                    name: filledForm.title,
+                    subject: "",
+                    text: "",
+                    templateKey: "",
+                    html: filledForm.content,
+                    date: new Date(),
+                    attachments: [],
+                    inline_images: [],
+                    headers: [],
+                    messenger: filledForm.messenger,
+                    body: filledForm.content
+                };
+                return { email };
+            },
             actions: {
                 submit: new Action({
                     event(filledForm) {
@@ -66,22 +92,7 @@ export class ReachOut {
                             body: filledForm.content
                         };
                         const schedule = new Callback(config.backEndApi);
-                        switch (filledForm.sendOption) {
-                            case 'attendance':
-                                const attendanceQuery = gql `{
-                                    serviceScore(totalAttendance: ${filledForm.sendOption})
-                                }`;
-                                schedule.post(config.backEndApi.requests.schedule(attendanceQuery, config.api.ListMonk.requests.campaign(email)));
-                                break;
-                            case "Birthday":
-                                const BirthdayQuery = gql `{
-                                    user(dateOfBirth: ${new Date()})
-                                }`;
-                                schedule.post(config.backEndApi.requests.schedule(BirthdayQuery, config.api.ListMonk.requests.campaign(email)));
-                                break;
-                            default:
-                                break;
-                        }
+                        schedule.fetch(config.backEndApi.requests.schedule(filledForm.sendOption.params(filledForm.sendOption.answer), filledForm.messageType.params(email)));
                     }
                 })
             },
@@ -99,14 +110,20 @@ export class ReachOut {
                     name: 'senderId'
                 },
                 {
-                    question: 'action point',
+                    question: 'message type',
                     answer: '',
                     options: [
-                        'sms',
-                        'email',
+                        {
+                            label: 'sms',
+                            params: config.api.Infobip.request.sms
+                        },
+                        {
+                            label: 'email',
+                            params: config.api.ListMonk.requests.campaign
+                        },
                         'notification'
                     ],
-                    name: 'actionPoint'
+                    name: 'message_type'
                 },
                 {
                     question: 'content',
@@ -115,11 +132,27 @@ export class ReachOut {
                     name: 'content'
                 },
                 {
-                    question: 'filter recipients',
+                    question: 'filter recipients by',
                     answer: '',
                     options: [
-                        'Attendance',
-                        'Birthday',
+                        {
+                            label: 'Attendance',
+                            inputType: 'number',
+                            params: (attendance) => {
+                                return gql `{
+                                    serviceScore(total_attendance: ${attendance})
+                                }`;
+                            }
+                        },
+                        {
+                            label: 'Birthday',
+                            inputType: 'date',
+                            params: (date) => {
+                                return gql `{
+                                    user(date_of_birth: ${date})
+                                }`;
+                            }
+                        },
                         {
                             label: 'Invitees',
                             children: [
@@ -180,4 +213,33 @@ export class ReachOut {
         };
         return view;
     }
-}
+};
+__decorate([
+    PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], ReachOut.prototype, "id", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], ReachOut.prototype, "title", void 0);
+__decorate([
+    ManyToOne(type => Member),
+    __metadata("design:type", Object)
+], ReachOut.prototype, "sender", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], ReachOut.prototype, "message_type", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], ReachOut.prototype, "content", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], ReachOut.prototype, "send_option", void 0);
+ReachOut = __decorate([
+    Entity(),
+    __metadata("design:paramtypes", [])
+], ReachOut);
+export { ReachOut };

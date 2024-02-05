@@ -1,10 +1,28 @@
 import gql from "graphql-tag";
+import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedColumn } from "typeorm"
 import { DataType, PageView, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient } from "../config/model";
+import { Member } from "./Member";
+import { Group } from "./Group";
 
+@Entity()
 export class Message implements IDataView {
-    id: string = "message"
+    @PrimaryGeneratedColumn() id!: number
+    @Column() title!: string
+    @Column() content!: string
+    @Column() address!: ''
+    @CreateDateColumn() created_at!: Date
+    @UpdateDateColumn() updated_at!: Date;
+
+    
+
+    @UpdateDateColumn()
+    schedule!: Date
+    //@Column({ type: 'timestamptz' }) lastTime!: Date
+    @Column() thumbnail!: string
+    avatar!: string
+
     async getCreateData() {
         const membersQuery = gql `member {
             firstName
@@ -18,8 +36,8 @@ export class Message implements IDataView {
             admins
         }`
         
-        const members = await dbClient.get('', membersQuery)
-        const groups = await dbClient.get('', groupsQuery)
+        const members: Member[] = await dbClient.get(membersQuery)
+        const groups: Group[] = await dbClient.get(groupsQuery)
 
         const options = [
             {
@@ -35,7 +53,7 @@ export class Message implements IDataView {
                 label: 'members',
                 children: members.map((member) => {
                     return {
-                        label: member.name,
+                        label: `${member.firstName} ${member.lastName}`,
                         id: member.id
                     }
                 }),          
@@ -91,6 +109,7 @@ export class Message implements IDataView {
         }
         return view
     }
+    
     async getListData(senderUserId?: string, senderGroupId?: string, ...recipientIds: string[]) {
         let query
         if (senderUserId) {
@@ -102,7 +121,7 @@ export class Message implements IDataView {
         if (recipientIds) {
             query = gql`message (recipient_ids: ${recipientIds})`
         }
-        const data = await dbClient.get('', query)
+        const data = await dbClient.get(query)
         const dataType: DataType = new DataType({
             actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
             items: {

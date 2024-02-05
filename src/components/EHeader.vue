@@ -72,14 +72,13 @@
   </q-layout>
 </template>
 <script setup lang="ts">
-import { TabType, View, Action } from "../utils/types";
+import { View, Action } from "../utils/types";
 import { computed, ref } from "vue";
-import { EAuth } from '@edifiles/services';
 import EView from "./EView.vue";
 import EAction from "./EAction.vue";
 import { HeaderStyle, ListStyle } from "../utils/DataTypes";
+import { auth } from "../../config/model";
 
-const auth = new EAuth()
 let drawerOpen = false;
 let userInfo = auth.getUser();
 const props = defineProps({

@@ -6,5 +6,6 @@ export class VideoShare {
         throw new Error("Method not implemented.");
     }
     getSingleData(id) {
+        throw new Error("Method not implemented.");
     }
 }

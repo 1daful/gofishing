@@ -61,8 +61,8 @@ export class Filters{
         Object.assign(this, filters)
     }
     indexName!: string
-    options?: []
-    rangeList?: []
+    options?: OptionsType
+    rangeList?: string[]
     checks?: {
         attribute: string,
         values: {
@@ -215,7 +215,7 @@ export class Action {
     constructor(action: Action) {
         Object.assign(this, action)
     }
-    name?: string
+    id?: string
     type?: string
     label?: string
     icon?: string
@@ -238,6 +238,7 @@ export class ActionGroup {
     style?: ActionStyle
     state?: ActionState
     class?: string
+    navType!: TabType
 }
     
 export class Video {
@@ -301,13 +302,19 @@ export class Comment {}
 
 export class Text {}
 
-export class Calendar {}
+export class Calendar {
+    year!: string
+    month!: string
+    day!: number
+    date!: Date
+}
 
 export class Table {}
 
 export class Form {}
 
 export type InputType = 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule'
+
 export type OptionsType = ({
     id?: string | number,
     label: string,
@@ -318,10 +325,12 @@ export type OptionsType = ({
 
 export class QuestionType {
     constructor(data: {
+        id: string,
         title: string,
         index: number,
         compute?: Function,
-        content?: {
+        class?: string,
+        content: {
             question: string,
             inputType?: InputType
             options?: OptionsType
@@ -338,11 +347,13 @@ export class QuestionType {
         actions: Record<string, Action>
         meta?: any
     }) {
+        this.id = data.id
         this.title = data.title;
         this.index = data.index;
         this.content = data.content;
         this.icon = data.icon;
         this.description = data.description;
+        this.class = data.class
         if (isActionString(data.actions)) {
             this.actions = {
                 submit: new Action({
@@ -359,10 +370,12 @@ export class QuestionType {
         }
         this.meta = data.meta;
     }
+    id: string;
     title: string;
     index: number;
     compute?: Function;
-    content?: {
+    class?: string;
+    content: {
         question: string;
         inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule';
         component?: Component;

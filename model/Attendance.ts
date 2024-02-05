@@ -5,9 +5,27 @@ import { useRouter } from "vue-router";
 import { Series } from "../src/utils/DataTypes";
 import gql from "graphql-tag";
 import { Action, DataGraph, DataTable, Filters, FormType, PageView, QuestionType, View } from "../src/utils/types";
+import { Member } from "./Member";
+import { Event } from "./Event";
+import { filter } from "@edifiles/services/dist/module/utility/Query";
+import { useDate } from "../src/utils/useDate";
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Relation } from "typeorm";
 
-export class Attendance implements IDataView{
-    id = "Attendance"
+@Entity()
+export class Attendance implements IDataView {
+
+    @PrimaryGeneratedColumn('uuid')
+    id!: string;
+
+    @ManyToOne(() => Event, event => event.attendances)
+    event!: Relation<Event>;
+
+    @ManyToOne(() => Member, member => member.attendances)
+    member!: Relation<Member>;
+
+    @Column({ type: 'int' })
+    timeliness!: number;
+
     //client = new RestClient(config.api.)
     async captureFaces() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -144,38 +162,28 @@ export class Attendance implements IDataView{
                 y: ''
             }]
         }]
-        const query = gql`attendance (user_id: ${userId})`
-        const attendanceList = await dbClient.get('', query)
+        const query: QueryType = {
+            name: "",
+            data: undefined,
+            filter: [filter('eq', "user_id", userId)],
+            columns: []
+        }
+        const attendanceList: Attendance[] = await dbClient.get(query)
 
 
-        attendanceList.forEach((attendance: { event: { startAt: number; }; timeliness: number; }) => {
+        attendanceList.forEach((attendance) => {
             let data = {
                 x: 0,
                 y: 0
             }
 
-            data.x = attendance.event.startAt
+            data.x = attendance.event.start_at.getDate()
             data.y = attendance.timeliness
             series[0].data.push(data)
         });
 
-        const dateOptions: QuestionType = {
-            title: "",
-            index: 0,
-            actions: {},
-            content: [
-                {
-                    question: '',
-                    name: '',
-                    answer: '',
-                    inputType: 'date'
-                }
-            ]
-        }
-
         const average: Filters = {
-            index: "",
-            rangeList: [],
+            indexName: "",
             checks: [
                 {
                     attribute: '',
@@ -188,17 +196,6 @@ export class Attendance implements IDataView{
             ]
         }
 
-        const graphView: View = {
-            id: "",
-            layout: "Grid",
-            sections: [
-                dateOptions,
-                average,
-                series
-            ],
-            size: "",
-            navType: "top"
-        }
         const date: QuestionType = {
             title: "",
             index: 0,
@@ -211,6 +208,18 @@ export class Attendance implements IDataView{
                     inputType: 'date'
                 }
             ]
+        }
+        
+        const graphView: View = {
+            id: "",
+            layout: "Grid",
+            sections: [
+                date,
+                average,
+                series
+            ],
+            size: "",
+            navType: "top"
         }
 
         const getDonut = async (timeDiff: string)=> {
@@ -225,7 +234,7 @@ export class Attendance implements IDataView{
         }
 
         const lateView: View = {
-            sections: [await this.getTimeliness('late', date.content[0].answer), getDonut('late')],
+            sections: [await this.getTimeliness('late', useDate().get().getDate().toString()), getDonut('late')],
             heading: 'Your Late Arrival',
             id: "lateView",
             layout: "Grid",
@@ -234,7 +243,7 @@ export class Attendance implements IDataView{
         }
 
         const earlyView: View = {
-            sections: [await this.getTimeliness('early', date.content[0].answer), getDonut('early')],
+            sections: [await this.getTimeliness('early', useDate().get().toDateString()), getDonut('early')],
             heading: 'Your Early Arrival',
             id: "earlyView",
             layout: "Grid",
@@ -295,7 +304,7 @@ export class Attendance implements IDataView{
             }
         }`
 
-        const data = await dbClient.get('', query)
+        const data = await dbClient.get(query)
         const series: [] = data.map((entry: { eventName: any; }) => entry.eventName)
         const label: [] = data.map((entry: any) => entry)
         return { series, label }
@@ -344,28 +353,22 @@ export class Attendance implements IDataView{
             size: "",
             navType: "top"
         })
-        const form: FormType = new FormType('', 'Submit', [
-            {
-                index: 1,
-                title: '',
-                actions: {
-                    captureFaces: new Action({
-                        event: this.captureFaces,
-                        label: 'capture faces',
-                    }),
-                    markMembers: new Action({
-                        event: "Modal",
-                        args: memberView,
-                        label: "Mark members"
-                    })
-                }
-            }
-        ])
+        const actions = [
+                new Action({
+                    event: this.captureFaces,
+                    label: 'capture faces',
+                }),
+                new Action({
+                    event: "Modal",
+                    args: memberView,
+                    label: "Mark members"
+                })
+            ]
 
         const view: PageView = new PageView({
             id: "",
             layout: "Grid",
-            sections: [form],
+            sections: actions,
             children: []
         })
         return view

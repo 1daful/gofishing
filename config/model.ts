@@ -1,5 +1,5 @@
 import { DataType, NavList, View, isType } from '../src/utils/types';
-import { Repository, SDKClient } from "@edifiles/services";
+import { EAuth, Repository, SDKClient } from "@edifiles/services";
 import { header } from '../src/utils/DataView';
 import { DateLocale } from 'quasar';
 import { SupabaseRepo } from '@edifiles/services/dist/module/model/SupabaseRepo';
@@ -8,6 +8,7 @@ import { config } from "../public/config";
 import { Slides } from '../src/utils/DataTypes';
 import { IDataView } from '../model/IDataView';
 import { GlobalView } from './edifiles.config';
+//import { entities } from "../init";
 
 export const domainNames = []
 
@@ -27,7 +28,7 @@ export class MemberList2 {
     [x: string]: any;
     constructor(data: Record<string, any>) {
         Object.assign(this, data)
-        this.items.header.forEach(content => {
+        this.items.header.forEach((content: { [x: string]: any; prop: string | number; key: string | number; }) => {
           let key = content[content.prop]
           let value = this[content.key]
           let gh = []
@@ -50,6 +51,7 @@ export class MemberList2 {
 }
 
 export const dbClient = new SDKClient(new SupabaseRepo(config.api.Supabase))
+export const auth = new EAuth(config.api.Supabase)
 
 //const members = dbClient.get(MemberList)
 
@@ -273,3 +275,7 @@ export async function addModel(childView: IDataView, parentView?: IDataView, id?
     console.log("GlobalView: ", GlobalView)
     //const view2 = await childView.getListData()
 }
+
+/*export function addEntity<T>(classType: T) {
+    entities.push(classType)
+}*/

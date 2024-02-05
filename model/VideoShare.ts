@@ -1,15 +1,15 @@
-import { FormType, DataType } from "../src/utils/types";
+import { FormType, DataType, PageView } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 export class VideoShare implements IDataView {
-    id: string;
-    getCreateData(data?: any): Promise<FormType> {
+    getCreateData?(data?: any): Promise<PageView> {
         throw new Error("Method not implemented.");
     }
-    getListData(query?: any): Promise<DataType> {
+    getListData(query?: any): Promise<PageView> {
         throw new Error("Method not implemented.");
     }
-    getSingleData(id: string): Promise<DataType> {
-        
+    getSingleData?(id: string): Promise<PageView> {
+        throw new Error("Method not implemented.");
     }
+    id!: string;
 
 }

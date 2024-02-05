@@ -4,12 +4,34 @@ import { IDataView } from "./IDataView";
 import { addModel, dbClient } from "../config/model";
 import { RestClient, Callback, EmailType } from "@edifiles/services";
 import { config } from "../public/config";
+import { Member } from "./Member";
+import { Group } from "./Group";
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation} from "typeorm";
 
+@Entity()
 export class ReachOut implements IDataView {
+
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column()
+  title!: string;
+
+  @ManyToOne(type => Member)
+  sender!: Relation<Member>;
+
+  @Column()
+  message_type!: string;
+
+  @Column()
+  content!: string;
+
+  @Column()
+  send_option!: string;
+    
     constructor() {
         addModel(this, undefined, "mainMenu")
     }
-    id: string =  'reachout'
     async getCreateData() {
         const membersQuery = gql `{
             member {
@@ -27,8 +49,8 @@ export class ReachOut implements IDataView {
             }
         }`
         
-        const members = await dbClient.get(membersQuery)
-        const groups = await dbClient.get(groupsQuery)
+        const members: Member[] = await dbClient.get(membersQuery)
+        const groups: Group[] = await dbClient.get(groupsQuery)
 
         const options = [
             {
@@ -89,7 +111,7 @@ export class ReachOut implements IDataView {
                             body: filledForm.content
                         }
                         const schedule = new Callback(config.backEndApi)
-                        schedule.post(config.backEndApi.requests.schedule(filledForm.sendOption.params(filledForm.sendOption.answer), filledForm.messageType.params(email)))
+                        schedule.fetch(config.backEndApi.requests.schedule(filledForm.sendOption.params(filledForm.sendOption.answer), filledForm.messageType.params(email)))
                         /*switch (filledForm.sendOption) {
                             case 'attendance':
                                 const attendanceQuery = gql`{
@@ -142,7 +164,7 @@ export class ReachOut implements IDataView {
                         },
                         'notification'
                     ],
-                    name: 'messageType'
+                    name: 'message_type'
                 },
                 {
                     question: 'content',
@@ -151,7 +173,7 @@ export class ReachOut implements IDataView {
                     name: 'content'
                 },
                 {
-                    question: 'filter recipients',
+                    question: 'filter recipients by',
                     answer: '',
                     options: [
                         {
@@ -159,7 +181,7 @@ export class ReachOut implements IDataView {
                             inputType: 'number',
                             params: (attendance: any)=> {
                                 return gql`{
-                                    serviceScore(totalAttendance: ${attendance})
+                                    serviceScore(total_attendance: ${attendance})
                                 }`
                             }
                         },
@@ -168,7 +190,7 @@ export class ReachOut implements IDataView {
                             inputType: 'date',
                             params: (date: any)=> {
                                 return gql`{
-                                    user(dateOfBirth: ${date})
+                                    user(date_of_birth: ${date})
                                 }`
                             }
                         },

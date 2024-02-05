@@ -5,18 +5,44 @@ import { Share } from "../service/shareSrv";
 import EUpload from "../src/components/EUpload.vue";
 import { DocumentNode } from "graphql";
 import { IDataView } from "./IDataView";
+import { Member } from "./Member";
+import { Group } from "./Group";
 
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, Relation } from 'typeorm';
+import { Event } from './Event';
+import { QueryType } from "@edifiles/services";
+import { filter, foreignColumns } from "@edifiles/services/dist/module/utility/Query";
+
+@Entity()
 export class Service implements IDataView {
-    /*id: string
-    name: string;
-    anchors: [];
-    parent: Service;
-    author: MemberList;
-    createdAt: DateLocale;
-    content: string
-    timeElapse: number
-    date: DateLocale*/
-    id: string = 'services'
+
+    @PrimaryGeneratedColumn('uuid')
+    id: string = 'services';
+
+    @Column()
+    name!: string;
+
+    @Column('jsonb', { nullable: true })
+    anchors!: any[];
+
+    @ManyToOne(() => Member, member => member.services)
+    author!: Relation<Member>;
+
+    @CreateDateColumn({ type: 'timestamp' })
+    createdAt!: Date;
+
+    @Column()
+    content!: string;
+
+    @Column({ type: 'int' })
+    timeElapse!: number;
+
+    @Column({ type: 'timestamp' })
+    date!: Date;
+
+    @OneToMany(() => Event, event => event.service)
+    events!: Relation<Event[]>;
+
     view: View = {
         sections: [EUpload],
         id: "videoView",
@@ -34,16 +60,25 @@ export class Service implements IDataView {
             }
         }`
 
-        const groupsQuery = gql `{
-            member {
+        /*const groupsQuery = gql `{
+            group {
                 id
                 name
+                member
             }
         }`
-        
-        const groups = await dbClient.get(groupsQuery)
-        const members = await dbClient.get(membersQuery)
-        const options = [
+        */
+        const groupsQuery:QueryType = {
+            name: "",
+            data: undefined,
+            filter: [],
+            columns: [
+                'id', 'name', foreignColumns('member', ['firstName', 'lastName', 'id', 'avatar'])
+            ]
+        }
+        const groups: Group = await dbClient.get(groupsQuery)
+        const members: Member = await dbClient.get(membersQuery)
+        /*const options = [
             {
                 label: 'groups',
                 children: groups.map((group) => {
@@ -63,21 +98,27 @@ export class Service implements IDataView {
                     }
                 }),          
             }
-        ]
+        ]*/
 
         const form: QuestionType = new QuestionType({
             title: "Create new service",
+            id: '',
             index: 1,
             actions: {
                 submit: new Action({
+                    label: "Submit",
                     event(filledForm: any) {
                         const service = {
                             name: filledForm.name,
-                            startAt: filledForm.startAt,
-                            anchors: filledForm.anchors,
-                            content: filledForm,
                         }
-                        dbClient.post(gql`{service (data: ${service})}`)
+                        const query: QueryType = {
+                            name: 'service',
+                            data: service,
+                            filter: [],
+                            columns: []
+                        }
+                        //dbClient.post(gql`{service (data: ${service})}`)
+                        dbClient.post(query)
                     }
                 })
             },
@@ -86,22 +127,13 @@ export class Service implements IDataView {
                 answer: '',
                 name: 'name',
                 inputType: 'text'
-            },{
-                question: 'schedule',
-                answer: '',
-                name: 'startAt',
-                inputType: 'schedule'
-            },{
+            },
+            {
                 question: 'anchors',
                 answer: '',
                 name: 'anchors',
-                options: options
-            },{
-                question: 'content',
-                answer: '',
-                name: 'content',
-                inputType: 'textarea'
-            },]
+                //options: options
+            }]
         })
             
         const view: PageView = {

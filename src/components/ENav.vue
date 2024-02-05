@@ -1,7 +1,8 @@
 <template>
   <template v-if="navType ==='left' || navType ==='right'">
       <QItem v-for="data in menuList.content" :key="data.path"
-      :dark="style?.dark" :dense="style?.dense" class="header-link">
+      :dark="style?.dark" :dense="style?.dense" 
+      class="header-link" :class="data.class" :id="data.name">
         <QItemSection v-if="data.icon">
           <QAvatar :icon="data.icon"></QAvatar>
         </QItemSection>
@@ -24,7 +25,9 @@
     <template v-for="data in menuList.content" :key="data.path">
       <!--QAvatar :icon="data.icon" v-if="data.icon"></QAvatar-->
       <RouterLink
-        class="q-ma-sm header-link"
+        class="q-ma-sm header-link" 
+        :class="data.class" 
+        :id="data.name"
         :to="{
           path: data.path,
         }">

@@ -59,7 +59,8 @@
         <EView :view="view"></EView>
         <div v-if="!userInfo">
           <q-btn class="q-ma-sm" color="primary" size="12px" to="/signin"
-            >Sign in</q-btn>
+            >Sign in</q-btn
+          >
           <q-btn color="primary" size="12px" to="/signup">Sign up</q-btn>
         </div>
       </q-list>
@@ -76,7 +77,6 @@ import { config } from "../../public/config";
 const auth = new EAuth(config.api.Supabase)
 const drawerOpen = ref(false);
 let userInfo = auth.getUser();
-
 const props = defineProps({
   view: {
     type: Object as () => View,
@@ -96,7 +96,7 @@ const props = defineProps({
   }
 });
 
-let headerColorRef = ref("rgba(255, 0,255,0)");
+let headerColorRef = ref("rgba(255, 0,0,0)");
 let headerColor = computed({
   get: () => {
     return headerColorRef.value;
@@ -104,22 +104,6 @@ let headerColor = computed({
   set: (val: string) => {
     headerColorRef.value = val;
   },
-});
-
-const handleScroll = () => {
-  if (window.scrollY > 0) {
-    headerColor.value = props.heroStyle?.headerColor;
-  } else {
-    headerColor.value = "rgba(255, 0,255    ,0)";
-  }
-};
-
-//let dataList = ref(getRoute(props.routeName));
-onMounted(() => {
-  window.addEventListener("scroll", handleScroll);
-});
-onBeforeUnmount(() => {
-  window.removeEventListener("scroll", handleScroll);
 });
 
 </script>

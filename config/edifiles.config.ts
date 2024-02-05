@@ -1,5 +1,5 @@
 import { EAuth, Mailer } from '@edifiles/services';
-import { View, Action, FormType, PageView, QuestionType } from "../src/utils/types";
+import { View, Action, FormType, PageView, QuestionType, ActionGroup } from "../src/utils/types";
 import Search from "../src/components/ESearch.vue";
 import { menus } from "./menus";
 import Home from "../src/pages/Home.vue";
@@ -139,20 +139,24 @@ export const userView: View = new View({
     sections: [new FormType('userForm','Submit', [userBiodata])]
 })
 
-const signIn: Action = new Action({
-    label: 'Sign In',
-    event: 'Route',
-    args: '/signin',
-    style: {
-        type: 'outline'
-    }
+const signIn = new ActionGroup({
+    navType: 'top',
+    actions: [
+        new Action({
+            label: 'Sign In',
+            event: 'Route',
+            args: '/signin',
+            style: {
+                type: 'outline'
+            }
+        }),
+        new Action({
+            label: 'Sign Up',
+            event: 'Route',
+            args: '/signup',
+        })
+    ]
 })
-
-const signUp = new Action({
-    label: 'Sign Up',
-    event: 'Route',
-    args: '/signup',
-});
 
 export const userViewResolver = () => {
     const mailer = new Mailer()
@@ -178,7 +182,7 @@ const mainLayout: PageView = new PageView({
     id: '',
     layout: 'Grid',
     sections: [
-        menus, search, signIn, signUp,
+        menus, search, signIn,
     ],
     children: [
         home, serviceModel

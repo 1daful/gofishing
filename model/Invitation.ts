@@ -1,13 +1,41 @@
 import gql from "graphql-tag";
-import { Action, DataType, Filters, PageView, QuestionType, View } from "../src/utils/types";
+import { Action, DataType, OptionsType, PageView, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient } from "../config/model";
 import { useUser } from "../src/utils/useUser";
 import EFileParse from "../src/components/EFileParse.vue";
 import { EmailType, Mailer } from "@edifiles/services";
+import { Member } from "./Member";
 
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, CreateDateColumn, Relation } from 'typeorm';
+import { Event } from './Event';  // Import the Event and Member classes
+import { Group } from "./Group";
+
+@Entity()
 export class Invitation implements IDataView {
-    id = "Invitation"
+
+    @PrimaryGeneratedColumn()
+    id!: number;
+
+    @ManyToOne(() => Event, event => event.invitations)
+    event!: Relation<Event>;
+
+    @Column()
+    content!: string;
+
+    @ManyToOne(() => Member, member => member.sentInvitations)
+    sender!: Relation<Member>;
+
+    @CreateDateColumn({ type: 'timestamp' })
+    created_at!: Date;
+
+    @ManyToMany(() => Member)
+    @JoinTable()
+    recipients: Relation<Member[]> = [];
+
+    @Column({ type: 'timestamp' })
+    schedule!: Date;
+
     async getCreateData(userId: string) {
         const membersQuery = gql `member {
             firstName
@@ -27,11 +55,11 @@ export class Invitation implements IDataView {
             status
         }`
         
-        const members = await dbClient.get(membersQuery)
-        const groups = await dbClient.get(groupsQuery)
-        const events = await dbClient.get(eventQuery)
+        const members: Member[] = await dbClient.get(membersQuery)
+        const groups: Group[] = await dbClient.get(groupsQuery)
+        const events: Event[] = await dbClient.get(eventQuery)
 
-        const senderOptions = [
+        const groupOption =
             {
                 label: 'groups',
                 children: groups.map((group) => {
@@ -40,16 +68,27 @@ export class Invitation implements IDataView {
                         id: group.id
                     }
                 }),
-            },
-            {
+            }
+        const memberOption = {
                 label: 'members',
                 children: members.map((member) => {
                     return {
-                        label: member.name,
+                        label: `${member.firstName} ${member.lastName}`,
                         id: member.id
                     }
                 }),          
-            }]
+            }
+
+        const eventOption = {
+            label: 'events',
+            children: events.map((event) => {
+                return {
+                    label: event.name,
+                    id: event.id
+                }
+            }),          
+        }
+        
 
         /*const groupFilters: Filters = {
             index: "",
@@ -138,7 +177,7 @@ export class Invitation implements IDataView {
                             inline_images: [],
                             headers: [],
                             messenger: filledForm.messenger,
-                            sendAt: filledForm.schedule,
+                            date: filledForm.schedule,
                             body: filledForm.content
                         }
                         new Mailer().sendEmail(email)
@@ -158,7 +197,10 @@ export class Invitation implements IDataView {
                 {
                     question: 'sender',
                     answer: '',
-                    options: senderOptions,
+                    options: [
+                        groupOption,
+                        memberOption
+                    ],
                     name: 'senderId'
                 },
                 {
@@ -183,8 +225,8 @@ export class Invitation implements IDataView {
                     name: 'sendOption',
                     options: [
                         'All',
-                        senderOptions,
-                        groups,
+                        groupOption,
+                        memberOption,
                         'First timers',
                     ],
                     action: new Action({
@@ -198,7 +240,7 @@ export class Invitation implements IDataView {
                 {
                     question: 'event',
                     answer: '',
-                    options: events,
+                    options: [eventOption],
                     name: 'event'
                 },
                 {

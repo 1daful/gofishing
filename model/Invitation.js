@@ -1,12 +1,24 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import gql from "graphql-tag";
 import { Action, DataType, PageView } from "../src/utils/types";
 import { dbClient } from "../config/model";
 import { useUser } from "../src/utils/useUser";
 import EFileParse from "../src/components/EFileParse.vue";
 import { Mailer } from "@edifiles/services";
-export class Invitation {
+import { Member } from "./Member";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
+import { Event } from './Event';
+let Invitation = class Invitation {
     constructor() {
-        this.id = "Invitation";
+        this.recipients = [];
     }
     async getCreateData(userId) {
         const membersQuery = gql `member {
@@ -27,26 +39,33 @@ export class Invitation {
         const members = await dbClient.get(membersQuery);
         const groups = await dbClient.get(groupsQuery);
         const events = await dbClient.get(eventQuery);
-        const senderOptions = [
-            {
-                label: 'groups',
-                children: groups.map((group) => {
-                    return {
-                        label: group.name,
-                        id: group.id
-                    };
-                }),
-            },
-            {
-                label: 'members',
-                children: members.map((member) => {
-                    return {
-                        label: member.name,
-                        id: member.id
-                    };
-                }),
-            }
-        ];
+        const groupOption = {
+            label: 'groups',
+            children: groups.map((group) => {
+                return {
+                    label: group.name,
+                    id: group.id
+                };
+            }),
+        };
+        const memberOption = {
+            label: 'members',
+            children: members.map((member) => {
+                return {
+                    label: `${member.firstName} ${member.lastName}`,
+                    id: member.id
+                };
+            }),
+        };
+        const eventOption = {
+            label: 'events',
+            children: events.map((event) => {
+                return {
+                    label: event.name,
+                    id: event.id
+                };
+            }),
+        };
         const contactView = {
             sections: [{
                     VComponent: EFileParse,
@@ -116,7 +135,7 @@ export class Invitation {
                             inline_images: [],
                             headers: [],
                             messenger: filledForm.messenger,
-                            sendAt: filledForm.schedule,
+                            date: filledForm.schedule,
                             body: filledForm.content
                         };
                         new Mailer().sendEmail(email);
@@ -133,7 +152,10 @@ export class Invitation {
                 {
                     question: 'sender',
                     answer: '',
-                    options: senderOptions,
+                    options: [
+                        groupOption,
+                        memberOption
+                    ],
                     name: 'senderId'
                 },
                 {
@@ -158,8 +180,8 @@ export class Invitation {
                     name: 'sendOption',
                     options: [
                         'All',
-                        senderOptions,
-                        groups,
+                        groupOption,
+                        memberOption,
                         'First timers',
                     ],
                     action: new Action({
@@ -173,7 +195,7 @@ export class Invitation {
                 {
                     question: 'event',
                     answer: '',
-                    options: events,
+                    options: [eventOption],
                     name: 'event'
                 },
                 {
@@ -271,4 +293,37 @@ export class Invitation {
         };
         return view;
     }
-}
+};
+__decorate([
+    PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], Invitation.prototype, "id", void 0);
+__decorate([
+    ManyToOne(() => Event, event => event.invitations),
+    __metadata("design:type", Object)
+], Invitation.prototype, "event", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], Invitation.prototype, "content", void 0);
+__decorate([
+    ManyToOne(() => Member, member => member.sentInvitations),
+    __metadata("design:type", Object)
+], Invitation.prototype, "sender", void 0);
+__decorate([
+    CreateDateColumn({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Invitation.prototype, "created_at", void 0);
+__decorate([
+    ManyToMany(() => Member),
+    JoinTable(),
+    __metadata("design:type", Object)
+], Invitation.prototype, "recipients", void 0);
+__decorate([
+    Column({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Invitation.prototype, "schedule", void 0);
+Invitation = __decorate([
+    Entity()
+], Invitation);
+export { Invitation };

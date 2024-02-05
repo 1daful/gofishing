@@ -1,34 +1,17 @@
-import { Recommender } from "@edifiles/services";
-import { config } from "../../edifiles.config";
-import mitt from "mitt";
 import { defineStore } from "pinia";
-import { useWidgets } from "./useWidgets";
-const emitter = mitt();
-const Main = useWidgets().get('Main');
-export const useService = defineStore({
+export const useData = defineStore({
     id: "useData",
     state: () => ({
-        services: config.template.services,
+        data: undefined
     }),
     actions: {
-        async exec(name, action, ...args) {
-            const service = this.services[name];
-            if (service[name] instanceof Function) {
-                service[action](args);
-            }
-            else if (service[name] instanceof Promise) {
-                await service[action](args);
-            }
-            else {
-                throw new Error('Invalid function');
-            }
-            emitter.emit(action, args);
+        async get(type, filters) {
+            const data = await import(`/use${type}`);
+            return data().get(filters);
         },
-        getService(name) {
-            return this.services[name];
-        },
-        register(viewId, ...actions) {
+        async set(type, value) {
+            const data = await import(`/use${type}`);
+            data().set(value);
         }
     }
 });
-const recomm = new Recommender();

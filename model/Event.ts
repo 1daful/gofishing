@@ -1,15 +1,64 @@
 import gql from "graphql-tag";
 import { FormType, DataType, PageView, QuestionType, Action, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
-import { dbClient } from "../config/model";
+import { auth, dbClient } from "../config/model";
+import { QueryType } from "@edifiles/services";
+import { Session } from "./Session";
+import { Invitation } from "./Invitation";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, ManyToOne, Relation } from 'typeorm';
+import { Attendance } from "./Attendance";
+import { Service } from "./Service";
+
+@Entity()
 export class Event implements IDataView {
+
+    @PrimaryGeneratedColumn('uuid')
     id!: string;
+
+    @Column({ type: 'timestamp' })
+    create_at!: Date;
+
+    @Column({ type: 'timestamp' })
+    start_at!: Date;
+
+    @Column({ type: 'timestamp' })
+    end_at!: Date;
+
+    @Column()
+    name!: string;
+
+    @OneToMany(() => Session, session => session.event)
+    sessions!: Relation<Session[]>;
+
+    @OneToMany(() => Invitation, invitation => invitation.event)
+    invitations!: Relation<Invitation[]>;
+
+    @OneToMany(() => Attendance, (attendance) => attendance.event)
+    attendances!: Relation<Attendance[]>
+
+    @ManyToOne(() => Service, (service) => service.events)
+    service!: Relation<Service>
+
     async getCreateData(data?: any) {
         const form: FormType = new FormType('', 'Submit', [
             {
                 title: '',
                 index: 1,
-                actions: {},
+                actions: {
+                    submit: new Action({
+                        async event(filledForm: any) {
+                            const user = await auth.getUser()
+                            filledForm.user_id = user.id
+                            const query: QueryType = {
+                                name: "",
+                                data: filledForm,
+                                filter: [],
+                                columns: []
+                            }
+                            dbClient.post(query)
+                        }
+                    })
+                },
                 content: [
                     {
                         question: 'name of event',
@@ -19,13 +68,13 @@ export class Event implements IDataView {
                     },
                     {
                         question: 'start',
-                        name: 'startAt',
+                        name: "start_at",
                         answer: '',
                         inputType: 'schedule',
                     },
                     {
                         question: 'end',
-                        name: 'endAt',
+                        name: 'end_at',
                         answer: '',
                         inputType: 'date'
                     },
@@ -67,18 +116,18 @@ export class Event implements IDataView {
         const query = gql`{
             event(id: ${id})
         }`
-        const data = await dbClient.get(query)
+        const data: Event = await dbClient.get(query)
         const dataType: DataType = {
           items: {
               header: [
               {label: data.name}
               ],
               center: [
-                  {
-                      label: data.startAt
-                  },
+                {
+                    label: data.start_at.toUTCString()
+                },
                   {label: "to"},
-                  {label: data.endAt}
+                  {label: data.end_at.toUTCString()}
               ],
               footer: [
                 data.sessions.filter((session)=> {
@@ -141,8 +190,8 @@ export class Event implements IDataView {
                     {label: data.name}
                 ],
                 center: [
-                    {label: data.startAt},
-                    {label: data.endAt}
+                    {label: data.start_at},
+                    {label: data.end_at}
                 ]
             }
         })
@@ -150,8 +199,8 @@ export class Event implements IDataView {
     }
 
 
-    async getSessionDataView(session: { startAt: any; name: any; author: { name: any; }; content: any; }) {
-        let startTime = session.startAt
+    async getSessionDataView(session: Session) {
+        let startTime = session.start_at
         let timeRemaining
         let timeElapse
         const dataType: DataType = new DataType({
@@ -161,7 +210,10 @@ export class Event implements IDataView {
                         label: session.name
                     },
                     {
-                        label: session.author.name
+                        label: session.author.firstName
+                    },
+                    {
+                        label: session.author.lastName
                     },
                     {
                         label: timeRemaining
@@ -180,7 +232,7 @@ export class Event implements IDataView {
             calculateTime() {
                 const currentTime = new Date().getTime(); // Get current time in milliseconds
         
-                const elapsedTime = currentTime - startTime;
+                const elapsedTime = currentTime - startTime.getTime();
                 
                 // Total duration of the event in milliseconds (replace with your event's duration)
                 const totalEventDuration = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
@@ -244,10 +296,10 @@ export class Event implements IDataView {
                 submit: new Action({
                     event(filledForm: any) {
                         const session = {
-                            eventId: eventId,
+                            event_id: eventId,
                             name: filledForm.name,
-                            startAt: filledForm.startAt,
-                            endAt: filledForm.endAt,
+                            start_at: filledForm.start_at,
+                            end_at: filledForm.end_at,
                             anchor: filledForm.anchor,
                             content: filledForm.content
                         }
@@ -264,13 +316,13 @@ export class Event implements IDataView {
                 },
                 {
                     question: 'start',
-                    name: 'startAt',
+                    name: 'start_at',
                     answer: '',
                     inputType: 'schedule'
                 },
                 {
                     question: 'end',
-                    name: 'endAt',
+                    name: 'end_at',
                     answer: '',
                     inputType: 'date'
                 },

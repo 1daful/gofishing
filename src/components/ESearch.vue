@@ -1,12 +1,11 @@
 <template>
   <q-input
-    rounded
     @keyup.enter="doSearch"
     @keydown="changed"
     color="black"
     dense
     outlined
-    class="q-ml-md"
+    class="q-ml-md search-input"
     type="search"
     standout
     v-model="search"
@@ -113,3 +112,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style scoped>
+.search-input {
+  width: 300px
+}
+</style>

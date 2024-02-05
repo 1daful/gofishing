@@ -1,4 +1,6 @@
 <template>
+  <div :id="form.id">
+    <p>{{ form.title }}</p>
   <div v-for="dialogue in form.content">
     <component
       :is="dialogue.component"
@@ -65,12 +67,13 @@
         outlined
         :ref="dialogue.name"
         v-if="dialogue.inputType === 'schedule'"
-        @update:model-value="schedule"
+        @update:model-value="handleInput(dialogue.inputType, filledForm[dialogue.name])"
       ></QInput>
       <QInput
         :label="dialogue.question"
         :type="dialogue.inputType"
         v-model="filledForm[dialogue.name]"
+        @update:model-value="handleInput(dialogue.inputType, filledForm[dialogue.name])"
         outlined
         :ref="dialogue.name"
         v-else
@@ -80,12 +83,14 @@
   <template v-for="(action, key) in form.actions" :key="key">
     <EAction :action=action :args="filledForm"></EAction>
   </template>
-  </template>
+  </div>
+</template>
 
   <script lang="ts">
-  import { QuestionType } from "../utils/types";
+  import { InputType, QuestionType } from "../utils/types";
   import { defineComponent } from "vue";
   import EAction from "./EAction.vue";
+  import { useData } from "../utils/useData";
   
   let filledForm: Record<string, any> = {}
   
@@ -118,10 +123,14 @@
       }
     },
     methods: {
-      schedule(value: string) {
+      schedule(type: InputType, value: string) {
         //const client = new RestClient(config.api.Auth)
         //client.post('schedule', new Date(value))
-        console.log("Schedule: ", value)
+        //console.log("Schedule: ", value)
+        //useData().set(type, value)
+      },
+      handleInput(type: InputType, value: string) {
+        //useData().set(type, value)
       },
       getValue (scope: any) {
         return scope.label

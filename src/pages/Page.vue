@@ -11,7 +11,7 @@ import EView from "../components/EView.vue";
 import { IDataView } from '../../model/IDataView';
 import { data } from '../../config/model';
 import { GlobalView } from '../../config/edifiles.config';
-import { View, isType, NavList, PageView } from '../utils/types';
+import { View, isType, NavList, PageView, ActionGroup } from '../utils/types';
 import { defineComponent, shallowRef } from "vue";
 
 export default defineComponent({
@@ -87,7 +87,7 @@ export default defineComponent({
   methods: {
   processMenus (){
         this.view?.sections.forEach(section => {
-            if(isType(section, View) || isType(section, NavList)) {
+            if(isType(section, View) || isType(section, NavList) || isType(section, ActionGroup)) {
                 this.layout[section.navType].sections.push(section)
             }
             else {

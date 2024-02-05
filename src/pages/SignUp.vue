@@ -101,7 +101,6 @@
 
 <script lang="ts">
 import config from "../../public/config.json";
-import { EAuth } from "@edifiles/services";
 //import ProgressBar from "../components/ProgressBar.vue";
 import { Mailer } from "@edifiles/services";
 //import { MediaApi } from "../api/MediaApi";
@@ -109,12 +108,13 @@ import { Mailer } from "@edifiles/services";
 import { defineComponent, ref } from "vue";
 //import { ListMonk } from '../api/Email/Listmonk';
 import { EmailAddress, EmailType } from "@edifiles/services";
+import { auth } from "../../config/model";
 //import zxcvbn from 'zxcvbn';
 //let firebase = new FirebaseSetUp();
 
 //const api = new ListMonk()
 //let mediaApi = new MediaApi(api);
-const auth = new EAuth()
+
 let site = config;
 let emailAddress: EmailAddress;
 let emailType: EmailType;
@@ -255,12 +255,15 @@ export default defineComponent({
             };
             //mediaApi.postItem('contacts');
           }
-          if (this.auth.isNewUser(user)) {
+          if (this.auth.isNew(user)) {
             emailAddress = {
               address: this.user.cred.email,
               name: this.user.metadata.name,
               contact_number: "",
               company: "",
+              status: 'disabled',
+              lists: [],
+              preconfirmedSub: true
             };
             emailType = {
               subject: "Welcome",

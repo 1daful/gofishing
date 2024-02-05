@@ -1,9 +1,22 @@
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 import gql from "graphql-tag";
 import { dbClient } from "../config/model";
 import { Action, DataType, QuestionType } from "../src/utils/types";
 import { Share } from "../service/shareSrv";
 import EUpload from "../src/components/EUpload.vue";
-export class Service {
+import { Member } from "./Member";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
+import { Event } from './Event';
+import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
+let Service = class Service {
     constructor() {
         this.id = 'services';
         this.view = {
@@ -23,48 +36,34 @@ export class Service {
                 avatar
             }
         }`;
-        const groupsQuery = gql `{
-            member {
-                id
-                name
-            }
-        }`;
+        const groupsQuery = {
+            name: "",
+            data: undefined,
+            filter: [],
+            columns: [
+                'id', 'name', foreignColumns('member', ['firstName', 'lastName', 'id', 'avatar'])
+            ]
+        };
         const groups = await dbClient.get(groupsQuery);
         const members = await dbClient.get(membersQuery);
-        const options = [
-            {
-                label: 'groups',
-                children: groups.map((group) => {
-                    return {
-                        label: group.name,
-                        id: group.id,
-                    };
-                }),
-            },
-            {
-                label: 'members',
-                children: members.map((member) => {
-                    return {
-                        label: `${member.firstName} ${member.lastName}`,
-                        id: member.id,
-                        avatar: member.avatar
-                    };
-                }),
-            }
-        ];
         const form = new QuestionType({
             title: "Create new service",
+            id: '',
             index: 1,
             actions: {
                 submit: new Action({
+                    label: "Submit",
                     event(filledForm) {
                         const service = {
                             name: filledForm.name,
-                            startAt: filledForm.startAt,
-                            anchors: filledForm.anchors,
-                            content: filledForm,
                         };
-                        dbClient.post(gql `{service (data: ${service})}`);
+                        const query = {
+                            name: 'service',
+                            data: service,
+                            filter: [],
+                            columns: []
+                        };
+                        dbClient.post(query);
                     }
                 })
             },
@@ -73,22 +72,12 @@ export class Service {
                     answer: '',
                     name: 'name',
                     inputType: 'text'
-                }, {
-                    question: 'schedule',
-                    answer: '',
-                    name: 'startAt',
-                    inputType: 'schedule'
-                }, {
+                },
+                {
                     question: 'anchors',
                     answer: '',
                     name: 'anchors',
-                    options: options
-                }, {
-                    question: 'content',
-                    answer: '',
-                    name: 'content',
-                    inputType: 'textarea'
-                },]
+                }]
         });
         const view = {
             id: "createService",
@@ -274,4 +263,44 @@ export class Service {
         };
         return view;
     }
-}
+};
+__decorate([
+    PrimaryGeneratedColumn('uuid'),
+    __metadata("design:type", String)
+], Service.prototype, "id", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], Service.prototype, "name", void 0);
+__decorate([
+    Column('jsonb', { nullable: true }),
+    __metadata("design:type", Array)
+], Service.prototype, "anchors", void 0);
+__decorate([
+    ManyToOne(() => Member, member => member.services),
+    __metadata("design:type", Object)
+], Service.prototype, "author", void 0);
+__decorate([
+    CreateDateColumn({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Service.prototype, "createdAt", void 0);
+__decorate([
+    Column(),
+    __metadata("design:type", String)
+], Service.prototype, "content", void 0);
+__decorate([
+    Column({ type: 'int' }),
+    __metadata("design:type", Number)
+], Service.prototype, "timeElapse", void 0);
+__decorate([
+    Column({ type: 'timestamp' }),
+    __metadata("design:type", Date)
+], Service.prototype, "date", void 0);
+__decorate([
+    OneToMany(() => Event, event => event.service),
+    __metadata("design:type", Object)
+], Service.prototype, "events", void 0);
+Service = __decorate([
+    Entity()
+], Service);
+export { Service };

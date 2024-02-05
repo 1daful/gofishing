@@ -1,11 +1,11 @@
 <template>
-  <QBtn :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
+  <QBtn :id="action.id" :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
   dense :icon="action.icon" 
   :size="action.style?.size" 
-  class="q-mr-sm" v-if="event" 
+  class="q-mr-sm" :class="action.class" v-if="event" 
   color="primary"
   :aria-label="action.style?.ariaLabel"></QBtn>
-  <QBtn :label="action.label" :icon="action.icon" v-else-if="component">
+  <QBtn :id="action.id" :label="action.label" :icon="action.icon" v-else-if="component">
     <QPopupProxy cover>
       <EView :view="component" v-bind="$attrs"></EView>
       <!--<component :is="g" v-bind="$attrs" v-else></component>-->
@@ -71,10 +71,13 @@ onBeforeMount(() => {
     switch (props.action.event) {
       case 'Route':
         event = () => {
-          router.push(props.action?.args || props.args)
+          router.push(props.action.args || props.args)
         }
         break;
       case 'Modal':
+        component = props.action.args || props.args
+        break;
+      case 'Filter':
         component = props.action.args || props.args
         break;
     
@@ -83,7 +86,7 @@ onBeforeMount(() => {
     }
     if (typeof props.action.event === 'function') {
       event = () => {
-       props.action.event(props.action.args || props.args);
+        props.action.event(props.action.args || props.args);
       }
     }
   }

@@ -124,11 +124,13 @@ export class Form {
 }
 export class QuestionType {
     constructor(data) {
+        this.id = data.id;
         this.title = data.title;
         this.index = data.index;
         this.content = data.content;
         this.icon = data.icon;
         this.description = data.description;
+        this.class = data.class;
         if (isActionString(data.actions)) {
             this.actions = {
                 submit: new Action({
