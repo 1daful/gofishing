@@ -1,5 +1,5 @@
 <template>
-  <QCard :class="data.class" :id="data.id">
+  <QCard :class="data.class" :id="data.id" v-if="show">
     <QImg v-if="data.overlay" :src="data.overlay" style="max-width: 30em; max-height: 50em">
       <div class="row">
         <EList :data="data"></EList>
@@ -31,13 +31,21 @@ export default defineComponent({
     EAction,
     EDataItem
   },
+  data() {
+    return {
+      show: true
+    }
+  },
   props: {
     data: {
       required: true,
       type: Object as () => DataType,
     },
   },
-  mounted() {
+  async beforeMount() {
+      if (this.data.viewGuard && typeof this.data.viewGuard.event === 'function') {
+        this.show = await this.data.viewGuard.event(this.data.viewGuard.args)
+      }
     /*if (this.data.setHeader) {
       Object.keys(this.data.meta).forEach((key) => {
         const item = {

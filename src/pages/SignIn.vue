@@ -199,7 +199,7 @@ export default defineComponent({
       //this.emailRef.value.validate()
       if (await this.validate()) {
         this.loading = true;
-        const { user, session, error } = await this.auth.auth.login(undefined, this.user);
+        const { user, session, error } = await this.auth.login('', this.user);
         if (error) {
           this.errors.signUpErrMsg = error.message;
           //console.log("sign in error try:", error)
@@ -207,7 +207,7 @@ export default defineComponent({
         if (user && session) {
           //this.$refs
           //this.$router.push(this.myUrl)
-          window.location.href = "http://localhost:9000";
+          window.location.href = config.baseUrl;
         }
         this.loading = false;
       }
@@ -230,7 +230,7 @@ export default defineComponent({
       this.$emit("showHeader", true);
     },
   },
-  created() {
+  async created() {
     /*this.client.load("../config.json").then(resp => {
             if (resp) {
                 this.socials = resp.data.socials

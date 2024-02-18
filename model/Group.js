@@ -7,49 +7,98 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Action, DataType } from "../src/utils/types";
+import { Action, DataType, PageView } from "../src/utils/types";
 import { dbClient, auth } from "../config/model";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
 export class Group {
-    getCreateData(data) {
-        throw new Error("Method not implemented.");
+    constructor() {
+        this.singleDataItem = (data) => {
+            const singleDataItem = new DataType({
+                items: {
+                    header: [
+                        {
+                            label: data.name
+                        }
+                    ],
+                    center: data.members.map((member) => {
+                        return {
+                            label: `${member.firstName} ${member.lastName}`
+                        };
+                    })
+                }
+            });
+            return singleDataItem;
+        };
+        this.listDataItems = (data) => {
+            const dataType = new DataType({
+                items: {
+                    header: data.map((group) => {
+                        return { label: group.name };
+                    }),
+                    footer: [
+                        {}
+                    ]
+                }
+            });
+            return dataType;
+        };
+    }
+    async getCreateData(data) {
+        const form = {
+            id: "",
+            title: "",
+            index: 0,
+            content: [
+                {
+                    question: 'name',
+                    name: 'name',
+                    inputType: 'text'
+                }
+            ],
+            actions: {
+                submit: new Action({
+                    async event(filledForm) {
+                        const user = await auth.getUser();
+                        filledForm.admin_id = user.id;
+                        filledForm.id = filledForm.admin_id + new Date();
+                        const groupQuery = {
+                            name: "group",
+                            data: filledForm,
+                            columns: []
+                        };
+                        const admin = {
+                            id: filledForm.admin_id,
+                            group_id: filledForm.id
+                        };
+                        const adminQuery = {
+                            name: "admin",
+                            data: admin
+                        };
+                        dbClient.postWithTransaction(groupQuery, adminQuery);
+                    }
+                })
+            }
+        };
+        const view = new PageView({
+            sections: [form],
+            id: "",
+            layout: "Grid",
+            size: "",
+            children: []
+        });
+        return view;
     }
     async getListData(filter) {
         const query = {
             name: "",
             data: undefined,
-            filter: filter,
+            filters: filter,
             columns: []
         };
         const data = await dbClient.get(query);
-        const dataType = new DataType({
-            items: {
-                header: data.map((group) => {
-                    return { label: group.name };
-                }),
-                footer: [
-                    {
-                        action: new Action({
-                            label: "Join a group",
-                            async event() {
-                                const user = await auth.getUser();
-                                const query = {
-                                    name: "group",
-                                    data: {
-                                        id: data.id,
-                                        user_id: user.id
-                                    },
-                                    filter: [],
-                                };
-                                dbClient.post(query);
-                            }
-                        })
-                    }
-                ]
-            }
-        });
+        const dataType = this.listDataItems(data);
         const view = {
             id: "group",
             layout: "Grid",
@@ -62,28 +111,15 @@ export class Group {
         const query = {
             name: "",
             data: undefined,
-            filter: filter,
+            filters: filter,
             columns: []
         };
         const data = await dbClient.get(query);
-        const dataType = new DataType({
-            items: {
-                header: [
-                    {
-                        label: data.name
-                    }
-                ],
-                center: data.members.map((member) => {
-                    return {
-                        label: `${member.firstName} ${member.lastName}`
-                    };
-                })
-            }
-        });
+        const singleDataItem = this.singleDataItem(data);
         const view = {
             id: "group",
             layout: "Grid",
-            sections: [dataType],
+            sections: [singleDataItem],
             children: []
         };
         return view;

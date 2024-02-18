@@ -1,5 +1,5 @@
 <template>
-  <div :id="form.id">
+  <div :id="form.id" v-if=show>
     <p>{{ form.title }}</p>
   <div v-for="dialogue in form.content">
     <component
@@ -90,14 +90,16 @@
   import { InputType, QuestionType } from "../utils/types";
   import { defineComponent } from "vue";
   import EAction from "./EAction.vue";
-  import { useData } from "../utils/useData";
+import { viewGuard } from "../utils/AuthGuard";
   
   let filledForm: Record<string, any> = {}
+  let show: boolean = true
   
   export default defineComponent({
     data() {
       return {
         filledForm,
+        show
       };
     },
     computed: {
@@ -131,6 +133,7 @@
       },
       handleInput(type: InputType, value: string) {
         //useData().set(type, value)
+      console.log('FILLED_FORM', this.filledForm)
       },
       getValue (scope: any) {
         return scope.label
@@ -139,7 +142,10 @@
         return scope.opt.children.some(c => c.label === this.filledForm[name])
       }
     },
-    onBeforeMount() {
+    async onBeforeMount() {
+      if (this.form.viewGuard) {
+        this.show = await viewGuard(this.form.viewGuard.userColval, this.form.viewGuard.colval, this.form.viewGuard.type)
+      }
     }
   });
   </script>

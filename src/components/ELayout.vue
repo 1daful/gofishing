@@ -15,7 +15,7 @@
       :class="{ 'fixed-nav': heroStyle?.fixedNav }"
       :style="{ backgroundColor: `${headerColor}` }"
     >
-      <q-toolbar class="text-h5 text-weight-bolder justify-end">
+      <q-toolbar class="text-h5 text-weight-bolder row justify-between">
         <q-item-label v-if="brand" class="logo"> {{ brand }}</q-item-label>
         <div  class="gt-sm">
           <EView :view="view"></EView>
@@ -30,7 +30,7 @@
           @click="drawerOpen = !drawerOpen"
           aria-label="Menu"
           icon="menu"
-          class="lt-md"
+          class="lt-md justify-end"
         ></q-btn>
       </q-toolbar>
     </q-header>
@@ -88,14 +88,12 @@ const props = defineProps({
   heroStyle: {
     type: Object,
   },
-  brand: {
-    type: String,
-  },
   hero: {
     type: Object,
   }
 });
 
+const brand = config.title
 let headerColorRef = ref("rgba(255, 0,255,0)");
 let headerColor = computed({
   get: () => {

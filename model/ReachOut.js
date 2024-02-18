@@ -9,14 +9,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import gql from "graphql-tag";
 import { Action, DataType } from "../src/utils/types";
-import { addModel, dbClient } from "../config/model";
+import { dbClient } from "../config/model";
 import { RestClient, Callback } from "@edifiles/services";
 import { config } from "../public/config";
 import { Member } from "./Member";
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, Column, ManyToOne } from "typeorm";
 let ReachOut = class ReachOut {
     constructor() {
-        addModel(this, undefined, "mainMenu");
+        this.id = 'reachouts';
     }
     async getCreateData() {
         const membersQuery = gql `{
@@ -57,6 +57,7 @@ let ReachOut = class ReachOut {
             }
         ];
         const form = {
+            id: "",
             title: "",
             index: 0,
             compute(filledForm) {
@@ -77,6 +78,7 @@ let ReachOut = class ReachOut {
             },
             actions: {
                 submit: new Action({
+                    label: 'schedule',
                     event(filledForm) {
                         const email = {
                             name: filledForm.title,
@@ -99,19 +101,16 @@ let ReachOut = class ReachOut {
             content: [
                 {
                     question: 'title',
-                    answer: '',
                     inputType: 'text',
                     name: 'title'
                 },
                 {
                     question: 'sender',
-                    answer: '',
                     options: options,
                     name: 'senderId'
                 },
                 {
                     question: 'message type',
-                    answer: '',
                     options: [
                         {
                             label: 'sms',
@@ -127,13 +126,11 @@ let ReachOut = class ReachOut {
                 },
                 {
                     question: 'content',
-                    answer: '',
                     inputType: 'textarea',
                     name: 'content'
                 },
                 {
                     question: 'filter recipients by',
-                    answer: '',
                     options: [
                         {
                             label: 'Attendance',
@@ -181,7 +178,23 @@ let ReachOut = class ReachOut {
     }
     async getListData(senderUserId, senderGroupId, ...recipientIds) {
         let query;
-        const data = await new RestClient(config.api.ListMonk).get('/campaigns');
+        const createReachOut = new Action({
+            label: 'Create',
+            event: 'Route',
+            args: {
+                name: 'categories',
+                params: {
+                    categories: ['create']
+                }
+            },
+        });
+        let data;
+        try {
+            data = await new RestClient(config.api.ListMonk).get('/campaigns');
+        }
+        catch (error) {
+            console.log(error);
+        }
         const dataType = new DataType({
             actionOverlay: data.actionPoint,
             items: {
@@ -206,7 +219,9 @@ let ReachOut = class ReachOut {
             }
         });
         const view = {
-            sections: [dataType],
+            sections: [createReachOut,
+                dataType
+            ],
             id: "",
             layout: "Grid",
             children: []
@@ -214,10 +229,6 @@ let ReachOut = class ReachOut {
         return view;
     }
 };
-__decorate([
-    PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], ReachOut.prototype, "id", void 0);
 __decorate([
     Column(),
     __metadata("design:type", String)

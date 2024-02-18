@@ -11,8 +11,9 @@ import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation}
 @Entity()
 export class ReachOut implements IDataView {
 
-  @PrimaryGeneratedColumn()
-  id!: number;
+  //@PrimaryGeneratedColumn()
+  //id!: number;
+  id = 'reachouts'
 
   @Column()
   title!: string;
@@ -30,7 +31,6 @@ export class ReachOut implements IDataView {
   send_option!: string;
     
     constructor() {
-        addModel(this, undefined, "mainMenu")
     }
     async getCreateData() {
         const membersQuery = gql `{
@@ -74,6 +74,7 @@ export class ReachOut implements IDataView {
             }
         ]
         const form: QuestionType = {
+            id: "",
             title: "",
             index: 0,
             compute(filledForm: any) {
@@ -95,6 +96,7 @@ export class ReachOut implements IDataView {
             },
             actions: {
                 submit: new Action({
+                    label: 'schedule',
                     event(filledForm: any) {
                         //const rest: RestClient = new RestClient(config.backURL)
                         const email: EmailType = {
@@ -140,19 +142,16 @@ export class ReachOut implements IDataView {
             content: [
                 {
                     question: 'title',
-                    answer: '',
                     inputType: 'text',
                     name: 'title'
                 },
                 {
                     question: 'sender',
-                    answer: '',
                     options: options,
                     name: 'senderId'
                 },
                 {
                     question: 'message type',
-                    answer: '',
                     options: [
                         {
                             label: 'sms',
@@ -168,13 +167,11 @@ export class ReachOut implements IDataView {
                 },
                 {
                     question: 'content',
-                    answer: '',
                     inputType: 'textarea',
                     name: 'content'
                 },
                 {
                     question: 'filter recipients by',
-                    answer: '',
                     options: [
                         {
                             label: 'Attendance',
@@ -223,6 +220,16 @@ export class ReachOut implements IDataView {
     }
     async getListData(senderUserId?: string, senderGroupId?: string, ...recipientIds: string[]) {
         let query
+        const createReachOut: Action = new Action({
+            label: 'Create',
+            event: 'Route',
+            args: {
+                name: 'categories',
+                params: {
+                    categories: ['create']
+                }
+            },
+        })
         /*if (senderUserId) {
             query = gql`{
                 message (sender_user_id: ${senderUserId})
@@ -239,7 +246,13 @@ export class ReachOut implements IDataView {
             }`
         }*/
         //const data2 = await dbClient.get('', query)
-        const data = await new RestClient(config.api.ListMonk).get('/campaigns')
+        let data
+        try {
+            data = await new RestClient(config.api.ListMonk).get('/campaigns')
+        }
+        catch(error) {
+            console.log(error)
+        }
         const dataType: DataType = new DataType({
             actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
             items: {
@@ -264,7 +277,9 @@ export class ReachOut implements IDataView {
             }
         })
         const view: PageView = {
-            sections: [dataType],
+            sections: [createReachOut,
+                dataType
+            ],
             id: "",
             layout: "Grid",
             children: []

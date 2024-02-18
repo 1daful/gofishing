@@ -5,6 +5,7 @@ const routes = [
         path: '/',
         component: () => import('../layouts/Mainlayout.vue'),
         name: "MainLayout",
+        beforeEnter: authGuard,
         children: [
             {
                 path: '/about',

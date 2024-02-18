@@ -27,36 +27,39 @@
       ></q-icon>
     </template>
   </q-input>
+  <EView :view="dataView"></EView>
   <!--<VueInfiniteComplete
     dataSource="options"
     :value="value"
     @select="$emit(select)"
   ></VueInfiniteComplete>-->
-  <q-card class="bg-blue fixed margin z-top" v-if="search">
+  <!--q-card class="bg-blue fixed margin z-top" v-if="search">
     <div class="row">
-      <div class="col-3" v-for="mediaItem in mediaItems" :key="mediaItem.index">
-        <h5>{{ mediaItem.index }}</h5>
-        <div v-if="mediaItem">
-          <q-item v-for="item in mediaItem.items" :key="item.id">
-            <q-item-section><q-img :src="item.img"></q-img></q-item-section>
+      <div class="col-3" v-for="item in searchItems" :key="item">
+        <h5>{{ item }}</h5>
+        <div v-if="item">
+          <q-item v-for="item in searchItems.items" :key="item.id">
+            <q-item-section><q-img :src="item."></q-img></q-item-section>
             <q-item-section> {{ item.meta.title }} </q-item-section>
           </q-item>
         </div>
       </div>
     </div>
-    <!--<q-item>
-              <q-item-section v-for="mediaItem in mediaItems" :key="mediaItem.name">
-                <q-item-label class="text-h5"> {{mediaItem.name}} </q-item-label>
-              </q-item-section>
-              </q-item>-->
-  </q-card>
+    <q-item>
+      <q-item-section v-for="mediaItem in searchItems" :key="mediaItem.name">
+        <q-item-label class="text-h5"> {{mediaItem.name}} </q-item-label>
+      </q-item-section>
+    </q-item>
+  </q-card-->
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { Search } from "@edifiles/services";
-import { mediaItems } from "../../config/model";
+import { models } from "../../config/model";
+import { View } from "../utils/types";
 
+let dataView: View
 export default defineComponent({
   data() {
     return {
@@ -66,7 +69,8 @@ export default defineComponent({
       search: "",
       suggestions: [],
       suggestionAttribute: {},
-      mediaItems,
+      models,
+      dataView
     };
   },
   components: {
@@ -102,9 +106,18 @@ export default defineComponent({
       clearTimeout(debounce);
       debounce = setTimeout(() => {
         const search = new Search();
-        this.mediaItems.forEach(async (item, i) => {
-          let p = await search.search(item.index, String(this.search));
-          item.items = p.hits;
+        this.models.forEach(async (item, i) => {
+          const p = await search.search(item.name, String(this.search));
+          const view: View = {
+            sections: [item.val.listDataItems(p.hits).sections],
+            heading: item.name,
+            id: "",
+            layout: "Grid",
+            size: "",
+            navType: "top"
+          }
+          this.dataView.sections.push(view)
+          //item.items = p.hits;
           //this.suggestions[i] = p.hits;
         });
       }, 350);
@@ -114,7 +127,4 @@ export default defineComponent({
 </script>
 
 <style scoped>
-.search-input {
-  width: 300px
-}
 </style>

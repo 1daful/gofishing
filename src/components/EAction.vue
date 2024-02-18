@@ -2,10 +2,10 @@
   <QBtn :id="action.id" :label="action.label" @click="event()" :[type]="true" :[shape]="true" 
   dense :icon="action.icon" 
   :size="action.style?.size" 
-  class="q-mr-sm" :class="action.class" v-if="event" 
+  class="q-mr-sm" :class="action.class" v-if="event && show" 
   color="primary"
   :aria-label="action.style?.ariaLabel"></QBtn>
-  <QBtn :id="action.id" :label="action.label" :icon="action.icon" v-else-if="component">
+  <QBtn :id="action.id" :label="action.label" :icon="action.icon" v-else-if="component && show">
     <QPopupProxy cover>
       <EView :view="component" v-bind="$attrs"></EView>
       <!--<component :is="g" v-bind="$attrs" v-else></component>-->
@@ -15,10 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { defineAsyncComponent, onBeforeMount, ref } from "vue";
+import { defineAsyncComponent, onBeforeMount, onMounted, ref } from "vue";
 import { Action, View } from "../utils/types";
 import { useRouter } from "vue-router";
 import EView from "./EView.vue";
+import { viewGuard } from "../utils/AuthGuard";
 
 const props = defineProps({
   actionName: {
@@ -66,8 +67,12 @@ const AwDialog = defineAsyncComponent(
   return components;
 };*/
 const router = useRouter()
+let show = ref(true)
+//let show = true
 onBeforeMount(() => {
   if (props.action) {
+    
+    //if (show)
     switch (props.action.event) {
       case 'Route':
         event = () => {
@@ -91,4 +96,16 @@ onBeforeMount(() => {
     }
   }
 });
+onMounted(async () => {
+    if (typeof props.action.viewGuard === 'object') {
+      show.value = await viewGuard(props.action.viewGuard.userColval, props.action.viewGuard.colval, props.action.viewGuard.type)
+    }
+     if (props.action.viewGuard === true) {
+      show.value = await viewGuard()
+    }
+    else if (props.action.viewGuard === false) {
+      const guard = await viewGuard()
+      if(guard) show.value = false
+    }
+})
 </script>

@@ -7,6 +7,7 @@ import { config } from "../public/config";
 //import { firstTimer } from "./model";
 import { Service } from "../model/Service";
 import { ReachOut } from '../model/ReachOut';
+import { Event } from '../model/Event';
 
 /*const postQuery = `
   query GetPost($postId: ID!) {
@@ -38,108 +39,7 @@ const search: View = new View({
     }]
 })
 
-export const userContacts: QuestionType  = {
-    title: 'Contacts',
-    index: 0,
-    actions: {},
-    content: [{
-        question: 'Address',
-        inputType: 'text',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },{
-        question: 'Phone number',
-        inputType: 'number',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },{
-        question: 'Email Address',
-        inputType: 'email',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    }
-    ]
-}
-export const userBiodata =  new QuestionType({
-    title: 'Sign Up',
-    index: 1,
-    content: [{
-        question: 'First Name',
-        inputType: 'text',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },{
-        question: 'Last Name',
-        inputType: 'text',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },{
-        question: 'Password',
-        inputType: 'password',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },{
-        question: 'Date of Birth',
-        inputType: 'date',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },{
-        question: 'Date of Birth',
-        inputType: 'date',
-        answer: '',
-        options: [],
-        name: '',
-        image: ''
-    },
-],
-    actions: {
-    submit: new Action({
-        label: 'Sign Up',
-        event: ()=> {
-            auth.signUp,
-            new Mailer().sendEmail({
-                name: 'Welcome New User',
-                subject: '',
-                text: '',
-                templateKey: '',
-                html: '',
-                attachments: [],
-                inline_images: [],
-                headers: [],
-                messenger: '',
-                body: '',
-                date: new Date()
-            })
-        }
-    })},
-    meta: {
-        isNew: false
-    }
-})
-
-export const userView: View = new View({
-    id: 'userView',
-    layout: 'Grid',
-    navType: 'center',
-    size: 'col-12',
-    sections: [new FormType('userForm','Submit', [userBiodata])]
-})
-
-const signIn = new ActionGroup({
+const authAction = new ActionGroup({
     navType: 'top',
     actions: [
         new Action({
@@ -148,27 +48,22 @@ const signIn = new ActionGroup({
             args: '/signin',
             style: {
                 type: 'outline'
-            }
+            },
+            viewGuard: false
         }),
         new Action({
             label: 'Sign Up',
             event: 'Route',
             args: '/signup',
+            viewGuard: false
+        }),
+        new Action({
+            label: 'Sign Out',
+            event: auth.logout,
+            viewGuard: true
         })
     ]
 })
-
-export const userViewResolver = () => {
-    const mailer = new Mailer()
-    const userSignUp = () => {
-        userView
-    }
-}
-
-export const brand = {
-    name: "Go Fishing",
-    url: '/'
-}
 
 const home: PageView = new PageView({
     id: 'home',
@@ -177,21 +72,31 @@ const home: PageView = new PageView({
     children: []
 })
 const serviceModel = new Service()
+const eventModel = new Event()
+const reachoutModel = new ReachOut()
+
+async function userIcon() {
+    const names = (await auth.getUser()).data.user?.user_metadata
+    return names?.firstName
+}
+const userAvatar: Action = new Action({
+    icon: await userIcon(),
+    event: 'Modal'
+})
 
 const mainLayout: PageView = new PageView({
     id: '',
     layout: 'Grid',
     sections: [
-        menus, search, signIn,
+        menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel
+        home, serviceModel, eventModel, reachoutModel
     ]
 })
 export const GlobalView = {
     mainLayout
 }
-const reachout = new ReachOut()
 
 /*export const setGlobal = () => {
     Object.keys(GlobalView).forEach((key) => {
@@ -205,17 +110,6 @@ export  const view = new PageView({
     layout: 'Grid',
     sections: []
 })
-
-export const globalViewResolver = {
-    main: async (params: any) => ({
-        menus,
-    }),
-    userView
-}
-
-const filters = (...filters: any[]) => {
-
-}
 
 /*const resolver = (type: string) => {
     repo.readItems('',{type, })

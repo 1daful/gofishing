@@ -1,5 +1,5 @@
 import { Component } from "vue"
-import { CarouselStyle, DataPoint, HorizontalPosition, Slides, VerticalPosition } from "./DataTypes";
+import { CarouselStyle, DataPoint, HorizontalPosition, Slides, VerticalPosition, ViewGuard } from "./DataTypes";
 import { IDataView } from "../../model/IDataView";
 
 export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj is T {
@@ -8,27 +8,31 @@ export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj i
 
 // Define a type guard function for View
 export function isView(section: ViewSection): section is View {
-    return (section as View).insert !== undefined;
+    return (section as View)?.insert !== undefined;
 }
 
 // Define a type guard function for DataType
 export function isDataType(section: ViewSection): section is DataType {
-    return (section as DataType).items !== undefined;
+    return (section as DataType)?.items !== undefined;
+}
+
+export function isDataList(section: ViewSection): section is DataList {
+    return (section as DataList)?.items && (section as DataList)?.actions !== undefined;
 }
 
 // Define a type guard function for QuestionType
 export function isQuestionType(section: ViewSection): section is QuestionType {
-    return (section as QuestionType).content !== undefined;
+    return (section as QuestionType)?.content !== undefined;
 }
 
 // Define a type guard function for QuestionType
 export function isNavList(section: ViewSection): section is NavList {
-    return (section as NavList).content !== undefined;
+    return (section as NavList)?.content !== undefined;
 }
 
 // Define a type guard function for VComponent
 export function isVComponent(section: ViewSection): section is VComponent {
-    return (section as VComponent).content !== undefined;
+    return (section as VComponent)?.content !== undefined;
     //return 'content' in section;
 }
 
@@ -39,7 +43,7 @@ export function isComponent(section: ViewSection): section is Component {
 
 // Define a type guard function for IView
 export function isIView(section: any): section is IView {
-    return (section as IView).sections !== undefined;
+    return (section as IView)?.sections !== undefined;
 }
 
 // Function to check if a value is a valid SecTionType
@@ -56,10 +60,13 @@ export function isActionString(value: any): value is ActionString {
     return value === 'submit' || value === 'filter'
 }
 
+export type ViewAccess = 'public' | 'private' | 'mutual'
+
 export class Filters{
     constructor(filters: Filters) {
         Object.assign(this, filters)
     }
+    view?: ViewAccess
     indexName!: string
     options?: OptionsType
     rangeList?: string[]
@@ -86,6 +93,7 @@ export type NavLink = {
     children?: NavLink[],
     page?: ViewSection,
     class?: string
+    view?: ViewAccess
 }
 
 export class NavList {
@@ -102,6 +110,7 @@ export class NavList {
         dark?: boolean
     }
     class?: string
+    view?: ViewAccess
 }
 
 export type LayoutType = 'Grid' | 'Relative' | 'Vertical' | 'Horizontal'
@@ -116,6 +125,7 @@ export type DataContent = {
     horizontal?: boolean
     class?: string
     position?: VerticalPosition | HorizontalPosition
+    view?: ViewAccess
 }
 
 export type DataItem = {
@@ -133,6 +143,7 @@ export type CardStyle = {
     squared?: boolean
     dark?: boolean
     actionsAlign: 'left' | 'right' | 'center' | 'between' | 'around' | 'evenly' | 'stretch'
+    view?: ViewAccess
 }
 
 export class DataGraph {
@@ -144,28 +155,31 @@ export class DataGraph {
     label?: []
     data?: DataPoint[]
     xaxisType!: 'category' | 'number'
+    view?: ViewAccess
 }
 
 export class DataTable {
     constructor(data: DataTable) {
         Object.assign(this, data)   
     }
-    [x: string]: any;
+    //[x: string]: any;
     id?: any;
-    columns?: {
+    columns!: {
         name: string,
-        align: string,
+        align: "left" | "right" | "center",
         label: string,
-        field: string
+        field: string,
+        required?: boolean,
         sortable: boolean
     }[]
-    row!: Record<string, any>[]
+    rows!: Record<string, any>[]
     setHeader?: boolean;
     style?: CardStyle | CarouselStyle
     class?: string
     actions?: Action[]
     separator?: string
-    computeAction?: Function 
+    computeAction?: Function
+    viewGuard?: Action
 }
 
 export class DataType {
@@ -173,7 +187,7 @@ export class DataType {
         Object.assign(this, data)
         
     }
-    [x: string]: any;
+    //[x: string]: any;
     id?: any;
     overlay?: string;
     items!: DataItem
@@ -183,7 +197,16 @@ export class DataType {
     actions?: Action[]
     card?: boolean = true
     actionOverlay?: Function | ActionString //the main action when the whole card is clicked
-    computeAction?: Function 
+    computeAction?: Function
+    viewGuard?: Action
+}
+
+export class DataList {
+    constructor(data: DataType) {
+        Object.assign(this, data)  
+    }
+    items!: DataType[]
+    actions!: Action[]
 }
 
 export type ActionStyle = {
@@ -227,6 +250,7 @@ export class Action {
     style?: ActionStyle
     state?: ActionState
     class?: string
+    viewGuard?: ViewGuard
 }
 
 export class ActionGroup {
@@ -239,6 +263,7 @@ export class ActionGroup {
     state?: ActionState
     class?: string
     navType!: TabType
+    viewGuard?: Action
 }
     
 export class Video {
@@ -286,6 +311,10 @@ export class Video {
     }
 }
 
+export class User {
+    id!: string
+}
+
 export class Notification {}
 
 export class Blog {}
@@ -323,7 +352,7 @@ export type OptionsType = ({
     params?: any
 } | string)[]
 
-export class QuestionType {
+/*export class QuestionType {
     constructor(data: {
         id: string,
         title: string,
@@ -391,9 +420,37 @@ export class QuestionType {
     description?: string;
     actions: Record<string, Action>
     meta?: any
+    view?: ViewAccess
+}*/
+
+export class QuestionType {
+    constructor(question: QuestionType) {
+        Object.assign(this, question)
+    }
+    id!: string;
+    title!: string;
+    index!: number;
+    compute?: Function;
+    class?: string;
+    content!: {
+        question: string;
+        inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule';
+        component?: Component;
+        options?: OptionsType;
+        action?: Action;
+        name: string;
+        image?: string;
+        icon?: string,
+        rules?: any,
+    }[];
+    icon?: string;
+    description?: string;
+    actions!: Record<string, Action>
+    meta?: any
+    viewGuard?: ViewGuard
 }
 
-export class FormType {
+/*export class FormType {
     constructor(name: string, submit: Action | ActionString, content: QuestionType[]) {
         this.name = name
         this.content = content
@@ -416,11 +473,22 @@ export class FormType {
     name: string
     actions: Record<string, Action>
     content: QuestionType[]
+    viewGuard?: Action
+}*/
+export class FormType {
+    constructor(form: FormType) {
+        Object.assign(this, form)
+    }
+    name!: string
+    actions!: Record<string, Action>
+    content!: QuestionType[]
+    viewGuard?: Action
 }
 
 export type VComponent = {
     content: Component
     props?: any
+    view?: ViewAccess
 }
 
 export interface IView {
@@ -434,9 +502,10 @@ export interface IView {
     viewport?: string
     children? : ViewSection[]
     class?: string
+    viewGuard?: Action
 }
 
-export type ViewSection = View | DataType | QuestionType | VComponent | Component | NavList | Slides | DataGraph
+export type ViewSection = View | DataType | QuestionType | VComponent | Component | NavList | Slides | DataGraph | DataTable
 
 function insert(view: IView, ...content: ViewSection[]) {
     view.sections?.push(...content)
@@ -465,6 +534,7 @@ export class View implements IView {
     layout!: LayoutType
     size!: string
     navType!: SecTionType | TabType
+    viewGuard?: Action
 
     insert? = (...content: ViewSection[]) => {
         insert(this, ...content)
@@ -477,6 +547,7 @@ export class TabView extends View {
     }
 
     sections: ViewSection[] = []
+    view?: ViewAccess
 }
 
 export class SectionView extends View {
@@ -484,6 +555,7 @@ export class SectionView extends View {
         super(view)
     }
     sections: ViewSection[] = []
+    view?: ViewAccess
 }
 
 export class PageView implements IView {
@@ -494,6 +566,7 @@ export class PageView implements IView {
     layout!: LayoutType;
     sections: ViewSection[] = [];
     children: (PageView | IDataView)[] = []
+    view?: ViewAccess
     /*insert(...content: ViewSection[]){
         content.forEach(element => {
             if(element instanceof View) {
@@ -516,9 +589,10 @@ export type SecTionType = 'top' | 'bottom' | 'left' | 'right' | 'center'
 export type TabType ='top' | 'bottom' | 'left' | 'right'
 
 export type DataSection = {
-navType: string;
+    navType: string;
     name: string,
     content: DataType[] | DataSection[],
+    view?: ViewAccess
 }
 
 export type Recommendation = 'popular' | 'latest' | 'recommended' | 'related'
@@ -594,4 +668,10 @@ export interface IDataType{
 export type Client = {
     name: string,
     auth: any
+}
+
+export type Privacy = 'mutual' | 'private'
+export type Colval = {
+    col: string,
+    val: any
 }

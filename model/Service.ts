@@ -1,16 +1,15 @@
 import gql from "graphql-tag";
-import { dbClient } from "../config/model";
-import { Action, DataType, PageView, QuestionType, View } from "../src/utils/types";
+import { auth, dbClient } from "../config/model";
+import { Action, DataList, DataType, PageView, QuestionType, View } from "../src/utils/types";
 import { Share } from "../service/shareSrv";
 import EUpload from "../src/components/EUpload.vue";
 import { DocumentNode } from "graphql";
 import { IDataView } from "./IDataView";
 import { Member } from "./Member";
 import { Group } from "./Group";
-
+import { Event } from "./Event";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, Relation } from 'typeorm';
-import { Event } from './Event';
-import { QueryType } from "@edifiles/services";
+import { QueryFilter, QueryModifier, QueryType } from "@edifiles/services";
 import { filter, foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 
 @Entity()
@@ -51,14 +50,14 @@ export class Service implements IDataView {
         navType: "top"
     }
     async getCreateData() {
-        const membersQuery = gql `{
+        /*const membersQuery = gql `{
             member {
                 id
                 firstName
                 lastName
                 avatar
             }
-        }`
+        }`*/
 
         /*const groupsQuery = gql `{
             group {
@@ -68,16 +67,15 @@ export class Service implements IDataView {
             }
         }`
         */
-        const groupsQuery:QueryType = {
+        /*const groupsQuery:QueryType = {
             name: "",
             data: undefined,
-            filter: [],
             columns: [
                 'id', 'name', foreignColumns('member', ['firstName', 'lastName', 'id', 'avatar'])
             ]
         }
-        const groups: Group = await dbClient.get(groupsQuery)
-        const members: Member = await dbClient.get(membersQuery)
+        const groups: Group[] = await dbClient.get(groupsQuery)
+        const members: Member[] = await dbClient.get(membersQuery)*/
         /*const options = [
             {
                 label: 'groups',
@@ -99,7 +97,7 @@ export class Service implements IDataView {
                 }),          
             }
         ]*/
-
+        const userId = (await auth.getUser()).data.user?.id
         const form: QuestionType = new QuestionType({
             title: "Create new service",
             id: '',
@@ -110,12 +108,13 @@ export class Service implements IDataView {
                     event(filledForm: any) {
                         const service = {
                             name: filledForm.name,
+                            created_at: new Date().toUTCString(),
+                            author_id: userId
                         }
+
                         const query: QueryType = {
                             name: 'service',
                             data: service,
-                            filter: [],
-                            columns: []
                         }
                         //dbClient.post(gql`{service (data: ${service})}`)
                         dbClient.post(query)
@@ -124,29 +123,120 @@ export class Service implements IDataView {
             },
             content: [{
                 question: 'name',
-                answer: '',
                 name: 'name',
                 inputType: 'text'
             },
-            {
+            /*{
                 question: 'anchors',
-                answer: '',
                 name: 'anchors',
                 //options: options
-            }]
+            }*/]
         })
             
-        const view: PageView = {
+        const view: View = new View({
             id: "createService",
             layout: "Grid",
             sections: [form],
-            children: []
-        }
+            size: '',
+            navType: 'center'
+        })
         return view
     }
 
-    async getListData(filters?: DocumentNode, dataArg?: any) {
+    async getListData(query?: QueryType | QueryFilter | QueryModifier, dataArg?: any) {
         //const query = gql `service (id: ${id})`
+        let dataList: DataList = new DataList({
+            items: [],
+            actions: [
+                new Action({
+                    label: 'Create',
+                    icon: 'add',
+                    event: 'Route',
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    },
+                })
+            ]
+        })
+        let data
+        if(dataArg) {
+            data = dataArg
+        }
+        else {
+            if (query) {
+                data = await dbClient.get(query)
+            }
+            else {
+                data = await dbClient.get('service')
+            }
+        }
+        if (data) {
+            const items = data.data.map((dat)=>{
+                return new DataType({
+                    items: {
+                        header: [
+                            {
+                                label: dat.name
+                            },
+                            {
+                                label: dat.created_at?.toString()
+                            },
+                        ],
+                        footer: [
+                            {
+                                action: new Action({
+                                    label: 'open',
+                                    event: 'Route',
+                                    args: {
+                                        name: 'id',
+                                        params: {
+                                            id: dat.id
+                                        }
+                                    },
+                                    viewGuard: true
+                                })
+                            }
+                        ]
+                    }
+                })
+            })
+            dataList.items = items
+        }
+        const view: View = new View({
+            id: "services",
+            layout: "Grid",
+            sections: [dataList],
+            size: '',
+            navType: 'center'
+        })
+        return view
+    }
+
+    async getSingleData(id?: string, query?: QueryType, argData?: any) {
+        const share = new Share()
+        let eventQuery: QueryType
+
+        if (id) {
+            eventQuery = {
+                name: "event",
+                data: undefined,
+                filters: [
+                    {
+                        op: 'eq',
+                        col: 'service_id',
+                        val: id
+                    }
+                ]
+            }
+        }
+        else if (query) {
+            eventQuery = query
+        }
+        const event = new Event()
+        const eventView = await event.getListData(eventQuery)
         let dataType: DataType = {
             items: {
                 header: undefined,
@@ -157,173 +247,104 @@ export class Service implements IDataView {
             }
         }
         let data
-        if(dataArg) {
-            data = dataArg
-        }
-        else {
-            if (filters) {
-                data = await dbClient.get(filters)
-            }
-            else {
-                data = await dbClient.get('service')
-            }
-        }
-        if (data) { 
-            dataType = new DataType({
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        },
-                        {
-                            label: data.createdAt?.toString()
-                        },
-                    ],
-                    center: [
-                        {
-                            component: data.content
-                        }
-                    ],
-                    footer: [
-                        {
-                            action: new Action({
-                                label: 'open',
-                                event: 'Route',
-                                args: {
-                                    name: 'id',
-                                    params: {
-                                        id: data.id
-                                    }
-                                },
-                            })
-                        }
-                    ]
-                },
-                actions: [
-                    new Action({
-                        label: 'Create',
-                        icon: 'add',
-                        event: 'Route',
-                        args: {
-                            name: 'categories',
-                            params: {
-                                categories: ['create']
-                            }
-                        },
-                    })
-                ]
-            })
-        }
-        const view: PageView = {
-            id: "services",
-            layout: "Grid",
-            sections: [dataType],
-            children: []
-        }
-        return view
-    }
-
-    async getSingleData(id?: string, filters?: DocumentNode, argData?: any) {
-        const share = new Share()
-        let dataType: DataType = {
-            items: {
-                header: undefined,
-                center: undefined,
-                footer: undefined,
-                left: undefined,
-                right: undefined
-            }
-        }
-        let data: {
-            id: string; start: Date; end: Date; name: any; createdAt: any; timeElapse: any; content: any; 
-}
         if (argData) {
             data = argData
         }
         else {
-            let query
+            let serviceQuery: QueryType
             if(id) {
-                query = gql `{service (id: ${id})}`
+                serviceQuery = {
+                    name: 'service',
+                    data: undefined,
+                    filters: [
+                        {
+                            op: 'eq',
+                            col: 'id',
+                            val: id
+                        }
+                    ]
+                }
             }
-            else if (filters) {
-                query = filters
+            else if (query) {
+                serviceQuery = query
             }
-            data = await dbClient.get(query)
+            data = await dbClient.get(serviceQuery)
         }
+        const items = data.data[0]
         let media = {
             url: '',
-            description: data.content,
-            thumbnail: data.name,
-            title: data.name
+            description: items.content,
+            thumbnail: items.name,
+            title: items.name
         }
         const getStatus = () => {
             const now = new Date()
             let status = ''
-            if (now >= data.start && now <= data.end) {
+            if (now >= items.start && now <= items.end) {
                 status = 'active'
             }
-            if (now > data.end) {
+            if (now > items.end) {
                 status = 'ended'
             }
-            if (now < data.start) {
+            if (now < items.start) {
                 status = 'scheduled'
             }
             return status
         }
-        if (data) {
-            dataType = new DataType({
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        },
-                        {
-                            label: data.createdAt
-                        },
-                        {
-                            label: data.timeElapse
-                        }
-                    ],
-                    center: [
-                        {
-                            component: data.content
-                        }
-                    ],
-                    footer: [
-                        {
-                            action: 
-                            new Action({
-                                icon: 'videocam',
-                                label: 'Add video',
-                                event: 'Modal',
-                                args: this.view,
-                            }),
-                        },
-                        {
-                            action: share.getShare(media),
-                        },
-                        {
-                            action: 
-                            new Action({
-                                label: 'edit',
-                                icon: 'edit',
-                                event() {
-                                },
-                            })
-                        },
-                        {
-                            label: getStatus()
-                        }
-                    ]
-                }
-            })
-        }
-        const view: PageView = {
+        dataType = new DataType({
+            items: {
+                header: [
+                    {
+                        label: items.name
+                    },
+                    {
+                        label: items.createdAt
+                    },
+                    {
+                        label: items.timeElapse
+                    }
+                ],
+                center: [
+                    (await eventView).sections
+                ],
+                footer: [
+                    {
+                        action: 
+                        new Action({
+                            icon: 'videocam',
+                            label: 'Add video',
+                            event: 'Modal',
+                            args: this.view,
+                        }),
+                    },
+                    {
+                        action: share.getShare(media),
+                    },
+                    {
+                        action: 
+                        new Action({
+                            label: 'edit',
+                            icon: 'edit',
+                            event() {
+                            },
+                        })
+                    },
+                    {
+                        label: getStatus()
+                    }
+                ]
+            }
+        })
+        const view: View = new View({
             id: data.id,
             layout: "Grid",
-            sections: [dataType],
-            children: []
-        }
+            sections: [
+                dataType,
+                eventView
+            ],
+            size: '',
+            navType: 'center'
+        })
         return view
     }
 }

@@ -1,11 +1,12 @@
-import { EAuth, Mailer } from '@edifiles/services';
-import { View, Action, FormType, PageView, QuestionType, ActionGroup } from "../src/utils/types";
+import { EAuth } from '@edifiles/services';
+import { View, Action, PageView, ActionGroup } from "../src/utils/types";
 import Search from "../src/components/ESearch.vue";
 import { menus } from "./menus";
 import Home from "../src/pages/Home.vue";
 import { config } from "../public/config";
 import { Service } from "../model/Service";
 import { ReachOut } from '../model/ReachOut';
+import { Event } from '../model/Event';
 const auth = new EAuth(config.api.Supabase);
 const search = new View({
     id: 'search',
@@ -16,107 +17,7 @@ const search = new View({
             content: Search
         }]
 });
-export const userContacts = {
-    title: 'Contacts',
-    index: 0,
-    actions: {},
-    content: [{
-            question: 'Address',
-            inputType: 'text',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }, {
-            question: 'Phone number',
-            inputType: 'number',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }, {
-            question: 'Email Address',
-            inputType: 'email',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }
-    ]
-};
-export const userBiodata = new QuestionType({
-    title: 'Sign Up',
-    index: 1,
-    content: [{
-            question: 'First Name',
-            inputType: 'text',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }, {
-            question: 'Last Name',
-            inputType: 'text',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }, {
-            question: 'Password',
-            inputType: 'password',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }, {
-            question: 'Date of Birth',
-            inputType: 'date',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        }, {
-            question: 'Date of Birth',
-            inputType: 'date',
-            answer: '',
-            options: [],
-            name: '',
-            image: ''
-        },
-    ],
-    actions: {
-        submit: new Action({
-            label: 'Sign Up',
-            event: () => {
-                auth.signUp,
-                    new Mailer().sendEmail({
-                        name: 'Welcome New User',
-                        subject: '',
-                        text: '',
-                        templateKey: '',
-                        html: '',
-                        attachments: [],
-                        inline_images: [],
-                        headers: [],
-                        messenger: '',
-                        body: '',
-                        date: new Date()
-                    });
-            }
-        })
-    },
-    meta: {
-        isNew: false
-    }
-});
-export const userView = new View({
-    id: 'userView',
-    layout: 'Grid',
-    navType: 'center',
-    size: 'col-12',
-    sections: [new FormType('userForm', 'Submit', [userBiodata])]
-});
-const signIn = new ActionGroup({
+const authAction = new ActionGroup({
     navType: 'top',
     actions: [
         new Action({
@@ -125,25 +26,22 @@ const signIn = new ActionGroup({
             args: '/signin',
             style: {
                 type: 'outline'
-            }
+            },
+            viewGuard: false
         }),
         new Action({
             label: 'Sign Up',
             event: 'Route',
             args: '/signup',
+            viewGuard: false
+        }),
+        new Action({
+            label: 'Sign Out',
+            event: auth.logout,
+            viewGuard: true
         })
     ]
 });
-export const userViewResolver = () => {
-    const mailer = new Mailer();
-    const userSignUp = () => {
-        userView;
-    };
-};
-export const brand = {
-    name: "Go Fishing",
-    url: '/'
-};
 const home = new PageView({
     id: 'home',
     layout: 'Grid',
@@ -151,33 +49,35 @@ const home = new PageView({
     children: []
 });
 const serviceModel = new Service();
+const eventModel = new Event();
+const reachoutModel = new ReachOut();
+async function userIcon() {
+    var _a;
+    const names = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.user_metadata;
+    return names === null || names === void 0 ? void 0 : names.firstName;
+}
+const userAvatar = new Action({
+    icon: await userIcon(),
+    event: 'Modal'
+});
 const mainLayout = new PageView({
     id: '',
     layout: 'Grid',
     sections: [
-        menus, search, signIn,
+        menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel
+        home, serviceModel, eventModel, reachoutModel
     ]
 });
 export const GlobalView = {
     mainLayout
 };
-const reachout = new ReachOut();
 export const view = new PageView({
     id: '',
     layout: 'Grid',
     sections: []
 });
-export const globalViewResolver = {
-    main: async (params) => ({
-        menus,
-    }),
-    userView
-};
-const filters = (...filters) => {
-};
 export const config2 = {
     template: {
         views: [],

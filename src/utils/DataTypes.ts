@@ -1,4 +1,4 @@
-import { Action, DataType, VComponent } from "./types"
+import { Action, Colval, DataType, VComponent } from "./types"
 import { Component } from "vue"
 
 export class Slides {
@@ -82,11 +82,9 @@ export class Menu {
     listStyle?: ListStyle
 
     closeBtn: Action = new Action({
-        name: "closeMenuBtn",
+        id: "closeMenuBtn",
         icon: 'close',
         event: (drawerOpen: boolean)=> {drawerOpen = !drawerOpen},
-        onResult: [],
-        onError: [],
         style: {
           size: "20px",
           color: "red",
@@ -97,11 +95,9 @@ export class Menu {
         class: "lt-md"
     })
     openBtn: Action = new Action({
-        name: "menuBtn",
+        id: "menuBtn",
         icon: 'menu',
         event: (drawerOpen: boolean)=> {drawerOpen = !drawerOpen},
-        onResult: [],
-        onError: [],
         style: {
           size: "20px",
           color: "primary",
@@ -128,3 +124,9 @@ export type graphOptions = {
     strokes: any,
     markers: number
 }
+
+export type ViewGuard = {
+    userColval?: Colval,
+    colval?: Colval,
+    type?: string
+} | boolean

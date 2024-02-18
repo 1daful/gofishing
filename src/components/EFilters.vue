@@ -22,11 +22,7 @@
       </div>
     </QCardSection>
     <QCardActions>
-      <QBtn
-        :label="defaultAction.label"
-        :icon="defaultAction.icon"
-        @click="filter"
-      ></QBtn>
+      <EAction :action="action"></EAction>
     </QCardActions>
   </QCard>
 </template>
@@ -34,8 +30,8 @@
 <script setup lang="ts">
 import { Filters, Action } from "../utils/types";
 import { Filter, FilterCheck, FilterRange } from '@edifiles/services';
-import { Search } from '@edifiles/services';
 import { onMounted, ref } from "vue";
+import EAction from "./EAction.vue";
 
 //let select: string[];
 const props = defineProps({
@@ -46,12 +42,13 @@ const props = defineProps({
 
   action: {
     type: Object as () => Action,
+    required: true
   },
 
-  query: {
+  /*keyword: {
     type: String,
     required: true,
-  },
+  },*/
 });
 
 let select = ref('')
@@ -66,22 +63,22 @@ const filter = () => {
     range,
     custom: []
   };
-  const search = new Search();
+  /*const search = new Search();
   console.log("filters ", filters);
-  const result = search.search(props.data.indexName, props.query, filters);
-  //emit(defaultAction.event, result);
+  const result = search.search(props.data.indexName, props.keyword, filters);
+  emit(defaultAction.event, result);*/
 };
 
 let min = ref([]);
 let max = ref([]);
 let model = ref([]);
 
-let defaultAction: Action = {
+/*let defaultAction: Action = {
   label: "Filter",
   event: "Filter",
   icon: "sort",
   //|| "sort_by_alpha" || "category",
-};
+};*/
 const filterRange = () => {
   let filters: FilterRange[] = [];
   if(props.data.rangeList)
@@ -109,9 +106,9 @@ const filterCheck = () => {
 };
 
 onMounted(() => {
-  if (props.action) {
+  /*if (props.action) {
     defaultAction = props.action;
-  }
+  }*/
   //window.dispatchEvent(defaultAction.event);
 });
 /*onBeforeUnmount(() => {

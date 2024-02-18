@@ -1,5 +1,5 @@
 <template>
-  <q-list>
+  <q-list v-if="show">
     <div class="row">
       <div class="col">
         <div class="row">
@@ -35,11 +35,22 @@ export default defineComponent({
     EDataItem,
     EAction
   },
+  data() {
+    return {
+      show: true
+    }
+  },
   props: {
     data: {
       required: true,
       type: Object as () => DataType,
     },
+  },
+
+  async beforeMount() { 
+    if (this.data.viewGuard && typeof this.data.viewGuard.event === 'function') {
+        this.show = await this.data.viewGuard.event(this.data.viewGuard.args)
+      }
   },
 });
 </script>

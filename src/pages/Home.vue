@@ -18,7 +18,7 @@ import EView from "../components/EView.vue";
 import { DataType, Filters, View, NavList } from "../utils/types";
 //import { mount } from "mount-vue-component";
 
-const filterData: Filters = {
+const filterData: Filters = new Filters({
   indexName: "",
   rangeList: [
     "Hello"
@@ -36,7 +36,7 @@ const filterData: Filters = {
       ],
     },
   ],
-};
+});
 
 //const viewa = useWidgets();
 const data: DataType = {
@@ -47,13 +47,17 @@ const data: DataType = {
       header: [
         {
           label: "The Black Skirt",
-        },
+        }
+      ],
+      center: [
         {
           label: "This is about man's fallacy and illusion that leads to infactuation.",
         },
+      ],
+      footer: [
         {
           label: "27-03-34",
-          thumbnail: "../../public/logo.png",
+          thumbnail: "../../public/hero_blue.jpeg",
           avatar:  "../../public/logo.png",
         },
         {
@@ -61,22 +65,6 @@ const data: DataType = {
         }
       ]
   },
-  actions: [
-    {
-      name: "Create",
-      type: "Create",
-      label: "Create",
-      icon: "whatshot",
-      event: 'Route',
-    },
-    {
-      name: "Read",
-      type: "Read",
-      label: "Read",
-      icon: "bluetooth",
-      event: 'Route',
-    },
-  ],
   setHeader: true,
 };
 /*const view2: View = {

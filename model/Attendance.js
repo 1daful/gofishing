@@ -14,7 +14,6 @@ import gql from "graphql-tag";
 import { Action, DataGraph, PageView, View } from "../src/utils/types";
 import { Member } from "./Member";
 import { Event } from "./Event";
-import { filter } from "@edifiles/services/dist/module/utility/Query";
 import { useDate } from "../src/utils/useDate";
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
 let Attendance = class Attendance {
@@ -37,8 +36,8 @@ let Attendance = class Attendance {
             const storage = new EdiStorage();
             storage.post('member', '/member', blob);
             newFace.forEach((face) => {
-                dbClient.post('member', face);
-                dbClient.post('attendance', face);
+                dbClient.post(face);
+                dbClient.post(face);
             });
             useRouter().push({
                 name: 'type',
@@ -52,7 +51,7 @@ let Attendance = class Attendance {
                 member(id: ${existingFace})
             }`;
             existingFace.forEach((face) => {
-                dbClient.post('attendance', face);
+                dbClient.post(face);
             });
             useRouter().push({
                 name: 'type',
@@ -101,7 +100,13 @@ let Attendance = class Attendance {
         const query = {
             name: "",
             data: undefined,
-            filter: [filter('eq', "user_id", userId)],
+            filters: [
+                {
+                    op: 'eq',
+                    col: 'user_id',
+                    val: userId
+                }
+            ],
             columns: []
         };
         const attendanceList = await dbClient.get(query);
@@ -129,13 +134,13 @@ let Attendance = class Attendance {
         };
         const date = {
             title: "",
+            id: '',
             index: 0,
             actions: {},
             content: [
                 {
                     question: '',
                     name: '',
-                    answer: '',
                     inputType: 'date'
                 }
             ]
@@ -204,13 +209,14 @@ let Attendance = class Attendance {
         }`;
         const data = await dbClient.get(query);
         const table = {
-            row: data.filter((attendance) => {
+            rows: data.filter((attendance) => {
                 return {
                     date: attendance.event.startAt,
                     name: attendance.event.name,
                     time: attendance.timeDiff
                 };
-            })
+            }),
+            columns: []
         };
         return table;
     }

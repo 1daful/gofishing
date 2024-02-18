@@ -1,5 +1,5 @@
-import { QueryType } from "@edifiles/services";
-import { Action, DataType, PageView } from "../src/utils/types";
+import { QueryFilter, QueryType } from "@edifiles/services";
+import { Action, DataType, PageView, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient, auth } from "../config/model";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, JoinTable, ManyToMany, Relation } from "typeorm";
@@ -31,19 +31,110 @@ export class Group implements IDataView {
   @JoinTable()
   admins!: Relation<Admin[]>;
 
-    getCreateData?(data?: any): Promise<PageView> {
-        throw new Error("Method not implemented.");
+    async getCreateData(data?: any) {
+        const form: QuestionType = {
+            id: "",
+            title: "",
+            index: 0,
+            content: [
+                {
+                    question: 'name',
+                    name: 'name',
+                    inputType: 'text'
+                }
+            ],
+            actions: {
+                submit: new Action({
+                    async event(filledForm: any) {
+                        const user = await auth.getUser()
+                        filledForm.admin_id = user.id
+                        filledForm.id = filledForm.admin_id + new Date()
+                        const groupQuery: QueryType = {
+                            name: "group",
+                            data: filledForm,
+                            columns: []
+                        }
+                        const admin = {
+                            id: filledForm.admin_id,
+                            group_id: filledForm.id
+                        }
+                        const adminQuery: QueryType = {
+                            name: "admin",
+                            data: admin
+                        }
+                        dbClient.postWithTransaction(groupQuery, adminQuery)
+                    }
+                })
+            }
+        }
+
+        const view: PageView = new PageView({
+            sections: [form],
+            id: "",
+            layout: "Grid",
+            size: "",
+            children: []
+        })
+        return view
     }
     
-    async getListData(filter?: any): Promise<PageView> {
+    async getListData(filter?: QueryFilter[]): Promise<PageView> {
         const query: QueryType = {
             name: "",
             data: undefined,
-            filter: filter,
+            filters: filter,
             columns: []
         }
 
         const data: Group[] = await dbClient.get(query)
+        const dataType: DataType = this.listDataItems(data)
+
+        const view: PageView = {
+            id: "group",
+            layout: "Grid",
+            sections: [dataType],
+            children: []
+        }
+        return view
+    }
+    async getSingleData?(filter: any): Promise<PageView> {
+        const query: QueryType = {
+            name: "",
+            data: undefined,
+            filters: filter,
+            columns: []
+        }
+
+        const data: Group = await dbClient.get(query)
+        const singleDataItem = this.singleDataItem(data)
+        const view: PageView = {
+            id: "group",
+            layout: "Grid",
+            sections: [singleDataItem],
+            children: []
+        }
+        return view
+    }
+
+    singleDataItem = (data: Group)=> {
+        const singleDataItem: DataType = new DataType({
+            items: {
+                header: [
+                    {
+                        label: data.name
+                    }
+                ],
+                center: data.members.map((member)=> {
+                    return {
+                        label: `${member.firstName} ${member.lastName}`
+                    }
+                })
+            }
+        })
+        return singleDataItem
+    };
+
+    listDataItems: Function = (data: Group[]) => {
         const dataType: DataType = new DataType({
             items: {
                 header: data.map((group) => {
@@ -51,7 +142,7 @@ export class Group implements IDataView {
                 }),
                 footer: [
                     {
-                        action: new Action({
+                       /* action: new Action({
                             label: "Join a group",
                             async event() {
                                 const user = await auth.getUser()
@@ -66,51 +157,11 @@ export class Group implements IDataView {
                                 }
                                 dbClient.post(query)
                             }
-                        })
+                        })*/
                     }
                 ]
             }
         })
-
-        const view: PageView = {
-            id: "group",
-            layout: "Grid",
-            sections: [dataType],
-            children: []
-        }
-        return view
-    }
-    async getSingleData?(filter: any): Promise<PageView> {
-        const query: QueryType = {
-            name: "",
-            data: undefined,
-            filter: filter,
-            columns: []
-        }
-
-        const data: Group = await dbClient.get(query)
-        const dataType: DataType = new DataType({
-            items: {
-                header: [
-                    {
-                        label: data.name
-                    }
-                ],
-                center: data.members.map((member)=> {
-                    return {
-                        label: `${member.firstName} ${member.lastName}`
-                    }
-                })
-            }
-        })
-
-        const view: PageView = {
-            id: "group",
-            layout: "Grid",
-            sections: [dataType],
-            children: []
-        }
-        return view
-    }
-
+        return dataType
+    };
 }

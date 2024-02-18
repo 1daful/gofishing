@@ -7,7 +7,6 @@ import gql from "graphql-tag";
 import { Action, DataGraph, DataTable, Filters, FormType, PageView, QuestionType, View } from "../src/utils/types";
 import { Member } from "./Member";
 import { Event } from "./Event";
-import { filter } from "@edifiles/services/dist/module/utility/Query";
 import { useDate } from "../src/utils/useDate";
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Relation } from "typeorm";
 
@@ -62,8 +61,8 @@ export class Attendance implements IDataView {
             //const client = new SDKClient(storage)
             //client.post('newFace', blob)
             newFace.forEach((face: any) => {
-                dbClient.post('member', face)
-                dbClient.post('attendance', face)
+                dbClient.post(face)
+                dbClient.post(face)
             });
 
             useRouter().push({
@@ -79,7 +78,7 @@ export class Attendance implements IDataView {
                 member(id: ${existingFace})
             }`
             existingFace.forEach((face: any) => {
-                dbClient.post('attendance', face)
+                dbClient.post(face)
             });
             useRouter().push({
                 name: 'type',
@@ -165,7 +164,13 @@ export class Attendance implements IDataView {
         const query: QueryType = {
             name: "",
             data: undefined,
-            filter: [filter('eq', "user_id", userId)],
+            filters: [
+                {
+                op: 'eq',
+                col: 'user_id',
+                val: userId
+            }
+            ],
             columns: []
         }
         const attendanceList: Attendance[] = await dbClient.get(query)
@@ -198,13 +203,13 @@ export class Attendance implements IDataView {
 
         const date: QuestionType = {
             title: "",
+            id: '',
             index: 0,
             actions: {},
             content: [
                 {
                     question: '',
                     name: '',
-                    answer: '',
                     inputType: 'date'
                 }
             ]
@@ -280,13 +285,14 @@ export class Attendance implements IDataView {
         const data = await dbClient.get(query)
 
         const table: DataTable = {
-            row: data.filter((attendance: { event: { startAt: any; name: any; }; timeDiff: any; })=> {
+            rows: data.filter((attendance: { event: { startAt: any; name: any; }; timeDiff: any; }) => {
                 return {
                     date: attendance.event.startAt,
                     name: attendance.event.name,
                     time: attendance.timeDiff
-                }
-            })
+                };
+            }),
+            columns: []
         }
 
         return table

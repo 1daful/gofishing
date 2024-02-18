@@ -2,25 +2,28 @@ export function isType(obj, classType) {
     return obj instanceof classType;
 }
 export function isView(section) {
-    return section.insert !== undefined;
+    return (section === null || section === void 0 ? void 0 : section.insert) !== undefined;
 }
 export function isDataType(section) {
-    return section.items !== undefined;
+    return (section === null || section === void 0 ? void 0 : section.items) !== undefined;
+}
+export function isDataList(section) {
+    return (section === null || section === void 0 ? void 0 : section.items) && (section === null || section === void 0 ? void 0 : section.actions) !== undefined;
 }
 export function isQuestionType(section) {
-    return section.content !== undefined;
+    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
 }
 export function isNavList(section) {
-    return section.content !== undefined;
+    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
 }
 export function isVComponent(section) {
-    return section.content !== undefined;
+    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
 }
 export function isComponent(section) {
     return section !== undefined;
 }
 export function isIView(section) {
-    return section.sections !== undefined;
+    return (section === null || section === void 0 ? void 0 : section.sections) !== undefined;
 }
 function isSectionType(value) {
     return value === 'x-section' || value === 'y-section';
@@ -54,6 +57,11 @@ export class DataTable {
 export class DataType {
     constructor(data) {
         this.card = true;
+        Object.assign(this, data);
+    }
+}
+export class DataList {
+    constructor(data) {
         Object.assign(this, data);
     }
 }
@@ -100,6 +108,8 @@ export class Video {
         };
     }
 }
+export class User {
+}
 export class Notification {
 }
 export class Blog {
@@ -123,51 +133,13 @@ export class Table {
 export class Form {
 }
 export class QuestionType {
-    constructor(data) {
-        this.id = data.id;
-        this.title = data.title;
-        this.index = data.index;
-        this.content = data.content;
-        this.icon = data.icon;
-        this.description = data.description;
-        this.class = data.class;
-        if (isActionString(data.actions)) {
-            this.actions = {
-                submit: new Action({
-                    label: data.actions,
-                    event: data.actions,
-                    onResult() { },
-                    onError() { },
-                    args: [this.content],
-                    icon: data.actions
-                })
-            };
-        }
-        else {
-            this.actions = data.actions;
-        }
-        this.meta = data.meta;
+    constructor(question) {
+        Object.assign(this, question);
     }
 }
 export class FormType {
-    constructor(name, submit, content) {
-        this.name = name;
-        this.content = content;
-        if (isActionString(submit)) {
-            this.actions = {
-                submit: new Action({
-                    label: submit,
-                    event: submit,
-                    args: [this.content],
-                    icon: submit,
-                    onResult() { },
-                    onError() { }
-                })
-            };
-        }
-        else {
-            this.actions = { submit };
-        }
+    constructor(form) {
+        Object.assign(this, form);
     }
 }
 function insert(view, ...content) {

@@ -8,82 +8,98 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import gql from "graphql-tag";
-import { FormType, DataType, PageView, Action } from "../src/utils/types";
+import { DataType, QuestionType, Action, View, DataList } from "../src/utils/types";
 import { auth, dbClient } from "../config/model";
 import { Session } from "./Session";
 import { Invitation } from "./Invitation";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne } from 'typeorm';
 import { Attendance } from "./Attendance";
 import { Service } from "./Service";
 let Event = class Event {
+    constructor() {
+        this.id = 'events';
+    }
     async getCreateData(data) {
-        const form = new FormType('', 'Submit', [
-            {
-                title: '',
-                index: 1,
-                actions: {
-                    submit: new Action({
-                        async event(filledForm) {
-                            const user = await auth.getUser();
-                            filledForm.user_id = user.id;
-                            const query = {
-                                name: "",
-                                data: filledForm,
-                                filter: [],
-                                columns: []
-                            };
-                            dbClient.post(query);
-                        }
-                    })
-                },
-                content: [
-                    {
-                        question: 'name of event',
-                        name: 'name',
-                        answer: '',
-                        inputType: 'text'
-                    },
-                    {
-                        question: 'start',
-                        name: "start_at",
-                        answer: '',
-                        inputType: 'schedule',
-                    },
-                    {
-                        question: 'end',
-                        name: 'end_at',
-                        answer: '',
-                        inputType: 'date'
-                    },
-                ]
+        const form = new QuestionType({
+            title: '',
+            id: '',
+            index: 1,
+            actions: {
+                submit: new Action({
+                    async event(filledForm) {
+                        var _a;
+                        const user = await auth.getUser();
+                        filledForm.user_id = (_a = user.data.user) === null || _a === void 0 ? void 0 : _a.id;
+                        const query = {
+                            name: "event",
+                            data: filledForm,
+                            columns: []
+                        };
+                        dbClient.post(query);
+                    }
+                })
             },
-        ]);
-        const view = new PageView({
+            content: [
+                {
+                    question: 'name of event',
+                    name: 'name',
+                    inputType: 'text'
+                },
+                {
+                    question: 'start',
+                    name: "start_at",
+                    inputType: 'schedule',
+                },
+                {
+                    question: 'end',
+                    name: 'end_at',
+                    inputType: 'date'
+                },
+                {
+                    question: 'select service',
+                    inputType: 'date',
+                    name: 'service_id'
+                }
+            ]
+        });
+        const view = new View({
             id: "",
             layout: "Grid",
             sections: [form],
-            children: []
+            size: '',
+            navType: 'center'
         });
         return view;
     }
-    async getListData(filters) {
+    async getListData(query) {
+        const createEvent = new Action({
+            label: 'Create',
+            event: 'Route',
+            args: {
+                name: 'categories',
+                params: {
+                    categories: ['create']
+                }
+            },
+        });
         const upcomingView = {
             id: 'upcoming',
-            sections: await this.getEvents('upcoming')
+            sections: await this.getEvents('upcoming', query)
         };
         const markedView = {
             id: 'marked',
-            sections: await this.getEvents('marked')
+            sections: await this.getEvents('marked', query)
         };
         const todayView = {
             id: 'today',
-            sections: await this.getEvents('today')
+            sections: await this.getEvents('today', query)
         };
-        const view = new PageView({
+        const view = new View({
             id: "",
             layout: "Grid",
-            sections: [upcomingView, markedView, todayView],
-            children: []
+            sections: [createEvent, upcomingView, markedView, todayView],
+            size: '',
+            navType: 'center'
         });
         return view;
     }
@@ -117,53 +133,64 @@ let Event = class Event {
                 ]
             },
         };
-        const view = new PageView({
+        const view = new View({
             sections: [
                 dataType
             ],
             id: "",
             layout: "Grid",
-            children: []
+            size: '',
+            navType: 'center'
         });
         return view;
     }
-    async getEvents(eventStatus) {
-        let query;
+    async getEvents(eventStatus, query) {
+        var _a, _b, _c;
+        let eventQuery = query || {
+            name: 'event',
+            data: undefined
+        };
         switch (eventStatus) {
             case 'upcoming':
-                query = gql `{
-                events (startAt {
-                    gt: {${new Date()}}})
-                }`;
+                (_a = eventQuery.filters) === null || _a === void 0 ? void 0 : _a.push({
+                    op: 'gt',
+                    col: 'start_at',
+                    val: new Date().toUTCString()
+                });
                 break;
             case 'marked':
-                query = gql `{
-                events (startAt {
-                    lt: {
-                    ${new Date()}
-                    }
-                    })
-                }`;
+                (_b = eventQuery.filters) === null || _b === void 0 ? void 0 : _b.push({
+                    op: 'lt',
+                    col: 'start_at',
+                    val: new Date().toUTCString()
+                });
                 break;
             case 'today':
-                query = gql `{
-                events (startAt ${new Date()})
-            }`;
+                (_c = eventQuery.filters) === null || _c === void 0 ? void 0 : _c.push({
+                    op: 'eq',
+                    col: 'start_at',
+                    val: new Date().toUTCString()
+                });
                 break;
         }
-        const data = await dbClient.get(query);
-        const dataType = new DataType({
-            items: {
-                header: [
-                    { label: data.name }
-                ],
-                center: [
-                    { label: data.start_at },
-                    { label: data.end_at }
-                ]
-            }
+        const data = await dbClient.get(eventQuery);
+        const dataList = new DataList({
+            items: []
         });
-        return dataType;
+        dataList.items = data.data.map((dat) => {
+            return new DataType({
+                items: {
+                    header: [
+                        { label: dat.name }
+                    ],
+                    center: [
+                        { label: dat.start_at },
+                        { label: dat.end_at }
+                    ]
+                }
+            });
+        });
+        return dataList;
     }
     async getSessionDataView(session) {
         let startTime = session.start_at;
@@ -243,6 +270,7 @@ let Event = class Event {
         ];
         const question = {
             title: "",
+            id: '',
             index: 2,
             actions: {
                 submit: new Action({
@@ -263,31 +291,26 @@ let Event = class Event {
                 {
                     question: 'name',
                     name: 'name',
-                    answer: '',
                     inputType: 'text'
                 },
                 {
                     question: 'start',
                     name: 'start_at',
-                    answer: '',
                     inputType: 'schedule'
                 },
                 {
                     question: 'end',
                     name: 'end_at',
-                    answer: '',
                     inputType: 'date'
                 },
                 {
                     question: 'anchor',
                     name: 'anchor',
-                    answer: '',
                     options: options
                 },
                 {
                     question: 'content',
                     name: 'content',
-                    answer: '',
                     inputType: 'textarea'
                 }
             ]
@@ -302,10 +325,6 @@ let Event = class Event {
         return view;
     }
 };
-__decorate([
-    PrimaryGeneratedColumn('uuid'),
-    __metadata("design:type", String)
-], Event.prototype, "id", void 0);
 __decorate([
     Column({ type: 'timestamp' }),
     __metadata("design:type", Date)

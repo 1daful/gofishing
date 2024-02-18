@@ -9,6 +9,7 @@ import { authGuard } from "../utils/AuthGuard";
           path: '/',
           component: () => import('../layouts/Mainlayout.vue'),
           name: "MainLayout",
+          beforeEnter: authGuard,
           children: [
             /*{
                 path: '/',

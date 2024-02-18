@@ -22,13 +22,10 @@
 </template>
 
 <script lang="ts">
-import { EAuth } from "@edifiles/services";
 import { defineComponent } from 'vue'
-import { Utility } from "@edifiles/services";
 import { useQuasar } from "quasar";
-
-const utility = new Utility()
-const auth = new EAuth()
+import { auth } from '../../config/model';
+import { getUrl } from "@edifiles/services";
 
 export default defineComponent({
     data() {
@@ -89,7 +86,7 @@ export default defineComponent({
     async mounted() {
         this.accessToken = this.$route.params.url as unknown as string
         //if( this.accessToken){
-            const token = utility.getUrl(this.accessToken)
+            const token = getUrl(this.accessToken)
             //let params = token.searchParams
             let type = token.type
             let email_change_token = token.email_change_token

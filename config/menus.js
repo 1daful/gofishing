@@ -25,9 +25,9 @@ export const menus1 = new NavList({
     ],
     navType: "top"
 });
-export const createMenus = (navType, ...menus) => {
+export const createMenus = (id, navType, menus) => {
     let navList = new NavList({
-        id: "mainMenu",
+        id: id,
         content: [],
         navType: navType
     });
@@ -39,4 +39,12 @@ export const createMenus = (navType, ...menus) => {
     });
     return navList;
 };
-export const menus = createMenus('top', 'services', 'tasks', 'roles', 'groups', 'schedules', 'announcement', 'members', 'messages');
+export const menus = createMenus('mainMain', 'top', [
+    'services',
+    'groups',
+    'announcement',
+    'members',
+    'messages',
+    'events',
+    'reachouts'
+]);

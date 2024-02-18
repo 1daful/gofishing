@@ -1,8 +1,8 @@
 import gql from "graphql-tag";
-import { FormType, DataType, PageView, QuestionType, Action, View } from "../src/utils/types";
+import { FormType, DataType, QuestionType, Action, View, DataList } from "../src/utils/types";
 import { IDataView } from "./IDataView";
-import { auth, dbClient } from "../config/model";
-import { QueryType } from "@edifiles/services";
+import { addModel, auth, dbClient } from "../config/model";
+import { QueryFilter, QueryType } from "@edifiles/services";
 import { Session } from "./Session";
 import { Invitation } from "./Invitation";
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, ManyToOne, Relation } from 'typeorm';
@@ -12,8 +12,9 @@ import { Service } from "./Service";
 @Entity()
 export class Event implements IDataView {
 
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+    /*@PrimaryGeneratedColumn('uuid')
+    id!: string;*/
+    id = 'events'
 
     @Column({ type: 'timestamp' })
     create_at!: Date;
@@ -40,19 +41,19 @@ export class Event implements IDataView {
     service!: Relation<Service>
 
     async getCreateData(data?: any) {
-        const form: FormType = new FormType('', 'Submit', [
+        const form: QuestionType = new QuestionType(
             {
                 title: '',
+                id: '',
                 index: 1,
                 actions: {
                     submit: new Action({
                         async event(filledForm: any) {
                             const user = await auth.getUser()
-                            filledForm.user_id = user.id
+                            filledForm.user_id = user.data.user?.id
                             const query: QueryType = {
-                                name: "",
+                                name: "event",
                                 data: filledForm,
-                                filter: [],
                                 columns: []
                             }
                             dbClient.post(query)
@@ -63,52 +64,65 @@ export class Event implements IDataView {
                     {
                         question: 'name of event',
                         name: 'name',
-                        answer: '',
                         inputType: 'text'
                     },
                     {
                         question: 'start',
                         name: "start_at",
-                        answer: '',
                         inputType: 'schedule',
                     },
                     {
                         question: 'end',
                         name: 'end_at',
-                        answer: '',
                         inputType: 'date'
                     },
+                    {
+                        question: 'select service',
+                        inputType: 'date',
+                        name: 'service_id'
+                    }
                 ]
-            },
-        ])
-        const view: PageView = new PageView({
+            })
+        const view: View = new View({
             id: "",
             layout: "Grid",
             sections: [form],
-            children: []
+            size: '',
+            navType: 'center'
         })
         return view
     }
-    async getListData(filters?: any) {
+    async getListData(query?: QueryType) {
+        const createEvent: Action = new Action({
+            label: 'Create',
+            event: 'Route',
+            args: {
+                name: 'categories',
+                params: {
+                    categories: ['create']
+                }
+            },
+        })
         const upcomingView = {
             id: 'upcoming',
-            sections: await this.getEvents('upcoming')
+            sections: await this.getEvents('upcoming', query)
         }
           
         const markedView = {
             id: 'marked',
-            sections: await this.getEvents('marked')
+            sections: await this.getEvents('marked', query)
         }
           
         const todayView = {
             id: 'today',
-            sections: await this.getEvents('today')
+            sections: await this.getEvents('today', query)
         }
-        const view: PageView = new PageView({
+        const view: View = new View({
             id: "",
             layout: "Grid",
-            sections: [upcomingView, markedView, todayView],
-            children: []
+            sections: [createEvent, upcomingView, markedView, todayView],
+            size: '',
+            navType: 'center'
         })
         return view
     }
@@ -143,59 +157,70 @@ export class Event implements IDataView {
           },
         }
 
-        const view: PageView = new PageView({
+        const view: View = new View({
             sections: [
                 dataType
             ],
             id: "",
             layout: "Grid",
-            children: []
+            size: '',
+            navType: 'center'
         })
         return view
     }
 
-    async getEvents(eventStatus: string) {
-        let query
+    async getEvents(eventStatus: string, query?: QueryType) {
+        let eventQuery: QueryType = query || {
+            name: 'event',
+            data: undefined
+        }
+
         switch(eventStatus) {
             case 'upcoming':
-                query = gql `{
-                events (startAt {
-                    gt: {${new Date()}}})
-                }`
+                eventQuery.filters?.push({
+                    op: 'gt',
+                    col: 'start_at',
+                    val: new Date().toUTCString()
+                })
             break
             
             case 'marked':
-            query = gql`{
-                events (startAt {
-                    lt: {
-                    ${new Date()}
-                    }
-                    })
-                }`
-            
+                eventQuery.filters?.push({
+                    op: 'lt',
+                    col: 'start_at',
+                    val: new Date().toUTCString()
+                })
             break
             
-            case'today':
-            query = gql`{
-                events (startAt ${new Date()})
-            }`
+            case 'today':
+                eventQuery.filters?.push({
+                    op: 'eq',
+                    col: 'start_at',
+                    val: new Date().toUTCString()
+                })
             break
         }
         
-        const data = await dbClient.get(query)
+        const data = await dbClient.get(eventQuery)
 
-        const dataType: DataType = new DataType({
-            items: {
-                header: [
-                    {label: data.name}
-                ],
-                center: [
-                    {label: data.start_at},
-                    {label: data.end_at}
-                ]
-            }
+        const dataList: DataList = new DataList({
+            items: []
         })
-        return dataType
+
+        dataList.items = data.data.map((dat) => {
+            return new DataType({
+                items: {
+                    header: [
+                        {label: dat.name}
+                    ],
+                    center: [
+                        {label: dat.start_at},
+                        {label: dat.end_at}
+                    ]
+                }
+            })
+        })
+        return dataList
     }
 
 
@@ -291,6 +316,7 @@ export class Event implements IDataView {
 
         const question: QuestionType = {
             title: "",
+            id: '',
             index: 2,
             actions: {
                 submit: new Action({
@@ -311,31 +337,26 @@ export class Event implements IDataView {
                 {
                     question: 'name',
                     name: 'name',
-                    answer: '',
                     inputType: 'text'
                 },
                 {
                     question: 'start',
                     name: 'start_at',
-                    answer: '',
                     inputType: 'schedule'
                 },
                 {
                     question: 'end',
                     name: 'end_at',
-                    answer: '',
                     inputType: 'date'
                 },
                 {
                     question: 'anchor',
                     name: 'anchor',
-                    answer: '',
                     options: options
                 },
                 {
                     question: 'content',
                     name: 'content',
-                    answer: '',
                     inputType: 'textarea'
                 }
             ]

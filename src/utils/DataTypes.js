@@ -27,11 +27,9 @@ export class Menu {
             backgroundColor: ""
         };
         this.closeBtn = new Action({
-            name: "closeMenuBtn",
+            id: "closeMenuBtn",
             icon: 'close',
             event: (drawerOpen) => { drawerOpen = !drawerOpen; },
-            onResult: [],
-            onError: [],
             style: {
                 size: "20px",
                 color: "red",
@@ -42,11 +40,9 @@ export class Menu {
             class: "lt-md"
         });
         this.openBtn = new Action({
-            name: "menuBtn",
+            id: "menuBtn",
             icon: 'menu',
             event: (drawerOpen) => { drawerOpen = !drawerOpen; },
-            onResult: [],
-            onError: [],
             style: {
                 size: "20px",
                 color: "primary",

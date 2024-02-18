@@ -7,15 +7,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import gql from "graphql-tag";
-import { dbClient } from "../config/model";
-import { Action, DataType, QuestionType } from "../src/utils/types";
+import { auth, dbClient } from "../config/model";
+import { Action, DataList, DataType, QuestionType, View } from "../src/utils/types";
 import { Share } from "../service/shareSrv";
 import EUpload from "../src/components/EUpload.vue";
 import { Member } from "./Member";
+import { Event } from "./Event";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
-import { Event } from './Event';
-import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 let Service = class Service {
     constructor() {
         this.id = 'services';
@@ -28,24 +26,8 @@ let Service = class Service {
         };
     }
     async getCreateData() {
-        const membersQuery = gql `{
-            member {
-                id
-                firstName
-                lastName
-                avatar
-            }
-        }`;
-        const groupsQuery = {
-            name: "",
-            data: undefined,
-            filter: [],
-            columns: [
-                'id', 'name', foreignColumns('member', ['firstName', 'lastName', 'id', 'avatar'])
-            ]
-        };
-        const groups = await dbClient.get(groupsQuery);
-        const members = await dbClient.get(membersQuery);
+        var _a;
+        const userId = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.id;
         const form = new QuestionType({
             title: "Create new service",
             id: '',
@@ -56,12 +38,12 @@ let Service = class Service {
                     event(filledForm) {
                         const service = {
                             name: filledForm.name,
+                            created_at: new Date().toUTCString(),
+                            author_id: userId
                         };
                         const query = {
                             name: 'service',
                             data: service,
-                            filter: [],
-                            columns: []
                         };
                         dbClient.post(query);
                     }
@@ -69,103 +51,112 @@ let Service = class Service {
             },
             content: [{
                     question: 'name',
-                    answer: '',
                     name: 'name',
                     inputType: 'text'
                 },
-                {
-                    question: 'anchors',
-                    answer: '',
-                    name: 'anchors',
-                }]
+            ]
         });
-        const view = {
+        const view = new View({
             id: "createService",
             layout: "Grid",
             sections: [form],
-            children: []
-        };
+            size: '',
+            navType: 'center'
+        });
         return view;
     }
-    async getListData(filters, dataArg) {
-        var _a;
-        let dataType = {
-            items: {
-                header: undefined,
-                center: undefined,
-                footer: undefined,
-                left: undefined,
-                right: undefined
-            }
-        };
+    async getListData(query, dataArg) {
+        let dataList = new DataList({
+            items: [],
+            actions: [
+                new Action({
+                    label: 'Create',
+                    icon: 'add',
+                    event: 'Route',
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    },
+                })
+            ]
+        });
         let data;
         if (dataArg) {
             data = dataArg;
         }
         else {
-            if (filters) {
-                data = await dbClient.get(filters);
+            if (query) {
+                data = await dbClient.get(query);
             }
             else {
                 data = await dbClient.get('service');
             }
         }
         if (data) {
-            dataType = new DataType({
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        },
-                        {
-                            label: (_a = data.createdAt) === null || _a === void 0 ? void 0 : _a.toString()
-                        },
-                    ],
-                    center: [
-                        {
-                            component: data.content
-                        }
-                    ],
-                    footer: [
-                        {
-                            action: new Action({
-                                label: 'open',
-                                event: 'Route',
-                                args: {
-                                    name: 'id',
-                                    params: {
-                                        id: data.id
-                                    }
-                                },
-                            })
-                        }
-                    ]
-                },
-                actions: [
-                    new Action({
-                        label: 'Create',
-                        icon: 'add',
-                        event: 'Route',
-                        args: {
-                            name: 'categories',
-                            params: {
-                                categories: ['create']
+            const items = data.data.map((dat) => {
+                var _a;
+                return new DataType({
+                    items: {
+                        header: [
+                            {
+                                label: dat.name
+                            },
+                            {
+                                label: (_a = dat.created_at) === null || _a === void 0 ? void 0 : _a.toString()
+                            },
+                        ],
+                        footer: [
+                            {
+                                action: new Action({
+                                    label: 'open',
+                                    event: 'Route',
+                                    args: {
+                                        name: 'id',
+                                        params: {
+                                            id: dat.id
+                                        }
+                                    },
+                                    viewGuard: true
+                                })
                             }
-                        },
-                    })
-                ]
+                        ]
+                    }
+                });
             });
+            dataList.items = items;
         }
-        const view = {
+        const view = new View({
             id: "services",
             layout: "Grid",
-            sections: [dataType],
-            children: []
-        };
+            sections: [dataList],
+            size: '',
+            navType: 'center'
+        });
         return view;
     }
-    async getSingleData(id, filters, argData) {
+    async getSingleData(id, query, argData) {
         const share = new Share();
+        let eventQuery;
+        if (id) {
+            eventQuery = {
+                name: "event",
+                data: undefined,
+                filters: [
+                    {
+                        op: 'eq',
+                        col: 'service_id',
+                        val: id
+                    }
+                ]
+            };
+        }
+        else if (query) {
+            eventQuery = query;
+        }
+        const event = new Event();
+        const eventView = await event.getListData(eventQuery);
         let dataType = {
             items: {
                 header: undefined,
@@ -180,87 +171,98 @@ let Service = class Service {
             data = argData;
         }
         else {
-            let query;
+            let serviceQuery;
             if (id) {
-                query = gql `{service (id: ${id})}`;
+                serviceQuery = {
+                    name: 'service',
+                    data: undefined,
+                    filters: [
+                        {
+                            op: 'eq',
+                            col: 'id',
+                            val: id
+                        }
+                    ]
+                };
             }
-            else if (filters) {
-                query = filters;
+            else if (query) {
+                serviceQuery = query;
             }
-            data = await dbClient.get(query);
+            data = await dbClient.get(serviceQuery);
         }
+        const items = data.data[0];
         let media = {
             url: '',
-            description: data.content,
-            thumbnail: data.name,
-            title: data.name
+            description: items.content,
+            thumbnail: items.name,
+            title: items.name
         };
         const getStatus = () => {
             const now = new Date();
             let status = '';
-            if (now >= data.start && now <= data.end) {
+            if (now >= items.start && now <= items.end) {
                 status = 'active';
             }
-            if (now > data.end) {
+            if (now > items.end) {
                 status = 'ended';
             }
-            if (now < data.start) {
+            if (now < items.start) {
                 status = 'scheduled';
             }
             return status;
         };
-        if (data) {
-            dataType = new DataType({
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        },
-                        {
-                            label: data.createdAt
-                        },
-                        {
-                            label: data.timeElapse
-                        }
-                    ],
-                    center: [
-                        {
-                            component: data.content
-                        }
-                    ],
-                    footer: [
-                        {
-                            action: new Action({
-                                icon: 'videocam',
-                                label: 'Add video',
-                                event: 'Modal',
-                                args: this.view,
-                            }),
-                        },
-                        {
-                            action: share.getShare(media),
-                        },
-                        {
-                            action: new Action({
-                                label: 'edit',
-                                icon: 'edit',
-                                event() {
-                                },
-                            })
-                        },
-                        {
-                            label: getStatus()
-                        }
-                    ]
-                }
-            });
-        }
-        const view = {
+        dataType = new DataType({
+            items: {
+                header: [
+                    {
+                        label: items.name
+                    },
+                    {
+                        label: items.createdAt
+                    },
+                    {
+                        label: items.timeElapse
+                    }
+                ],
+                center: [
+                    (await eventView).sections
+                ],
+                footer: [
+                    {
+                        action: new Action({
+                            icon: 'videocam',
+                            label: 'Add video',
+                            event: 'Modal',
+                            args: this.view,
+                        }),
+                    },
+                    {
+                        action: share.getShare(media),
+                    },
+                    {
+                        action: new Action({
+                            label: 'edit',
+                            icon: 'edit',
+                            event() {
+                            },
+                        })
+                    },
+                    {
+                        label: getStatus()
+                    }
+                ]
+            }
+        });
+        const view = new View({
             id: data.id,
             layout: "Grid",
-            sections: [dataType],
-            children: []
-        };
+            sections: [
+                dataType,
+                eventView
+            ],
+            size: '',
+            navType: 'center'
+        });
         return view;
     }
 };

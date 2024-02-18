@@ -98,22 +98,31 @@ export default defineComponent({
 
     async processView () {
       if (this.type) {
+        let section
         this.dataView = GlobalView.mainLayout.children.find((child) => {
          
           return child.id === this.type;
         });
         if (!this.categories && !this.id) {
-          this.view = await this.dataView?.getListData(this.filters, data);
-        } else if (this.categories && !this.id) {
-          if (this.categories[0] === 'create') {
-            this.view = await this.dataView?.getCreateData(this.filters);
-          }
-          else 
-          this.view = await this.dataView?.getListData(this.filters);
-        } else if (this.id) {
-          this.view = await this.dataView?.getSingleData(this.id, data);
+          section = await this.dataView?.getListData(this.filters);
+          this.view.sections.push(section)
         } 
-      } else {
+        else if (this.categories && !this.id) {
+          if (this.categories[0] === 'create') {
+          section = await this.dataView?.getCreateData(this.filters);
+            this.view.sections.push(section)
+          }
+          else {
+          section = await this.dataView?.getListData(this.filters);
+          this.view.sections.push(section)
+          }
+        } 
+        else if (this.id) {
+          section = await this.dataView?.getSingleData(this.id);
+          this.view.sections.push(section)
+        } 
+      } 
+      else {
         this.view = GlobalView.mainLayout.children.find((child) => {
           return child.id === 'home';
         }) as PageView;

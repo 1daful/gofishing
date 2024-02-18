@@ -15,13 +15,8 @@ import { gql } from 'graphql-tag';
 import { config } from "../public/config";
 import { Slides } from '../src/utils/DataTypes';
 import { GlobalView } from './edifiles.config';
+import { Group } from '../model/Group';
 export const domainNames = [];
-export let mediaItems = [
-    {
-        index: "",
-        items: []
-    }
-];
 const db = new Repository(config.api.Supabase);
 export class MemberList2 {
     constructor(data) {
@@ -87,7 +82,7 @@ const firstTimerQuery = gql `{
     }
 }`;
 export const firstTimer = new View({
-    sections: [await dbClient.get('member', firstTimerQuery)],
+    sections: [await dbClient.get(firstTimerQuery)],
     id: '',
     layout: 'Grid',
     size: '',
@@ -145,11 +140,11 @@ export const getNotificationSlides = async () => {
     }`;
     const announcementsQuery = gql `announcements {
     }`;
-    const serviceSlide = await dbClient.get('service', servicesQuery);
-    const eventSlide = await dbClient.get('service', eventsQuery);
-    const milestoneSlide = await dbClient.get('service', milestonesQuery);
-    const birthdaySlide = await dbClient.get('service', birthdaysQuery);
-    const announcementSlide = await dbClient.get('messages', announcementsQuery);
+    const serviceSlide = await dbClient.get(servicesQuery);
+    const eventSlide = await dbClient.get(eventsQuery);
+    const milestoneSlide = await dbClient.get(milestonesQuery);
+    const birthdaySlide = await dbClient.get(birthdaysQuery);
+    const announcementSlide = await dbClient.get(announcementsQuery);
     return new Slides(serviceSlide, eventSlide, milestoneSlide, birthdaySlide, announcementSlide);
 };
 export const getServicesSlides = async () => {
@@ -162,16 +157,16 @@ export const getServicesSlides = async () => {
     const nextServiceQuery = gql `service {
 
     }`;
-    const prevServiceSlide = await dbClient.get('service', prevServiceQuery);
-    const currentServiceSlide = await dbClient.get('service', currentServiceQuery);
-    const nextServiceSlide = await dbClient.get('service', nextServiceQuery);
+    const prevServiceSlide = await dbClient.get(prevServiceQuery);
+    const currentServiceSlide = await dbClient.get(currentServiceQuery);
+    const nextServiceSlide = await dbClient.get(nextServiceQuery);
     new Slides(prevServiceSlide, currentServiceSlide, nextServiceSlide);
 };
 export const getMilestones = async () => {
     const query = gql `milestones {
 
     }`;
-    const milestones = await dbClient.get('milestone', query);
+    const milestones = await dbClient.get(query);
     return milestones;
 };
 export async function addModel(childView, parentView, id, ...query) {
@@ -210,3 +205,9 @@ export async function addModel(childView, parentView, id, ...query) {
     }
     console.log("GlobalView: ", GlobalView);
 }
+export const models = [
+    {
+        name: 'group',
+        val: new Group()
+    }
+];

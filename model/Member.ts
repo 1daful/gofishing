@@ -1,10 +1,10 @@
-import { DataType, PageView, QuestionType } from "../src/utils/types"
+import { DataType, PageView, QuestionType, View } from "../src/utils/types"
 import { IDataView } from "./IDataView"
 import { getCreateData, getListData } from "./DataView"
 import { dbClient } from "../config/model"
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, ManyToMany, JoinTable, OneToOne, Relation } from "typeorm"
-import { QueryType } from "@edifiles/services"
-import { filter } from "@edifiles/services/dist/module/utility/Query"
+import { QueryFilter, QueryType } from "@edifiles/services"
+import { filter, foreignColumns } from "@edifiles/services/dist/module/utility/Query"
 import { Group } from "./Group"
 import { Session } from "./Session"
 import { Invitation } from "./Invitation"
@@ -82,8 +82,11 @@ export class Member implements IDataView {
         const query: QueryType = {
             name: "member",
             data: undefined,
-            filter: [filter('eq', "id", id)],
-            columns: []
+            filters: [{
+                op: 'eq',
+                col: 'id',
+                val: id
+            }]
         }
         const data: Member = await dbClient.get(query)
         const dataType: DataType = new DataType({
@@ -109,11 +112,12 @@ export class Member implements IDataView {
             }
         })
 
-        const view: PageView = {
+        const view: View = {
             sections: [dataType],
             id: "",
             layout: "Grid",
-            children: [groupView]
+            size: "",
+            navType: "top"
         }
         return view
         //return await getSingleData(query)
@@ -124,44 +128,39 @@ export class Member implements IDataView {
 
     async getCreateData(image: string) {
         const data = new QuestionType({
+            id: "",
             title: 'Add new member data',
             index: 0,
             actions: {},
             content: [
                 {
                     question: '',
-                    answer: '',
                     image: image,
                     name: 'avatar'
                 },
                 {
                     question: 'first name',
                     inputType: 'text',
-                    answer: '',
                     name: 'firstName'
                 },
                 {
                     question: 'last name',
                     inputType: 'text',
-                    answer: '',
                     name: 'lastName'
                 },
                 {
                     question: 'email',
                     inputType: 'email',
-                    answer: '',
                     name: 'email'
                 },
                 {
                     question: 'phone number',
                     inputType: 'tel',
-                    answer: '',
                     name: 'phoneNumber'
                 },
                 {
                     question: 'address',
                     inputType: 'text',
-                    answer: '',
                     name: 'address'
                 }
             ]
@@ -172,21 +171,22 @@ export class Member implements IDataView {
             index: 1
         })
 
-        const view: PageView = {
+        const view: View = {
             id: "",
             layout: "Grid",
             sections: [form],
-            children: []
+            size: "",
+            navType: "top"
         }
         return view
     }
 
     
-    async getListData(filters?: any) {
+    async getListData(filters?: QueryFilter[]) {
         let query: QueryType = {
             name: "member",
             data: undefined,
-            filter: filters,
+            filters: filters,
             columns: []
         }
         const data: Member = await dbClient.get(query)
@@ -212,12 +212,40 @@ export class Member implements IDataView {
                 ]
             }
         })
-        const view: PageView = {
+        const view: View = {
             sections: [dataType],
             id: "",
             layout: "Grid",
-            children: []
+            size: "",
+            navType: "top"
         }
         return view
+    }
+
+    getFirstTimers() {
+        //const computedDate = new Date().setDate(new Date().getDate() - 7 * 24 * 60 * 60 * 1000)
+        const firstTimerQuery: QueryType = {
+            name: "member",
+            data: undefined,
+            filters: [
+                {
+                    op: 'eq',
+                    col: 'attendance_count.count',
+                    val: 1
+                }
+            ],
+            columns: [
+                foreignColumns('attendance_count', ['count'])
+            ]
+        }
+        return firstTimerQuery
+        /*gql`{
+            member(firstTime: {gt:${
+                computedDate
+            } }) {
+                firstName
+                lastName
+            }
+        }`*/
     }
 }

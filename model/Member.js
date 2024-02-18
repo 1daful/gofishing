@@ -11,7 +11,7 @@ import { DataType, PageView, QuestionType } from "../src/utils/types";
 import { getCreateData } from "./DataView";
 import { dbClient } from "../config/model";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from "typeorm";
-import { filter } from "@edifiles/services/dist/module/utility/Query";
+import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 import { Group } from "./Group";
 import { Session } from "./Session";
 import { Invitation } from "./Invitation";
@@ -32,8 +32,11 @@ export class Member {
         const query = {
             name: "member",
             data: undefined,
-            filter: [filter('eq', "id", id)],
-            columns: []
+            filters: [{
+                    op: 'eq',
+                    col: 'id',
+                    val: id
+                }]
         };
         const data = await dbClient.get(query);
         const dataType = new DataType({
@@ -61,50 +64,46 @@ export class Member {
             sections: [dataType],
             id: "",
             layout: "Grid",
-            children: [groupView]
+            size: "",
+            navType: "top"
         };
         return view;
     }
     async getCreateData(image) {
         const data = new QuestionType({
+            id: "",
             title: 'Add new member data',
             index: 0,
             actions: {},
             content: [
                 {
                     question: '',
-                    answer: '',
                     image: image,
                     name: 'avatar'
                 },
                 {
                     question: 'first name',
                     inputType: 'text',
-                    answer: '',
                     name: 'firstName'
                 },
                 {
                     question: 'last name',
                     inputType: 'text',
-                    answer: '',
                     name: 'lastName'
                 },
                 {
                     question: 'email',
                     inputType: 'email',
-                    answer: '',
                     name: 'email'
                 },
                 {
                     question: 'phone number',
                     inputType: 'tel',
-                    answer: '',
                     name: 'phoneNumber'
                 },
                 {
                     question: 'address',
                     inputType: 'text',
-                    answer: '',
                     name: 'address'
                 }
             ]
@@ -117,7 +116,8 @@ export class Member {
             id: "",
             layout: "Grid",
             sections: [form],
-            children: []
+            size: "",
+            navType: "top"
         };
         return view;
     }
@@ -125,7 +125,7 @@ export class Member {
         let query = {
             name: "member",
             data: undefined,
-            filter: filters,
+            filters: filters,
             columns: []
         };
         const data = await dbClient.get(query);
@@ -154,9 +154,27 @@ export class Member {
             sections: [dataType],
             id: "",
             layout: "Grid",
-            children: []
+            size: "",
+            navType: "top"
         };
         return view;
+    }
+    getFirstTimers() {
+        const firstTimerQuery = {
+            name: "member",
+            data: undefined,
+            filters: [
+                {
+                    op: 'eq',
+                    col: 'attendance_count.count',
+                    val: 1
+                }
+            ],
+            columns: [
+                foreignColumns('attendance_count', ['count'])
+            ]
+        };
+        return firstTimerQuery;
     }
 }
 __decorate([

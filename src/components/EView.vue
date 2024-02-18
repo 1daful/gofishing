@@ -1,5 +1,5 @@
 <template class="row">
-    <div :key="view.id" :class="`col-${view.size} ${view.viewport}`" v-if="view.layout === 'Grid'">
+    <div :key="view.id" :class="`col-${view.size} ${view.viewport}`" v-if="view.layout === 'Grid' && show">
     <!--template :key="view.id" class="col-md" v-if="view.layout === 'Grid'"-->
       <h4 v-if="view.heading">{{ view.heading }}</h4>
       <div class="row">
@@ -18,11 +18,16 @@
             v-bind="{...$attrs }" :key="section.name">
           </Component>
           <EDataView v-if="isDataType(section)" :data="section" :key="section.id"></EDataView>
+          <template v-if="isDataList(section)">
+            <EDataView :data="data" :key="data.id" v-for="data in section.items"></EDataView>
+          </template>
           <EDataView v-if="isType(section, QuestionType)" :form="section" :key="section.index"></EDataView>
           <EDataView v-if="isType(section, FormType)" :formsSteppers="section" :key="section.name"></EDataView>
           <EDataView v-if="isType(section, Slides)" :slide="section"></EDataView>
           <EAction v-if="isType(section, Action)" :action="section"></EAction>
           <EActionBar v-if="isType(section, ActionGroup)" :actions="section"></EActionBar>
+          <EGraph v-if="isType(section, DataGraph)" :graphData="section"></EGraph>
+          <ETable v-if="isType(section, DataTable)" :data="section"></ETable>
           <EView v-if="isType(section, View) || isType(section, PageView)" :view="section" :key="section.id"></EView>
           
           <!--<ENav
@@ -55,16 +60,19 @@
 import EDataView from "./EDataView.vue";
 import ENav from "./ENav.vue";
 import { Layout, View, TabView, SectionView,
-   PageView, isVComponent, isDataType, 
+   PageView, isVComponent, isDataType, isDataList,
   isQuestionType, isView,isComponent, 
   isNavList, isType, NavLink, 
   FormType, VComponent, 
   QuestionType,
-  NavList, IView, DataType, Action, ActionGroup } from "../utils/types";
+  NavList, IView, DataType, Action, ActionGroup,
+DataTable, DataGraph } from "../utils/types";
 import { Menu, Slides } from "../utils/DataTypes";
 import ETabView from "./ETabView.vue";
 import EAction from "./EAction.vue";
 import EActionBar from "./EActionBar.vue";
+import EGraph from "./EGraph.vue";
+import ETable from "./ETable.vue";
 import { Component, defineComponent } from "vue";
 
 let topMenus: NavLink[] = []
@@ -103,6 +111,7 @@ export default defineComponent({
       isComponent,
       isVComponent,
       isDataType,
+      isDataList,
       isView,
       isQuestionType,
       isNavList,
@@ -117,10 +126,13 @@ export default defineComponent({
       SectionView,
       PageView,
       Slides,
+      DataTable,
+      DataGraph,
       review,
       widgets,
       navViews,
       menu,
+      show: true
       /*menuList,
       views,
       dataList,
@@ -129,7 +141,7 @@ export default defineComponent({
       vComponents*/
     }
   },
-  components: { EDataView, ETabView, ENav, EAction, EActionBar },
+  components: { EDataView, ETabView, ENav, EAction, EActionBar,  EGraph, ETable},
 
   props: {
     view: {
@@ -193,7 +205,10 @@ export default defineComponent({
     }*/
   },
 
-  beforeMount() {
+  async beforeMount() {
+      if (this.view.viewGuard && typeof this.view.viewGuard.event === 'function') {
+        this.show = await this.view.viewGuard.event(this.view.viewGuard.args)
+      }
     //this.processView()
     this.$emit('emitted', this.navViews)
     /*this.view.sections.forEach(element => {
