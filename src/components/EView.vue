@@ -22,8 +22,9 @@
             <EDataView :data="data" :key="data.id" v-for="data in section.items"></EDataView>
           </template>
           <EDataView v-if="isType(section, QuestionType)" :form="section" :key="section.index"></EDataView>
-          <EDataView v-if="isType(section, FormType)" :formsSteppers="section" :key="section.name"></EDataView>
+          <EDataView v-if="isType(section, FormType)" :formsSteppers="section" :key="section.id"></EDataView>
           <EDataView v-if="isType(section, Slides)" :slide="section"></EDataView>
+          <EFilters v-if="isType(section, Filters)" :data="section"></EFilters>
           <EAction v-if="isType(section, Action)" :action="section"></EAction>
           <EActionBar v-if="isType(section, ActionGroup)" :actions="section"></EActionBar>
           <EGraph v-if="isType(section, DataGraph)" :graphData="section"></EGraph>
@@ -65,12 +66,14 @@ import { Layout, View, TabView, SectionView,
   isNavList, isType, NavLink, 
   FormType, VComponent, 
   QuestionType,
+  Filters,
   NavList, IView, DataType, Action, ActionGroup,
 DataTable, DataGraph } from "../utils/types";
 import { Menu, Slides } from "../utils/DataTypes";
 import ETabView from "./ETabView.vue";
 import EAction from "./EAction.vue";
 import EActionBar from "./EActionBar.vue";
+import EFilters from "./EFilters.vue";
 import EGraph from "./EGraph.vue";
 import ETable from "./ETable.vue";
 import { Component, defineComponent } from "vue";
@@ -128,6 +131,7 @@ export default defineComponent({
       Slides,
       DataTable,
       DataGraph,
+      Filters,
       review,
       widgets,
       navViews,
@@ -141,7 +145,7 @@ export default defineComponent({
       vComponents*/
     }
   },
-  components: { EDataView, ETabView, ENav, EAction, EActionBar,  EGraph, ETable},
+  components: { EDataView, ETabView, ENav, EAction, EActionBar,  EGraph, ETable, EFilters},
 
   props: {
     view: {
@@ -206,9 +210,9 @@ export default defineComponent({
   },
 
   async beforeMount() {
-      if (this.view.viewGuard && typeof this.view.viewGuard.event === 'function') {
+      /*if (this.view.viewGuard && typeof this.view.viewGuard.event === 'function') {
         this.show = await this.view.viewGuard.event(this.view.viewGuard.args)
-      }
+      }*/
     //this.processView()
     this.$emit('emitted', this.navViews)
     /*this.view.sections.forEach(element => {

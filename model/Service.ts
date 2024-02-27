@@ -102,6 +102,7 @@ export class Service implements IDataView {
             title: "Create new service",
             id: '',
             index: 1,
+            sections: [],
             actions: {
                 submit: new Action({
                     label: "Submit",
@@ -174,8 +175,10 @@ export class Service implements IDataView {
             }
         }
         if (data) {
-            const items = data.data.map((dat)=>{
+            const items = data.data?.map((dat)=>{
                 return new DataType({
+                    id: '',
+                    sections: [],
                     items: {
                         header: [
                             {
@@ -244,7 +247,9 @@ export class Service implements IDataView {
                 footer: undefined,
                 left: undefined,
                 right: undefined
-            }
+            },
+            sections: [],
+            id: ''
         }
         let data
         if (argData) {
@@ -292,6 +297,8 @@ export class Service implements IDataView {
             return status
         }
         dataType = new DataType({
+            id: '',
+            sections: [],
             items: {
                 header: [
                     {

@@ -21,6 +21,7 @@ let Event = class Event {
     }
     async getCreateData(data) {
         const form = new QuestionType({
+            sections: [],
             title: '',
             id: '',
             index: 1,
@@ -132,6 +133,8 @@ let Event = class Event {
                     }
                 ]
             },
+            sections: [],
+            id: undefined
         };
         const view = new View({
             sections: [
@@ -179,6 +182,8 @@ let Event = class Event {
         });
         dataList.items = data.data.map((dat) => {
             return new DataType({
+                id: '',
+                sections: [],
                 items: {
                     header: [
                         { label: dat.name }
@@ -313,7 +318,8 @@ let Event = class Event {
                     name: 'content',
                     inputType: 'textarea'
                 }
-            ]
+            ],
+            sections: []
         };
         const view = {
             id: "",

@@ -8,7 +8,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import gql from "graphql-tag";
-import { Action, DataType } from "../src/utils/types";
+import { Action, DataType, View } from "../src/utils/types";
 import { dbClient } from "../config/model";
 import { RestClient, Callback } from "@edifiles/services";
 import { config } from "../public/config";
@@ -19,6 +19,7 @@ let ReachOut = class ReachOut {
         this.id = 'reachouts';
     }
     async getCreateData() {
+        var _a, _b;
         const membersQuery = gql `{
             member {
                 id
@@ -33,12 +34,12 @@ let ReachOut = class ReachOut {
                 name
             }
         }`;
-        const members = await dbClient.get(membersQuery);
-        const groups = await dbClient.get(groupsQuery);
+        const members = (_a = (await dbClient.get(membersQuery)).data) === null || _a === void 0 ? void 0 : _a.data;
+        const groups = (_b = (await dbClient.get(groupsQuery)).data) === null || _b === void 0 ? void 0 : _b.data;
         const options = [
             {
                 label: 'groups',
-                children: groups.map((group) => {
+                children: groups === null || groups === void 0 ? void 0 : groups.map((group) => {
                     return {
                         label: group.name,
                         id: group.id,
@@ -47,7 +48,7 @@ let ReachOut = class ReachOut {
             },
             {
                 label: 'members',
-                children: members.map((member) => {
+                children: members === null || members === void 0 ? void 0 : members.map((member) => {
                     return {
                         label: `${member.firstName} ${member.lastName}`,
                         id: member.id,
@@ -58,6 +59,7 @@ let ReachOut = class ReachOut {
         ];
         const form = {
             id: "",
+            sections: [],
             title: "",
             index: 0,
             compute(filledForm) {
@@ -168,16 +170,16 @@ let ReachOut = class ReachOut {
                 }
             ]
         };
-        const view = {
+        const view = new View({
             sections: [form],
             id: "",
-            children: [],
+            size: '',
+            navType: 'center',
             layout: "Grid"
-        };
+        });
         return view;
     }
     async getListData(senderUserId, senderGroupId, ...recipientIds) {
-        let query;
         const createReachOut = new Action({
             label: 'Create',
             event: 'Route',
@@ -188,44 +190,55 @@ let ReachOut = class ReachOut {
                 }
             },
         });
-        let data;
-        try {
-            data = await new RestClient(config.api.ListMonk).get('/campaigns');
-        }
-        catch (error) {
-            console.log(error);
-        }
-        const dataType = new DataType({
-            actionOverlay: data.actionPoint,
+        let { data, error } = await new RestClient(config.api.ListMonk).get('/campaigns');
+        let dataType = new DataType({
+            sections: [],
+            id: '',
             items: {
-                header: [
-                    {
-                        label: data.title
-                    }
-                ],
-                center: [
-                    {
-                        label: data.content
-                    }
-                ],
-                footer: [
-                    {
-                        label: data.createdAt
-                    },
-                    {
-                        label: data.sentAt
-                    }
-                ]
+                header: undefined,
+                center: undefined,
+                footer: undefined,
+                left: undefined,
+                right: undefined
             }
         });
-        const view = {
-            sections: [createReachOut,
+        if (data) {
+            dataType = new DataType({
+                sections: [],
+                id: '',
+                actionOverlay: data.actionPoint,
+                items: {
+                    header: [
+                        {
+                            label: data.title
+                        }
+                    ],
+                    center: [
+                        {
+                            label: data.content
+                        }
+                    ],
+                    footer: [
+                        {
+                            label: data.createdAt
+                        },
+                        {
+                            label: data.sentAt
+                        }
+                    ]
+                }
+            });
+        }
+        const view = new View({
+            sections: [
+                createReachOut,
                 dataType
             ],
             id: "",
             layout: "Grid",
-            children: []
-        };
+            size: '',
+            navType: 'center'
+        });
         return view;
     }
 };

@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { Action, DataType, PageView, QuestionType } from "../src/utils/types";
+import { Action, DataType, View, QuestionType } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { addModel, dbClient } from "../config/model";
 import { RestClient, Callback, EmailType } from "@edifiles/services";
@@ -49,13 +49,13 @@ export class ReachOut implements IDataView {
             }
         }`
         
-        const members: Member[] = await dbClient.get(membersQuery)
-        const groups: Group[] = await dbClient.get(groupsQuery)
+        const members: Member[] = (await dbClient.get(membersQuery)).data?.data
+        const groups: Group[] = (await dbClient.get(groupsQuery)).data?.data
 
         const options = [
             {
                 label: 'groups',
-                children: groups.map((group) => {
+                children: groups?.map((group) => {
                     return {
                         label: group.name,
                         id: group.id,
@@ -64,7 +64,7 @@ export class ReachOut implements IDataView {
             },
             {
                 label: 'members',
-                children: members.map((member) => {
+                children: members?.map((member) => {
                     return {
                         label: `${member.firstName} ${member.lastName}` ,
                         id: member.id,
@@ -75,6 +75,7 @@ export class ReachOut implements IDataView {
         ]
         const form: QuestionType = {
             id: "",
+            sections: [],
             title: "",
             index: 0,
             compute(filledForm: any) {
@@ -210,16 +211,16 @@ export class ReachOut implements IDataView {
             ]
         }
 
-        const view: PageView = {
+        const view: View = new View({
             sections: [form],
             id: "",
-            children: [],
+            size: '',
+            navType: 'center',
             layout: "Grid"
-        }
+        })
         return view
     }
     async getListData(senderUserId?: string, senderGroupId?: string, ...recipientIds: string[]) {
-        let query
         const createReachOut: Action = new Action({
             label: 'Create',
             event: 'Route',
@@ -246,14 +247,22 @@ export class ReachOut implements IDataView {
             }`
         }*/
         //const data2 = await dbClient.get('', query)
-        let data
-        try {
-            data = await new RestClient(config.api.ListMonk).get('/campaigns')
-        }
-        catch(error) {
-            console.log(error)
-        }
-        const dataType: DataType = new DataType({
+        let { data, error } = await new RestClient(config.api.ListMonk).get('/campaigns')
+        let dataType: DataType = new DataType({
+            sections: [], 
+            id: '',
+            items: {
+                header: undefined,
+                center: undefined,
+                footer: undefined,
+                left: undefined,
+                right: undefined
+            }
+        })
+        if (data)
+        {dataType = new DataType({
+            sections: [], 
+            id: '',
             actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
             items: {
                 header: [
@@ -275,15 +284,17 @@ export class ReachOut implements IDataView {
                     }
                 ]
             }
-        })
-        const view: PageView = {
-            sections: [createReachOut,
+        })}
+        const view: View = new View({
+            sections: [
+                createReachOut,
                 dataType
             ],
             id: "",
             layout: "Grid",
-            children: []
-        }
+            size: '',
+            navType: 'center'
+        })
         return view
     }
 }

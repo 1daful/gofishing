@@ -22,7 +22,7 @@
       </div>
     </QCardSection>
     <QCardActions>
-      <EAction :action="action"></EAction>
+      <EAction :action="action" v-for="action in data.actions"></EAction>
     </QCardActions>
   </QCard>
 </template>
@@ -40,10 +40,10 @@ const props = defineProps({
     required: true,
   },
 
-  action: {
+  /*action: {
     type: Object as () => Action,
     required: true
-  },
+  },*/
 
   /*keyword: {
     type: String,

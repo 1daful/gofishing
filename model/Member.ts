@@ -90,6 +90,8 @@ export class Member implements IDataView {
         }
         const data: Member = await dbClient.get(query)
         const dataType: DataType = new DataType({
+            id: '',
+            sections: [],
             //actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
             items: {
                 header: [
@@ -132,6 +134,7 @@ export class Member implements IDataView {
             title: 'Add new member data',
             index: 0,
             actions: {},
+            sections: [],
             content: [
                 {
                     question: '',
@@ -191,6 +194,8 @@ export class Member implements IDataView {
         }
         const data: Member = await dbClient.get(query)
         const dataType: DataType = new DataType({
+            id: '',
+            sections: [],
             items: {
                 header: [
                     {

@@ -60,12 +60,53 @@ export function isActionString(value: any): value is ActionString {
     return value === 'submit' || value === 'filter'
 }
 
+//Abstract class View
+export class View implements IView {
+    /*constructor() {
+        if (this.constructor === View) {
+            throw new Error("Can't instantiate abstract class!");
+        }
+    }*/
+    constructor(view: View) {
+        Object.assign(this, view);
+    }
+    heading?: string;
+    sections: ViewSection[] = []
+    icon?: string | undefined;
+    postion?: { y: number; x: number; } | undefined;
+    viewport?: string | undefined;
+    id!: string
+    layout!: LayoutType
+    size!: string
+    navType!: SecTionType | TabType
+    viewGuard?: Action
+
+    insert? = (...content: ViewSection[]) => {
+        insert(this, ...content)
+    }
+}
+
 export type ViewAccess = 'public' | 'private' | 'mutual'
 
-export class Filters{
+/*export interface ViewSection {
+    sections: ViewSection[]
+}*/
+
+export class Filters implements IView{
     constructor(filters: Filters) {
         Object.assign(this, filters)
     }
+    heading?: string | undefined;
+    id!: string;
+    sections!: ViewSection[];
+    icon?: string | undefined;
+    postion?: { y: number; x: number; } | undefined;
+    viewport?: string | undefined;
+    class?: string | undefined;
+    viewGuard?: ViewGuard | undefined;
+    layout: LayoutType = 'Grid'
+    size!: string
+    actions?: Action[]
     view?: ViewAccess
     indexName!: string
     options?: OptionsType
@@ -96,10 +137,11 @@ export type NavLink = {
     view?: ViewAccess
 }
 
-export class NavList {
+export class NavList implements IView {
     constructor(navList: NavList) {
         Object.assign(this, navList)
     }
+    sections!: ViewSection[];
 
     id!: string
     content!: NavLink[]
@@ -146,10 +188,20 @@ export type CardStyle = {
     view?: ViewAccess
 }
 
-export class DataGraph {
+export class DataGraph implements IView{
     constructor(data: DataGraph) {
         Object.assign(this, data)
     }
+    heading?: string | undefined;
+    id!: string;
+    layout?: LayoutType | undefined;
+    icon?: string | undefined;
+    postion?: { y: number; x: number; } | undefined;
+    size?: string | undefined;
+    viewport?: string | undefined;
+    class?: string | undefined;
+    viewGuard?: Action | undefined;
+    sections!: ViewSection[];
     chartType?: string
     series?: []
     label?: []
@@ -158,12 +210,13 @@ export class DataGraph {
     view?: ViewAccess
 }
 
-export class DataTable {
+export class DataTable implements IView{
     constructor(data: DataTable) {
         Object.assign(this, data)   
     }
+    sections!: ViewSection[];
     //[x: string]: any;
-    id?: any;
+    id!: any;
     columns!: {
         name: string,
         align: "left" | "right" | "center",
@@ -182,13 +235,14 @@ export class DataTable {
     viewGuard?: Action
 }
 
-export class DataType {
+export class DataType implements IView{
     constructor(data: DataType) {
         Object.assign(this, data)
         
     }
+    sections!: ViewSection[];
     //[x: string]: any;
-    id?: any;
+    id: any;
     overlay?: string;
     items!: DataItem
     setHeader?: boolean;
@@ -201,10 +255,20 @@ export class DataType {
     viewGuard?: Action
 }
 
-export class DataList {
+export class DataList implements IView{
     constructor(data: DataType) {
         Object.assign(this, data)  
     }
+    heading?: string | undefined;
+    id!: string;
+    layout?: LayoutType | undefined;
+    icon?: string | undefined;
+    postion?: { y: number; x: number; } | undefined;
+    size?: string | undefined;
+    viewport?: string | undefined;
+    class?: string | undefined;
+    viewGuard?: Action | undefined;
+    sections!: ViewSection[];
     items!: DataType[]
     actions!: Action[]
 }
@@ -423,10 +487,11 @@ export type OptionsType = ({
     view?: ViewAccess
 }*/
 
-export class QuestionType {
+export class QuestionType implements IView{
     constructor(question: QuestionType) {
         Object.assign(this, question)
     }
+    sections!: ViewSection[];
     id!: string;
     title!: string;
     index!: number;
@@ -475,18 +540,24 @@ export class QuestionType {
     content: QuestionType[]
     viewGuard?: Action
 }*/
-export class FormType {
+export class FormType implements IView{
     constructor(form: FormType) {
         Object.assign(this, form)
     }
-    name!: string
+    sections!: ViewSection[];
+    id!: string
     actions!: Record<string, Action>
     content!: QuestionType[]
     viewGuard?: Action
 }
 
-export type VComponent = {
-    content: Component
+export class VComponent implements IView{
+    constructor(comp: VComponent) {
+        Object.assign(this, comp)
+    }
+    id!:string
+    sections!: ViewSection[];
+    content!: Component
     props?: any
     view?: ViewAccess
 }
@@ -494,15 +565,15 @@ export type VComponent = {
 export interface IView {
     heading?: string
     id: string
-    layout: LayoutType
+    layout?: LayoutType
     sections: ViewSection[]
     icon?: string
     postion?: {y: number, x: number}
     size?: string
     viewport?: string
-    children? : ViewSection[]
+    //children? : ViewSection[]
     class?: string
-    viewGuard?: Action
+    viewGuard?: ViewGuard
 }
 
 export type ViewSection = View | DataType | QuestionType | VComponent | Component | NavList | Slides | DataGraph | DataTable
@@ -515,31 +586,6 @@ function insert(view: IView, ...content: ViewSection[]) {
     let item = view.sections.find(item => { if(isType(item, View) || isType(item, PageView)) item.id === 2})
 }*/
 
-//Abstract class View
-export class View implements IView {
-    /*constructor() {
-        if (this.constructor === View) {
-            throw new Error("Can't instantiate abstract class!");
-        }
-    }*/
-    constructor(view: View) {
-        Object.assign(this, view);
-    }
-    heading?: string;
-    sections: ViewSection[] = []
-    icon?: string | undefined;
-    postion?: { y: number; x: number; } | undefined;
-    viewport?: string | undefined;
-    id!: string
-    layout!: LayoutType
-    size!: string
-    navType!: SecTionType | TabType
-    viewGuard?: Action
-
-    insert? = (...content: ViewSection[]) => {
-        insert(this, ...content)
-    }
-}
 
 export class TabView extends View {
     constructor(view: View) {
@@ -559,7 +605,7 @@ export class SectionView extends View {
 }
 
 export class PageView implements IView {
-    constructor(view: IView) {
+    constructor(view: PageView) {
         Object.assign(this, view);
     }
     id!: string;

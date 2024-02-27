@@ -130,7 +130,11 @@ let Attendance = class Attendance {
                         }
                     ],
                 }
-            ]
+            ],
+            id: "",
+            sections: [],
+            layout: "Grid",
+            size: ""
         };
         const date = {
             title: "",
@@ -143,7 +147,8 @@ let Attendance = class Attendance {
                     name: '',
                     inputType: 'date'
                 }
-            ]
+            ],
+            sections: []
         };
         const graphView = {
             id: "",
@@ -159,6 +164,8 @@ let Attendance = class Attendance {
         const getDonut = async (timeDiff) => {
             const earlyDonutData = await this.getTimelinessCount(userId, timeDiff);
             const earlyDonut = new DataGraph({
+                id: '',
+                sections: [],
                 xaxisType: "number",
                 chartType: 'donut',
                 series: earlyDonutData.series,
@@ -182,7 +189,7 @@ let Attendance = class Attendance {
             size: "",
             navType: "top"
         };
-        const view = new PageView({
+        const view = new View({
             sections: [
                 graphView,
                 lateView,
@@ -191,7 +198,8 @@ let Attendance = class Attendance {
                 getDonut("early")
             ],
             id: "",
-            children: [],
+            size: '',
+            navType: 'center',
             layout: 'Grid'
         });
         return view;
@@ -216,7 +224,9 @@ let Attendance = class Attendance {
                     time: attendance.timeDiff
                 };
             }),
-            columns: []
+            columns: [],
+            sections: [],
+            id: undefined
         };
         return table;
     }
@@ -250,7 +260,11 @@ let Attendance = class Attendance {
                         };
                     })
                 }
-            ]
+            ],
+            id: "",
+            sections: [],
+            layout: "Grid",
+            size: ""
         };
         const memberView = new View({
             sections: [
@@ -266,7 +280,7 @@ let Attendance = class Attendance {
                                     timeTaken: new Date()
                                 };
                             }),
-                            filter: [],
+                            filters: [],
                             columns: []
                         };
                         dbClient.post(query);

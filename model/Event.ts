@@ -43,6 +43,7 @@ export class Event implements IDataView {
     async getCreateData(data?: any) {
         const form: QuestionType = new QuestionType(
             {
+                sections: [],
                 title: '',
                 id: '',
                 index: 1,
@@ -132,29 +133,31 @@ export class Event implements IDataView {
         }`
         const data: Event = await dbClient.get(query)
         const dataType: DataType = {
-          items: {
-              header: [
-              {label: data.name}
-              ],
-              center: [
-                {
-                    label: data.start_at.toUTCString()
-                },
-                  {label: "to"},
-                  {label: data.end_at.toUTCString()}
-              ],
-              footer: [
-                data.sessions.filter((session)=> {
-                    this.getSessionDataView(session)
-                }),
-                {
-                    action:  new Action({
-                        event: 'Modal',
-                        args: await this.createSessionDataView(data.id)
-                    })
-                }
-              ]
-          },
+            items: {
+                header: [
+                    { label: data.name }
+                ],
+                center: [
+                    {
+                        label: data.start_at.toUTCString()
+                    },
+                    { label: "to" },
+                    { label: data.end_at.toUTCString() }
+                ],
+                footer: [
+                    data.sessions.filter((session) => {
+                        this.getSessionDataView(session);
+                    }),
+                    {
+                        action: new Action({
+                            event: 'Modal',
+                            args: await this.createSessionDataView(data.id)
+                        })
+                    }
+                ]
+            },
+            sections: [],
+            id: undefined
         }
 
         const view: View = new View({
@@ -209,6 +212,8 @@ export class Event implements IDataView {
 
         dataList.items = data.data.map((dat) => {
             return new DataType({
+                id: '',
+                sections: [],
                 items: {
                     header: [
                         {label: dat.name}
@@ -328,8 +333,8 @@ export class Event implements IDataView {
                             end_at: filledForm.end_at,
                             anchor: filledForm.anchor,
                             content: filledForm.content
-                        }
-                        dbClient.post(gql`{session(${session}) }`)
+                        };
+                        dbClient.post(gql`{session(${session}) }`);
                     }
                 })
             },
@@ -359,7 +364,8 @@ export class Event implements IDataView {
                     name: 'content',
                     inputType: 'textarea'
                 }
-            ]
+            ],
+            sections: []
         }
         const view: View = {
             id: "",

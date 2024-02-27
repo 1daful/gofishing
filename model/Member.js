@@ -40,6 +40,8 @@ export class Member {
         };
         const data = await dbClient.get(query);
         const dataType = new DataType({
+            id: '',
+            sections: [],
             items: {
                 header: [
                     {
@@ -75,6 +77,7 @@ export class Member {
             title: 'Add new member data',
             index: 0,
             actions: {},
+            sections: [],
             content: [
                 {
                     question: '',
@@ -130,6 +133,8 @@ export class Member {
         };
         const data = await dbClient.get(query);
         const dataType = new DataType({
+            id: '',
+            sections: [],
             items: {
                 header: [
                     {

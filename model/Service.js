@@ -32,6 +32,7 @@ let Service = class Service {
             title: "Create new service",
             id: '',
             index: 1,
+            sections: [],
             actions: {
                 submit: new Action({
                     label: "Submit",
@@ -66,6 +67,7 @@ let Service = class Service {
         return view;
     }
     async getListData(query, dataArg) {
+        var _a;
         let dataList = new DataList({
             items: [],
             actions: [
@@ -95,9 +97,11 @@ let Service = class Service {
             }
         }
         if (data) {
-            const items = data.data.map((dat) => {
+            const items = (_a = data.data) === null || _a === void 0 ? void 0 : _a.map((dat) => {
                 var _a;
                 return new DataType({
+                    id: '',
+                    sections: [],
                     items: {
                         header: [
                             {
@@ -164,7 +168,9 @@ let Service = class Service {
                 footer: undefined,
                 left: undefined,
                 right: undefined
-            }
+            },
+            sections: [],
+            id: ''
         };
         let data;
         if (argData) {
@@ -212,6 +218,8 @@ let Service = class Service {
             return status;
         };
         dataType = new DataType({
+            id: '',
+            sections: [],
             items: {
                 header: [
                     {

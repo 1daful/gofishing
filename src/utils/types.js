@@ -34,8 +34,18 @@ export function isTabType(value) {
 export function isActionString(value) {
     return value === 'submit' || value === 'filter';
 }
+export class View {
+    constructor(view) {
+        this.sections = [];
+        this.insert = (...content) => {
+            insert(this, ...content);
+        };
+        Object.assign(this, view);
+    }
+}
 export class Filters {
     constructor(filters) {
+        this.layout = 'Grid';
         Object.assign(this, filters);
     }
 }
@@ -142,18 +152,14 @@ export class FormType {
         Object.assign(this, form);
     }
 }
+export class VComponent {
+    constructor(comp) {
+        Object.assign(this, comp);
+    }
+}
 function insert(view, ...content) {
     var _a;
     (_a = view.sections) === null || _a === void 0 ? void 0 : _a.push(...content);
-}
-export class View {
-    constructor(view) {
-        this.sections = [];
-        this.insert = (...content) => {
-            insert(this, ...content);
-        };
-        Object.assign(this, view);
-    }
 }
 export class TabView extends View {
     constructor(view) {

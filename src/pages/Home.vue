@@ -91,6 +91,6 @@ const view = shallowRef(new View({
 onBeforeMount(() => {
   //nextTick(() => {});
   //viewa.insert("Header", view2);
-  console.log('SBL')
+  console.log('SBL', view)
 });
 </script>

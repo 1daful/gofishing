@@ -198,7 +198,11 @@ export class Attendance implements IDataView {
                         }
                     ],
                 }
-            ]
+            ],
+            id: "",
+            sections: [],
+            layout: "Grid",
+            size: ""
         }
 
         const date: QuestionType = {
@@ -212,7 +216,8 @@ export class Attendance implements IDataView {
                     name: '',
                     inputType: 'date'
                 }
-            ]
+            ],
+            sections: []
         }
         
         const graphView: View = {
@@ -230,6 +235,8 @@ export class Attendance implements IDataView {
         const getDonut = async (timeDiff: string)=> {
             const earlyDonutData = await this.getTimelinessCount(userId, timeDiff)
             const earlyDonut: DataGraph = new DataGraph({
+                id: '',
+                sections: [],
                 xaxisType: "number",
                 chartType: 'donut',
                 series: earlyDonutData.series,
@@ -256,7 +263,7 @@ export class Attendance implements IDataView {
             navType: "top"
         }
 
-        const view: PageView = new PageView({
+        const view: View = new View({
             sections: [
                 graphView,
                 lateView,
@@ -265,7 +272,8 @@ export class Attendance implements IDataView {
                 getDonut("early")
             ],
             id: "",
-            children:[],
+            size: '',
+            navType: 'center',
             layout: 'Grid'
         })
         return view
@@ -292,7 +300,9 @@ export class Attendance implements IDataView {
                     time: attendance.timeDiff
                 };
             }),
-            columns: []
+            columns: [],
+            sections: [],
+            id: undefined
         }
 
         return table
@@ -328,10 +338,14 @@ export class Attendance implements IDataView {
                     values: members.map((member: { firstName: any; lastName: any; }) => {
                         return {
                             label: `${member.firstName} ${member.lastName}`
-                        }
+                        };
                     })
                 }
-            ]
+            ],
+            id: "",
+            sections: [],
+            layout: "Grid",
+            size: ""
         }
         const memberView: View = new View({
             sections: [
@@ -347,7 +361,7 @@ export class Attendance implements IDataView {
                                     timeTaken: new Date()
                                 }
                             }),
-                            filter: [],
+                            filters: [],
                             columns: []
                         }
                         dbClient.post(query)
