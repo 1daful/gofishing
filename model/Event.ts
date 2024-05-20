@@ -237,7 +237,6 @@ export class Event implements IDataView {
         return dataList
     }
 
-
     async getSessionDataView(session: Session) {
         let startTime = session.start_at
         let timeRemaining = ""

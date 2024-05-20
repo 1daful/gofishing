@@ -107,19 +107,7 @@ export default defineComponent({
          
           return child.id === this.type;
         });
-        if (this.vie) {
-          this.view = await (this.dataView[this.vie.toString()]).call(this.dataView, this.filters)
-          /*this.view = new PageView(
-            {
-              id:'',
-              layout: 'Grid',
-              children: [],
-              sections: [new View(this.vie)]
-
-            }
-          )*/
-        }
-         else if (!this.categories && !this.id) {
+         if (!this.categories && !this.id) {
           section = await this.dataView?.getListData(this.filters);
           this.view = section
         } 
@@ -136,7 +124,20 @@ export default defineComponent({
         else if (this.id) {
           section = await this.dataView?.getSingleData(this.id);
           this.view = section
-        } 
+        }
+        else if (this.vie) {
+          this.view = await (this.dataView[this.vie.toString()]).call(this.dataView, this.filters)
+          console.log("View: ", this.view)
+          /*this.view = new PageView(
+            {
+              id:'',
+              layout: 'Grid',
+              children: [],
+              sections: [new View(this.vie)]
+
+            }
+          )*/
+        }
       } 
       else {
         this.view = GlobalView.mainLayout.children.find((child) => {
