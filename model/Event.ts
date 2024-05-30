@@ -79,7 +79,7 @@ export class Event implements IDataView {
                     },
                     {
                         question: 'select service',
-                        inputType: 'date',
+                        inputType: 'text',
                         name: 'service_id'
                     }
                 ]
@@ -103,9 +103,9 @@ export class Event implements IDataView {
                 }
             },
         })
-        const upcomingView = {
-            id: 'upcoming',
-            sections: await this.getEvents('upcoming', query)
+        let eventQuery: QueryType = query || {
+            name: 'event',
+            data: undefined
         }
           
         const markedView = {
@@ -215,6 +215,10 @@ export class Event implements IDataView {
         
         const data = await dbClient.get(eventQuery)
 
+        return data
+    }
+
+    getEvent(data: any) {
         const dataList: DataList = new DataList({
             items: []
         })
