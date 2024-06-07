@@ -8,6 +8,7 @@ import { Service } from "../model/Service";
 import { ReachOut } from '../model/ReachOut';
 import { Event } from '../model/Event';
 import { Member } from '../model/Member';
+import { Attendance } from '../model/Attendance';
 const auth = new EAuth(config.api.Supabase);
 const search = new View({
     id: 'search',
@@ -38,7 +39,12 @@ const authAction = new ActionGroup({
         }),
         new Action({
             label: 'Sign Out',
-            event: auth.logout,
+            event: async () => {
+                return await auth.logout();
+            },
+            onResult: {
+                redirect: '/'
+            },
             viewGuard: true
         })
     ]
@@ -53,6 +59,7 @@ const serviceModel = new Service();
 const eventModel = new Event();
 const reachoutModel = new ReachOut();
 const memberModel = new Member();
+const attendanceModel = new Attendance();
 async function userIcon() {
     var _a;
     const names = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.user_metadata;
@@ -69,7 +76,7 @@ const mainLayout = new PageView({
         menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel, eventModel, reachoutModel, memberModel
+        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel
     ]
 });
 export const GlobalView = {

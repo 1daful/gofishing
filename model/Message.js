@@ -12,7 +12,7 @@ import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedCol
 import { DataType } from "../src/utils/types";
 import { dbClient } from "../config/model";
 let Message = class Message {
-    async getCreateData() {
+    async create() {
         const membersQuery = gql `member {
             firstName
             lastName

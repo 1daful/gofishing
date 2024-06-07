@@ -25,7 +25,6 @@
     </QCardSection>
     <QCardActions>
       <EAction :action="action" :args="data.checks" v-for="action in data.actions"></EAction>
-      <EAction :action="act" :args="data.checks"></EAction>
     </QCardActions>
   </QCard>
 </template>
@@ -55,12 +54,6 @@ const props = defineProps({
 });
 
 let select = ref('')
-const act = new Action({
-  label: 'ACT',
-  event: (model)=> {
-    console.log('ACT ', model)
-  }
-})
 //const emit = defineEmits([props.action.event]);
 const filt = ref(props.data);
 

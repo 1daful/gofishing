@@ -36,7 +36,7 @@ export class Invitation implements IDataView {
     @Column({ type: 'timestamp' })
     schedule!: Date;
 
-    async getCreateData(userId: string) {
+    async create(userId: string) {
         const membersQuery = gql `member {
             firstName
             lastName

@@ -20,7 +20,7 @@ let Invitation = class Invitation {
     constructor() {
         this.recipients = [];
     }
-    async getCreateData(userId) {
+    async create(userId) {
         const membersQuery = gql `member {
             firstName
             lastName

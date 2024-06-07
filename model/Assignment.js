@@ -1,7 +1,7 @@
 import { dbClient } from "../config/model";
 import gql from "graphql-tag";
 export class Assignment {
-    async getCreateData() {
+    async create() {
         const membersQuery = gql `member {
             firstName
             lastName

@@ -18,7 +18,7 @@ let ReachOut = class ReachOut {
     constructor() {
         this.id = 'reachouts';
     }
-    async getCreateData() {
+    async create() {
         var _a, _b;
         const membersQuery = gql `{
             member {

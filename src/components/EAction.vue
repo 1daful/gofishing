@@ -4,7 +4,9 @@
   :size="action.style?.size" 
   class="q-mr-sm" :class="action.class" v-if="event && show" 
   color="primary"
-  :aria-label="action.style?.ariaLabel"></QBtn>
+  :aria-label="action.style?.ariaLabel"
+  :loading="loading"
+  :disable="loading"></QBtn>
   <QBtn :id="action.id" :label="action.label" :icon="action.icon" v-else-if="component && show">
     <QPopupProxy cover>
       <EView :view="component" v-bind="$attrs"></EView>
@@ -35,6 +37,8 @@ const props = defineProps({
 
 const type = props.action?.style?.type || 'unelevated'
 const shape = props.action?.style?.shape || 'none'
+
+//const act = props.action
 
 let component: View
 let event: Function
@@ -68,6 +72,7 @@ const AwDialog = defineAsyncComponent(
 };*/
 const router = useRouter()
 let show = ref(false)
+let loading = ref(false)
 //let show = true
 onBeforeMount(() => {
   if (props.action) {
@@ -91,7 +96,24 @@ onBeforeMount(() => {
     }
     if (typeof props.action.event === 'function') {
       event = () => {
-        props.action.event(props.action.args || props.args);
+        loading.value = true
+        //const { data, error } = props.action.event(props.action.args || props.args);
+        try {
+          props.action.event(props.action.args || props.args);
+        loading.value =false
+          if (/*data &&*/ props.action.onResult) {
+            if(props.action.onResult.redirect) {
+              router.push(props.action.onResult.redirect)
+            }
+            else if(props.action.onResult.function) {
+              props.action.onResult.function(props.action.onResult.args)
+            }
+          }
+        }
+        catch {
+          if(props.action.onError?.function)
+            props.action.onError.function(props.action.onError.args)
+        }
       }
     }
   }

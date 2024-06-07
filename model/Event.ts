@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { FormType, DataType, QuestionType, Action, View, DataList, PageView } from "../src/utils/types";
+import { DataType, QuestionType, Action, View, DataList, PageView, Filters } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { addModel, auth, dbClient } from "../config/model";
 import { QueryFilter, QueryType } from "@edifiles/services";
@@ -8,6 +8,8 @@ import { Invitation } from "./Invitation";
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, ManyToOne, Relation } from 'typeorm';
 import { Attendance } from "./Attendance";
 import { Service } from "./Service";
+import { getData } from "./DataView";
+import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 
 @Entity()
 export class Event implements IDataView {
@@ -40,15 +42,42 @@ export class Event implements IDataView {
     @ManyToOne(() => Service, (service) => service.events)
     service!: Relation<Service>
 
-    async getCreateData(data?: any) {
+    async create(data?: any) {
+        const serviceQuery: QueryType = {
+            name: "service",
+            data: undefined,
+            columns: [
+                'name'
+            ]
+        }
+        const options = await dbClient.get(serviceQuery)
         const form: QuestionType = new QuestionType(
             {
-                sections: [],
+                sections: [
+                    new Filters({
+                        id: '',
+                        indexName: '',
+                        sections: [],
+                        layout: 'Grid',
+                        size: '',
+                        checks: [
+                            {
+                                id: '',
+                                attribute: "",
+                                values: [
+                                    'Add to service'
+                                ],
+                                model: []
+                            }
+                        ]
+                    })
+                ],
                 title: '',
                 id: '',
                 index: 1,
                 actions: {
                     submit: new Action({
+                        label: 'Create event',
                         async event(filledForm: any) {
                             const user = await auth.getUser()
                             filledForm.user_id = user.data.user?.id
@@ -59,7 +88,7 @@ export class Event implements IDataView {
                             }
                             dbClient.post(query)
                         }
-                    })
+                    }),
                 },
                 content: [
                     {
@@ -75,11 +104,11 @@ export class Event implements IDataView {
                     {
                         question: 'end',
                         name: 'end_at',
-                        inputType: 'date'
+                        inputType: 'schedule'
                     },
                     {
                         question: 'select service',
-                        inputType: 'text',
+                        options,
                         name: 'service_id'
                     }
                 ]
@@ -107,68 +136,158 @@ export class Event implements IDataView {
             name: 'event',
             data: undefined
         }
-          
-        const markedView = {
-            id: 'marked',
-            sections: await this.getEvents('marked', query)
-        }
-          
-        const ongoingView = {
-            id: 'ongoing',
-            sections: await this.getEvents('ongoing', query)
-        }
+        
+        const upcoming = await this.getEvents('upcomiing', query)
+        
+        const markedView = await this.getEvents('marked', query)
+        const ongoingView = await this.getEvents('ongoing', query)
 
+        const upcomingEvents: DataList = new DataList({
+            items: [],
+
+            actions: [
+                new Action({
+                    label: 'Create',
+                    icon: 'add',
+                    event: 'Route',
+                    viewGuard: true,
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    },
+                })
+            ]
+        })
+
+        const callback = (dat: Event) => {
+            return new DataType({
+                id: '',
+                sections: [],
+                items: {
+                    header: [
+                        {
+                            action: new Action({
+                                label: 'open',
+                                event: 'Route',
+                                args: {
+                                    name:  'id',
+                                    params: {
+                                        id: dat.id
+                                    }
+                                }
+                            })
+                        },
+                        {label: dat.name}
+                    ],
+                    center: [
+                        {label: dat.start_at},
+                        {label: dat.end_at}
+                    ]
+                }
+            })
+        }
+        const upcomingQuery = query || {
+            name: 'event',
+            data: undefined,
+            filters: [{
+                op: 'gt',
+                col: 'start_at',
+                val: new Date().toUTCString()
+        }]
+        }
+        
+        const items = await getData('event', callback) as DataType[]
+        const t = items[0]
+        upcomingEvents.items = items
+        console.log('GetDat ', upcomingEvents)
         const view: PageView = new PageView({
             id: "",
             layout: "Grid",
-            sections: [createEvent, upcomingView, markedView, ongoingView],
+            sections: [createEvent, t, upcomingEvents ],
             children:[]
         })
         return view
     }
     async getSingleData(id: string) {
-        const query = gql`{
-            event(id: ${id})
-        }`
-        const data: Event = await dbClient.get(query)
-        const dataType: DataType = {
-            items: {
-                header: [
-                    { label: data.name }
-                ],
-                center: [
-                    {
-                        label: data.start_at.toUTCString()
-                    },
-                    { label: "to" },
-                    { label: data.end_at.toUTCString() }
-                ],
-                footer: [
-                    data.sessions.filter((session) => {
-                        this.getSessionDataView(session);
-                    }),
-                    {
-                        action: new Action({
-                            event: 'Modal',
-                            args: await this.createSessionDataView(data.id)
-                        })
-                    },
-                    {
-                        action: new Action({
-                            event:  'Route',
-                            args: {
-                                name: 'categories',
-                                params: {
-                                    categories: ['create']
-                                }
-                            }
-                        })
-                    }
-                ]
-            },
-            sections: [],
-            id: undefined
+        const query: QueryType = {
+            name: 'event',
+            filters: [
+                {
+                    op: "eq",
+                    col: "id",
+                    val: id
+                }
+            ],
+            columns: [
+                'name', 'start_at', 'end_at', foreignColumns('session', ['name', 'content'])
+            ],
+            data: undefined
         }
+        const items = await dbClient.get(query)
+        const data =  items.data[0]
+        //const session =  await this.createSessionDataView(data.id)
+        const dataType: DataType = new DataType({
+               items: {
+                    header: [
+                        {
+                            action: new Action({
+                                label: 'Take Attendance',
+                                event: 'Route',
+                                args: {
+                                    path: '/attendance/create',
+                                    query: {
+                                        filters: data.id
+                                    }
+                                }
+                            }),
+                        },
+                       { label: data.name }
+                   ],
+                   center: [
+                       {
+                           label: data.start_at
+                       },
+                       { label: "to" },
+                       { label: data.end_at },
+                       {
+                           action: new Action({
+                               label: 'Create Session',
+                               event: 'Route',
+                               args: {
+                                   name: 'categories',
+                                   params: {
+                                       categories: ['createSessionDataView']
+                                   },
+                                   query: {
+                                    filters: data.id
+                                   }
+                               }
+                           })
+                       },
+                   ],
+                   footer: 
+                       data.session?.map((session) => {
+                           return this.getSessionDataView(session);
+                       })
+                       /*{
+                           action: new Action({
+                               label: ''
+                               event:  'Route',
+                               args: {
+                                   name: 'categories',
+                                   params: {
+                                       categories: ['create']
+                                   }
+                               }
+                           })
+                       }*/
+                   
+               },
+               sections: [],
+               id: ''
+           })
 
         const view: PageView = new PageView({
             sections: [
@@ -241,7 +360,7 @@ export class Event implements IDataView {
         return dataList
     }
 
-    async getSessionDataView(session: Session) {
+    getSessionDataView(session: Session) {
         let startTime = session.start_at
         let timeRemaining = ""
         let timeElapse = ''
@@ -251,12 +370,12 @@ export class Event implements IDataView {
                     {
                         label: session.name
                     },
-                    {
+                    /*{
                         label: session.author.firstName
                     },
                     {
                         label: session.author.lastName
-                    },
+                    },*/
                     {
                         label: timeRemaining
                     }
@@ -282,23 +401,17 @@ export class Event implements IDataView {
         return dataType
     }
 
-    async createSessionDataView(eventId: string) {
-        const membersQuery = gql `{
-            member {
-                firstName
-                lastName
-                avatar
-            }
-        }`
+    createSessionDataView = async (eventId: string) => {
+        const membersQuery: QueryType = {
+            name: 'member',
+            data: undefined
+        }
 
-        const groupsQuery = gql `{
-            member {
-                name
-                members
-                admins
-            }
-        }`
-        
+        const groupsQuery = {
+            name:  'member',
+            data: undefined
+        }
+    
         const groupOptions = await dbClient.get(groupsQuery)
         const memberOptions = await dbClient.get(membersQuery)
         const options = [
@@ -312,10 +425,10 @@ export class Event implements IDataView {
             }
         ]
 
-        const question: QuestionType = {
+        const question: QuestionType = new QuestionType({
             title: "",
             id: '',
-            index: 2,
+            index: 0,
             actions: {
                 submit: new Action({
                     event(filledForm: any) {
@@ -327,7 +440,11 @@ export class Event implements IDataView {
                             anchor: filledForm.anchor,
                             content: filledForm.content
                         };
-                        dbClient.post(gql`{session(${session}) }`);
+                        const sessionQuery: QueryType = {
+                            name: 'session',
+                            data: session
+                        }
+                        dbClient.post(sessionQuery);
                     }
                 })
             },
@@ -359,18 +476,16 @@ export class Event implements IDataView {
                 }
             ],
             sections: []
-        }
-        const view: View = {
+        })
+        const view: PageView = {
             id: "",
             layout: "Grid",
             sections: [question],
-            size: "",
-            navType: "center"
+            children: []
         }
 
         return view
     }
-
 
     calculateTime = (timeRemaining: string, startTime: Date, timeElapse: string) => {
         const currentTime = new Date().getTime(); // Get current time in milliseconds

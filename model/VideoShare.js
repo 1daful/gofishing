@@ -1,5 +1,5 @@
 export class VideoShare {
-    getCreateData(data) {
+    create(data) {
         throw new Error("Method not implemented.");
     }
     getListData(query) {

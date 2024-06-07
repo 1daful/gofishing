@@ -1,3 +1,6 @@
+export const getEvent = async (callback, ...args) => {
+    return await callback(...args);
+};
 const decoFunc = (position, prop, keyLabel, dataContent) => {
     return (target, key) => {
         var _a, _b, _c, _d;

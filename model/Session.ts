@@ -31,7 +31,7 @@ export class Session implements IDataView {
     @ManyToOne(() => Event, event => event.sessions)
     event!: Relation<Event>;
 
-    getCreateData?(data?: any): Promise<PageView> {
+    create?(data?: any): Promise<PageView> {
         throw new Error("Method not implemented.");
     }
     getListData(query?: any): Promise<PageView> {

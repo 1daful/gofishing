@@ -49,7 +49,7 @@ export class Organisation {
             return dataType;
         };
     }
-    async getCreateData(data) {
+    async create(data) {
         const form = {
             id: "",
             title: "",

@@ -6,7 +6,7 @@ export class Schedule {
     constructor(id) {
         this.id = id;
     }
-    getCreateData(data) {
+    create(data) {
         throw new Error("Method not implemented.");
     }
     async getListData() {

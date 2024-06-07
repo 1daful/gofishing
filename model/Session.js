@@ -11,7 +11,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Member } from "./Member";
 import { Event } from "./Event";
 let Session = class Session {
-    getCreateData(data) {
+    create(data) {
         throw new Error("Method not implemented.");
     }
     getListData(query) {

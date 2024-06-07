@@ -11,12 +11,19 @@ import { dbClient } from "../config/model";
 import { EdiStorage } from "@edifiles/services";
 import { useRouter } from "vue-router";
 import gql from "graphql-tag";
-import { Action, DataGraph, PageView, View } from "../src/utils/types";
+import { Action, DataGraph, Filters, PageView } from "../src/utils/types";
 import { Member } from "./Member";
 import { Event } from "./Event";
 import { useDate } from "../src/utils/useDate";
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import { Entity, ManyToOne, Column } from "typeorm";
 let Attendance = class Attendance {
+    constructor() {
+        this.id = 'attendance';
+        this.members = async () => {
+            const member = await dbClient.get(gql `{member}`);
+            return member;
+        };
+    }
     async captureFaces() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
@@ -32,6 +39,11 @@ let Attendance = class Attendance {
         const formData = new FormData();
         formData.append('image', blob);
         const { newFace, existingFace, error } = await this.client.post('recognise_face', formData);
+        const data = {
+            newFace,
+            existingFace
+        };
+        return { data, error };
         if (newFace) {
             const storage = new EdiStorage();
             storage.post('member', '/member', blob);
@@ -247,15 +259,15 @@ let Attendance = class Attendance {
         const label = data.map((entry) => entry);
         return { series, label };
     }
-    async getCreateData(eventId) {
-        const members = await dbClient.get(gql `{members}`);
-        const filter = {
+    async filter() {
+        const member = await this.members();
+        return new Filters({
             indexName: "Members",
             rangeList: [],
             checks: [
                 {
                     attribute: 'Members',
-                    values: members.map((member) => {
+                    values: member.data.map((member) => {
                         return {
                             label: `${member.firstName} ${member.lastName}`
                         };
@@ -268,41 +280,22 @@ let Attendance = class Attendance {
             sections: [],
             layout: "Grid",
             size: ""
-        };
-        const memberView = new View({
-            sections: [
-                filter,
-                new Action({
-                    event() {
-                        const query = {
-                            name: "member",
-                            data: members.map((member) => {
-                                return {
-                                    eventId,
-                                    userId: member.id,
-                                    timeTaken: new Date()
-                                };
-                            }),
-                            filters: [],
-                            columns: []
-                        };
-                        dbClient.post(query);
-                    }
-                })
-            ],
-            id: "",
-            layout: "Grid",
-            size: "",
-            navType: "top"
         });
+    }
+    async create() {
         const actions = [
             new Action({
                 event: this.captureFaces,
                 label: 'capture faces',
             }),
             new Action({
-                event: "Modal",
-                args: memberView,
+                event: "Route",
+                args: {
+                    name: 'categories',
+                    params: {
+                        categories: 'memberView'
+                    }
+                },
                 label: "Mark members"
             })
         ];
@@ -314,11 +307,45 @@ let Attendance = class Attendance {
         });
         return view;
     }
+    async memberView(eventId) {
+        const members = await this.members();
+        return new PageView({
+            sections: [
+                await this.filter(),
+                new Action({
+                    label: 'Check In',
+                    async event() {
+                        const query = {
+                            name: "attendance",
+                            data: members.data.map((member) => {
+                                return {
+                                    event_id: eventId,
+                                    member_id: member.id,
+                                    time_taken: new Date()
+                                };
+                            }),
+                            filters: [],
+                            columns: []
+                        };
+                        const { data, error } = await dbClient.post(query);
+                        return { data, error };
+                    },
+                    onResult: {
+                        redirect: {
+                            path: '/events',
+                            params: {
+                                id: eventId
+                            }
+                        }
+                    }
+                })
+            ],
+            id: "",
+            layout: "Grid",
+            children: []
+        });
+    }
 };
-__decorate([
-    PrimaryGeneratedColumn('uuid'),
-    __metadata("design:type", String)
-], Attendance.prototype, "id", void 0);
 __decorate([
     ManyToOne(() => Event, event => event.attendances),
     __metadata("design:type", Object)

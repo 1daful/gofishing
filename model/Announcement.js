@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 import { Action, DataType } from "../src/utils/types";
 import { dbClient } from "../config/model";
 export class Announcement {
-    async getCreateData() {
+    async create() {
         const membersQuery = gql `member {
             firstName
             lastName

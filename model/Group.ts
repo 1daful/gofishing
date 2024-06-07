@@ -5,11 +5,12 @@ import { dbClient, auth } from "../config/model";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, JoinTable, ManyToMany, Relation } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
+import { getData } from "./DataView";
 
 export class Group implements IDataView {
     
-  @PrimaryGeneratedColumn()
-  id!: number;
+  //@PrimaryGeneratedColumn()
+  id: string = 'group';
 
   @Column()
   name!: string;
@@ -31,7 +32,7 @@ export class Group implements IDataView {
   @JoinTable()
   admins!: Relation<Admin[]>;
 
-    async getCreateData(data?: any) {
+    async create(data?: any) {
         const form: QuestionType = {
             id: "",
             title: "",
@@ -87,7 +88,37 @@ export class Group implements IDataView {
         }
 
         const data: Group[] = await dbClient.get(query)
-        const dataType: DataType = this.listDataItems(data)
+        const dataType: DataType = getData(query, (group: Group)=> {
+            return new DataType({
+                id: "",
+                sections: [],
+                items: {
+                    header: [
+                        {label: group.name}
+                    ],
+                    footer: [
+                        {
+                           action: new Action({
+                                label: "Join a group",
+                                async event() {
+                                    const user = await auth.getUser()
+                                    const query = {
+                                        name: "group",
+                                        data: {
+                                            //user_id: useUser().user.id
+                                            id: data.id,
+                                            user_id: user.id
+                                        },
+                                        filter: [],
+                                    }
+                                    dbClient.post(query)
+                                }
+                            })
+                        }
+                    ]
+                }
+            })
+        })
 
         const view: PageView = {
             id: "group",
@@ -137,35 +168,7 @@ export class Group implements IDataView {
     };
 
     listDataItems: Function = (data: Group[]) => {
-        const dataType: DataType = new DataType({
-            id: "",
-            sections: [],
-            items: {
-                header: data.map((group) => {
-                    return {label: group.name}
-                }),
-                footer: [
-                    {
-                       /* action: new Action({
-                            label: "Join a group",
-                            async event() {
-                                const user = await auth.getUser()
-                                const query = {
-                                    name: "group",
-                                    data: {
-                                        //user_id: useUser().user.id
-                                        id: data.id,
-                                        user_id: user.id
-                                    },
-                                    filter: [],
-                                }
-                                dbClient.post(query)
-                            }
-                        })*/
-                    }
-                ]
-            }
-        })
+        
         return dataType
     };
 }

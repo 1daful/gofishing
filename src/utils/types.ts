@@ -1,6 +1,8 @@
 import { Component } from "vue"
 import { CarouselStyle, DataPoint, HorizontalPosition, Slides, VerticalPosition, ViewGuard } from "./DataTypes";
 import { IDataView } from "../../model/IDataView";
+import { RouteLocationRaw, RouteRecord, RouteRecordRaw } from "vue-router";
+import { QSpinnerAudio } from "quasar";
 
 export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj is T {
     return obj instanceof classType;
@@ -291,14 +293,23 @@ export type ActionStyle = {
     ariaLabel?: string
 }
 
+export type Loading = false | QSpinnerAudio
+
 export type ActionState = {
-    loading: boolean
+    loading: Loading
     percentage: number
     darkPercentage?: boolean
     diasble?: boolean
 }
 
 export type ActionString = 'Submit' | 'Filter' | 'Route' | 'Modal' | 'Upload'
+export type OnResult = {
+    function?: Function
+    args: any,
+    redirect?: RouteLocationRaw
+}
+
+export type Event = (args: any) => ({data: any, error: any})
 
 export class Action {
     constructor(action: Action) {
@@ -311,8 +322,8 @@ export class Action {
     iconRight?: string
     args?: any
     event!: Function | ActionString
-    onResult?: Function
-    onError?: Function
+    onResult?: OnResult
+    onError?: OnResult
     style?: ActionStyle
     state?: ActionState
     class?: string
@@ -492,7 +503,8 @@ export type OptionsType = ({
 export class QuestionType implements IView{
     constructor(question: QuestionType) {
         Object.assign(this, question)
-    }
+    },
+    viewGuard: 
     sections!: ViewSection[];
     id!: string;
     title!: string;

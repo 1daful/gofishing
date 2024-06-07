@@ -31,7 +31,7 @@ export class Organisation implements IDataView {
   @JoinTable()
   admins!: Relation<Admin[]>;
 
-    async getCreateData(data?: any) {
+    async create(data?: any) {
         const form: QuestionType = {
             id: "",
             title: "",

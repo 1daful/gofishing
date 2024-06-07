@@ -9,11 +9,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Action, DataType, PageView } from "../src/utils/types";
 import { dbClient, auth } from "../config/model";
-import { PrimaryGeneratedColumn, Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
+import { Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
+import { getData } from "./DataView";
 export class Group {
     constructor() {
+        this.id = 'group';
         this.singleDataItem = (data) => {
             const singleDataItem = new DataType({
                 id: "",
@@ -34,22 +36,10 @@ export class Group {
             return singleDataItem;
         };
         this.listDataItems = (data) => {
-            const dataType = new DataType({
-                id: "",
-                sections: [],
-                items: {
-                    header: data.map((group) => {
-                        return { label: group.name };
-                    }),
-                    footer: [
-                        {}
-                    ]
-                }
-            });
             return dataType;
         };
     }
-    async getCreateData(data) {
+    async create(data) {
         const form = {
             id: "",
             title: "",
@@ -103,7 +93,36 @@ export class Group {
             columns: []
         };
         const data = await dbClient.get(query);
-        const dataType = this.listDataItems(data);
+        const dataType = getData(query, (group) => {
+            return new DataType({
+                id: "",
+                sections: [],
+                items: {
+                    header: [
+                        { label: group.name }
+                    ],
+                    footer: [
+                        {
+                            action: new Action({
+                                label: "Join a group",
+                                async event() {
+                                    const user = await auth.getUser();
+                                    const query = {
+                                        name: "group",
+                                        data: {
+                                            id: data.id,
+                                            user_id: user.id
+                                        },
+                                        filter: [],
+                                    };
+                                    dbClient.post(query);
+                                }
+                            })
+                        }
+                    ]
+                }
+            });
+        });
         const view = {
             id: "group",
             layout: "Grid",
@@ -130,10 +149,6 @@ export class Group {
         return view;
     }
 }
-__decorate([
-    PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], Group.prototype, "id", void 0);
 __decorate([
     Column(),
     __metadata("design:type", String)

@@ -23,7 +23,7 @@ export class Message implements IDataView {
     @Column() thumbnail!: string
     avatar!: string
 
-    async getCreateData() {
+    async create() {
         const membersQuery = gql `member {
             firstName
             lastName

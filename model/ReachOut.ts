@@ -32,7 +32,7 @@ export class ReachOut implements IDataView {
     
     constructor() {
     }
-    async getCreateData() {
+    async create() {
         const membersQuery = gql `{
             member {
                 id

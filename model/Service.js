@@ -15,6 +15,7 @@ import { Member } from "./Member";
 import { Event } from "./Event";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
 import { getData } from "./DataView";
+import { date } from "quasar";
 let Service = class Service {
     constructor() {
         this.id = 'services';
@@ -26,9 +27,10 @@ let Service = class Service {
             navType: "top"
         };
     }
-    async getCreateData() {
+    async create() {
         var _a;
         const userId = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.id;
+        let id;
         const form = new QuestionType({
             title: "Create new service",
             id: '',
@@ -36,8 +38,8 @@ let Service = class Service {
             sections: [],
             actions: {
                 submit: new Action({
-                    label: "Submit",
-                    event(filledForm) {
+                    label: "Create",
+                    async event(filledForm) {
                         const service = {
                             name: filledForm.name,
                             created_at: new Date().toUTCString(),
@@ -47,7 +49,17 @@ let Service = class Service {
                             name: 'service',
                             data: service,
                         };
-                        dbClient.post(query);
+                        const { data, error } = await dbClient.post(query);
+                        id = data.data[0].id;
+                        return { data, error };
+                    },
+                    onResult: {
+                        redirect: {
+                            name: 'id',
+                            param: {
+                                id
+                            }
+                        }
                     }
                 })
             },
@@ -100,7 +112,6 @@ let Service = class Service {
         if (data) {
         }
         const items = await getData(useQuery, (dat) => {
-            var _a;
             return new DataType({
                 id: '',
                 sections: [],
@@ -110,7 +121,7 @@ let Service = class Service {
                             label: dat.name
                         },
                         {
-                            label: (_a = dat.created_at) === null || _a === void 0 ? void 0 : _a.toString()
+                            label: date.formatDate(dat.created_at, 'YYYY-MM-DD, HH:mm A')
                         },
                     ],
                     footer: [
@@ -248,9 +259,11 @@ let Service = class Service {
                     },
                     {
                         action: new Action({
-                            label: 'edit',
+                            label: 'Edit',
                             icon: 'edit',
                             event() {
+                                const { data, error } = { data: true, error: false };
+                                return { data, error };
                             },
                         })
                     },

@@ -132,7 +132,7 @@ export class Member {
         const view = this[key];
         console.log('Almiht ', view);
     }
-    async getCreateData(image) {
+    async create(image) {
         const data = new QuestionType({
             id: "",
             title: 'Add new member data',
