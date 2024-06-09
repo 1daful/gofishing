@@ -2,28 +2,28 @@ export function isType(obj, classType) {
     return obj instanceof classType;
 }
 export function isView(section) {
-    return (section === null || section === void 0 ? void 0 : section.insert) !== undefined;
+    return section?.insert !== undefined;
 }
 export function isDataType(section) {
-    return (section === null || section === void 0 ? void 0 : section.items) !== undefined;
+    return section?.items !== undefined;
 }
 export function isDataList(section) {
-    return (section === null || section === void 0 ? void 0 : section.items) && (section === null || section === void 0 ? void 0 : section.actions) !== undefined;
+    return section?.items && section?.actions !== undefined;
 }
 export function isQuestionType(section) {
-    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
+    return section?.content !== undefined;
 }
 export function isNavList(section) {
-    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
+    return section?.content !== undefined;
 }
 export function isVComponent(section) {
-    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
+    return section?.content !== undefined;
 }
 export function isComponent(section) {
     return section !== undefined;
 }
 export function isIView(section) {
-    return (section === null || section === void 0 ? void 0 : section.sections) !== undefined;
+    return section?.sections !== undefined;
 }
 function isSectionType(value) {
     return value === 'x-section' || value === 'y-section';
@@ -36,59 +36,167 @@ export function isActionString(value) {
 }
 export class View {
     constructor(view) {
-        this.sections = [];
-        this.insert = (...content) => {
-            insert(this, ...content);
-        };
         Object.assign(this, view);
     }
+    heading;
+    sections = [];
+    icon;
+    postion;
+    viewport;
+    id;
+    layout;
+    size;
+    navType;
+    viewGuard;
+    insert = (...content) => {
+        insert(this, ...content);
+    };
 }
 export class Filters {
     constructor(filters) {
-        this.layout = 'Grid';
         Object.assign(this, filters);
     }
+    heading;
+    id;
+    sections;
+    icon;
+    postion;
+    viewport;
+    class;
+    viewGuard;
+    layout = 'Grid';
+    size;
+    actions;
+    view;
+    indexName;
+    options;
+    rangeList;
+    checks;
 }
 export class NavList {
     constructor(navList) {
         Object.assign(this, navList);
     }
+    sections;
+    id;
+    content;
+    navType;
+    style;
+    class;
+    view;
 }
 export class DataGraph {
     constructor(data) {
         Object.assign(this, data);
     }
+    heading;
+    id;
+    layout;
+    icon;
+    postion;
+    size;
+    viewport;
+    class;
+    viewGuard;
+    sections;
+    chartType;
+    series;
+    label;
+    data;
+    xaxisType;
+    view;
 }
 export class DataTable {
     constructor(data) {
         Object.assign(this, data);
     }
+    sections;
+    id;
+    columns;
+    rows;
+    setHeader;
+    style;
+    class;
+    actions;
+    separator;
+    computeAction;
+    viewGuard;
 }
 export class DataType {
     constructor(data) {
-        this.card = true;
         Object.assign(this, data);
     }
+    sections;
+    id;
+    overlay;
+    items;
+    setHeader;
+    style;
+    class;
+    actions;
+    card = true;
+    actionOverlay;
+    computeAction;
+    viewGuard;
 }
 export class DataList {
     constructor(data) {
         Object.assign(this, data);
     }
+    heading;
+    id;
+    layout;
+    icon;
+    postion;
+    size;
+    viewport;
+    class;
+    viewGuard;
+    sections;
+    items;
+    actions;
 }
 export class Action {
     constructor(action) {
         Object.assign(this, action);
     }
+    id;
+    type;
+    label;
+    icon;
+    iconRight;
+    args;
+    event;
+    onResult;
+    onError;
+    style;
+    state;
+    class;
+    viewGuard;
 }
 export class ActionGroup {
     constructor(actions) {
         Object.assign(this, actions);
     }
+    name;
+    actions;
+    style;
+    state;
+    class;
+    navType;
+    viewGuard;
 }
 export class Video {
     constructor(video) {
         Object.assign(this, video);
     }
+    title;
+    duration;
+    url;
+    isPlaying;
+    publishedDate;
+    description;
+    thumbnailUrl;
     play() {
         if (!this.isPlaying) {
             console.log(`Playing ${this.title}`);
@@ -119,6 +227,7 @@ export class Video {
     }
 }
 export class User {
+    id;
 }
 export class Notification {
 }
@@ -137,6 +246,10 @@ export class Comment {
 export class Text {
 }
 export class Calendar {
+    year;
+    month;
+    day;
+    date;
 }
 export class Table {
 }
@@ -146,42 +259,69 @@ export class QuestionType {
     constructor(question) {
         Object.assign(this, question);
     }
+    viewGuard;
+    ViewSection;
+    id;
+    title;
+    index;
+    compute;
+    class;
+    content;
+    icon;
+    description;
+    actions;
+    meta;
+    viewGuard;
 }
 export class FormType {
     constructor(form) {
         Object.assign(this, form);
     }
+    sections;
+    id;
+    actions;
+    content;
+    viewGuard;
 }
 export class VComponent {
     constructor(comp) {
         Object.assign(this, comp);
     }
+    id;
+    sections;
+    content;
+    props;
+    view;
 }
 function insert(view, ...content) {
-    var _a;
-    (_a = view.sections) === null || _a === void 0 ? void 0 : _a.push(...content);
+    view.sections?.push(...content);
 }
 export class TabView extends View {
     constructor(view) {
         super(view);
-        this.sections = [];
     }
+    sections = [];
+    view;
 }
 export class SectionView extends View {
     constructor(view) {
         super(view);
-        this.sections = [];
     }
+    sections = [];
+    view;
 }
 export class PageView {
     constructor(view) {
-        this.sections = [];
-        this.children = [];
-        this.insert = (...content) => {
-            insert(this, ...content);
-        };
         Object.assign(this, view);
     }
+    id;
+    layout;
+    sections = [];
+    children = [];
+    view;
+    insert = (...content) => {
+        insert(this, ...content);
+    };
 }
 export const Layout = {
     top: new View({

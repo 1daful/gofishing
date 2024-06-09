@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { DataType, QuestionType, Action, DataList, PageView } from "../src/utils/types";
+import { DataType, QuestionType, Action, DataList, PageView, Filters } from "../src/utils/types";
 import { auth, dbClient } from "../config/model";
 import { Session } from "./Session";
 import { Invitation } from "./Invitation";
@@ -17,111 +17,44 @@ import { Service } from "./Service";
 import { getData } from "./DataView";
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 let Event = class Event {
-    constructor() {
-        this.id = 'events';
-        this.createSessionDataView = async (eventId) => {
-            const membersQuery = {
-                name: 'member',
-                data: undefined
-            };
-            const groupsQuery = {
-                name: 'member',
-                data: undefined
-            };
-            const groupOptions = await dbClient.get(groupsQuery);
-            const memberOptions = await dbClient.get(membersQuery);
-            const options = [
-                {
-                    label: 'members',
-                    data: memberOptions
-                },
-                {
-                    label: 'groups',
-                    data: groupOptions
-                }
-            ];
-            const question = new QuestionType({
-                title: "",
-                id: '',
-                index: 0,
-                actions: {
-                    submit: new Action({
-                        event(filledForm) {
-                            const session = {
-                                event_id: eventId,
-                                name: filledForm.name,
-                                start_at: filledForm.start_at,
-                                end_at: filledForm.end_at,
-                                anchor: filledForm.anchor,
-                                content: filledForm.content
-                            };
-                            const sessionQuery = {
-                                name: 'session',
-                                data: session
-                            };
-                            dbClient.post(sessionQuery);
-                        }
-                    })
-                },
-                content: [
-                    {
-                        question: 'name',
-                        name: 'name',
-                        inputType: 'text'
-                    },
-                    {
-                        question: 'start',
-                        name: 'start_at',
-                        inputType: 'schedule'
-                    },
-                    {
-                        question: 'end',
-                        name: 'end_at',
-                        inputType: 'date'
-                    },
-                    {
-                        question: 'anchor',
-                        name: 'anchor',
-                        options: options
-                    },
-                    {
-                        question: 'content',
-                        name: 'content',
-                        inputType: 'textarea'
-                    }
-                ],
-                sections: []
-            });
-            const view = {
-                id: "",
-                layout: "Grid",
-                sections: [question],
-                children: []
-            };
-            return view;
-        };
-        this.calculateTime = (timeRemaining, startTime, timeElapse) => {
-            const currentTime = new Date().getTime();
-            const elapsedTime = currentTime - startTime.getTime();
-            const totalEventDuration = 3 * 60 * 60 * 1000;
-            const remainingTime = totalEventDuration - elapsedTime;
-            const elapsedHours = Math.floor(elapsedTime / (1000 * 60 * 60));
-            const elapsedMinutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
-            const elapsedSeconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
-            const remainingHours = Math.floor(remainingTime / (1000 * 60 * 60));
-            const remainingMinutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
-            const remainingSeconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
-            timeElapse = `Time Elapsed: ${elapsedHours}h ${elapsedMinutes}m ${elapsedSeconds}s`;
-            timeRemaining = `Time Remaining: ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
-        };
-    }
+    id = 'events';
+    create_at;
+    start_at;
+    end_at;
+    name;
+    sessions;
+    invitations;
+    attendances;
+    service;
     async create(data) {
         const serviceQuery = {
-            name: "",
-            data: undefined
+            name: "service",
+            data: undefined,
+            columns: [
+                'name'
+            ]
         };
+        const options = await dbClient.get(serviceQuery);
         const form = new QuestionType({
-            sections: [],
+            sections: [
+                new Filters({
+                    id: '',
+                    indexName: '',
+                    sections: [],
+                    layout: 'Grid',
+                    size: '',
+                    checks: [
+                        {
+                            id: '',
+                            attribute: "",
+                            values: [
+                                'Add to service'
+                            ],
+                            model: []
+                        }
+                    ]
+                })
+            ],
             title: '',
             id: '',
             index: 1,
@@ -129,9 +62,8 @@ let Event = class Event {
                 submit: new Action({
                     label: 'Create event',
                     async event(filledForm) {
-                        var _a;
                         const user = await auth.getUser();
-                        filledForm.user_id = (_a = user.data.user) === null || _a === void 0 ? void 0 : _a.id;
+                        filledForm.user_id = user.data.user?.id;
                         const query = {
                             name: "event",
                             data: filledForm,
@@ -139,7 +71,7 @@ let Event = class Event {
                         };
                         dbClient.post(query);
                     }
-                })
+                }),
             },
             content: [
                 {
@@ -155,11 +87,11 @@ let Event = class Event {
                 {
                     question: 'end',
                     name: 'end_at',
-                    inputType: 'date'
+                    inputType: 'schedule'
                 },
                 {
                     question: 'select service',
-                    inputType: 'text',
+                    options,
                     name: 'service_id'
                 }
             ]
@@ -256,7 +188,6 @@ let Event = class Event {
         return view;
     }
     async getSingleData(id) {
-        var _a;
         const query = {
             name: 'event',
             filters: [
@@ -312,7 +243,7 @@ let Event = class Event {
                         })
                     },
                 ],
-                footer: (_a = data.session) === null || _a === void 0 ? void 0 : _a.map((session) => {
+                footer: data.session?.map((session) => {
                     return this.getSessionDataView(session);
                 })
             },
@@ -330,28 +261,27 @@ let Event = class Event {
         return view;
     }
     async getEvents(eventStatus, query) {
-        var _a, _b, _c;
         let eventQuery = query || {
             name: 'event',
             data: undefined
         };
         switch (eventStatus) {
             case 'upcoming':
-                (_a = eventQuery.filters) === null || _a === void 0 ? void 0 : _a.push({
+                eventQuery.filters?.push({
                     op: 'gt',
                     col: 'start_at',
                     val: new Date().toUTCString()
                 });
                 break;
             case 'marked':
-                (_b = eventQuery.filters) === null || _b === void 0 ? void 0 : _b.push({
+                eventQuery.filters?.push({
                     op: 'lt',
                     col: 'start_at',
                     val: new Date().toUTCString()
                 });
                 break;
             case 'ongoing':
-                (_c = eventQuery.filters) === null || _c === void 0 ? void 0 : _c.push({
+                eventQuery.filters?.push({
                     op: 'eq',
                     col: 'start_at',
                     val: new Date().toUTCString()
@@ -413,6 +343,101 @@ let Event = class Event {
         });
         return dataType;
     }
+    createSessionDataView = async (eventId) => {
+        const membersQuery = {
+            name: 'member',
+            data: undefined
+        };
+        const groupsQuery = {
+            name: 'member',
+            data: undefined
+        };
+        const groupOptions = await dbClient.get(groupsQuery);
+        const memberOptions = await dbClient.get(membersQuery);
+        const options = [
+            {
+                label: 'members',
+                data: memberOptions
+            },
+            {
+                label: 'groups',
+                data: groupOptions
+            }
+        ];
+        const question = new QuestionType({
+            title: "",
+            id: '',
+            index: 0,
+            actions: {
+                submit: new Action({
+                    event(filledForm) {
+                        const session = {
+                            event_id: eventId,
+                            name: filledForm.name,
+                            start_at: filledForm.start_at,
+                            end_at: filledForm.end_at,
+                            anchor: filledForm.anchor,
+                            content: filledForm.content
+                        };
+                        const sessionQuery = {
+                            name: 'session',
+                            data: session
+                        };
+                        dbClient.post(sessionQuery);
+                    }
+                })
+            },
+            content: [
+                {
+                    question: 'name',
+                    name: 'name',
+                    inputType: 'text'
+                },
+                {
+                    question: 'start',
+                    name: 'start_at',
+                    inputType: 'schedule'
+                },
+                {
+                    question: 'end',
+                    name: 'end_at',
+                    inputType: 'date'
+                },
+                {
+                    question: 'anchor',
+                    name: 'anchor',
+                    options: options
+                },
+                {
+                    question: 'content',
+                    name: 'content',
+                    inputType: 'textarea'
+                }
+            ],
+            sections: []
+        });
+        const view = {
+            id: "",
+            layout: "Grid",
+            sections: [question],
+            children: []
+        };
+        return view;
+    };
+    calculateTime = (timeRemaining, startTime, timeElapse) => {
+        const currentTime = new Date().getTime();
+        const elapsedTime = currentTime - startTime.getTime();
+        const totalEventDuration = 3 * 60 * 60 * 1000;
+        const remainingTime = totalEventDuration - elapsedTime;
+        const elapsedHours = Math.floor(elapsedTime / (1000 * 60 * 60));
+        const elapsedMinutes = Math.floor((elapsedTime % (1000 * 60 * 60)) / (1000 * 60));
+        const elapsedSeconds = Math.floor((elapsedTime % (1000 * 60)) / 1000);
+        const remainingHours = Math.floor(remainingTime / (1000 * 60 * 60));
+        const remainingMinutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+        const remainingSeconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
+        timeElapse = `Time Elapsed: ${elapsedHours}h ${elapsedMinutes}m ${elapsedSeconds}s`;
+        timeRemaining = `Time Remaining: ${remainingHours}h ${remainingMinutes}m ${remainingSeconds}s`;
+    };
 };
 __decorate([
     Column({ type: 'timestamp' }),

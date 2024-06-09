@@ -1,4 +1,5 @@
 export class InstanceLoader {
+    context;
     constructor(context) {
         this.context = context;
     }

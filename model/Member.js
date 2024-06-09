@@ -20,66 +20,22 @@ import { Attendance } from "./Attendance";
 import { useUser } from "../src/utils/useUser";
 import EFileParser from "../src/components/EFileParse.vue";
 export class Member {
-    constructor() {
-        this.id = "members";
-        this.contactView = () => {
-            return new PageView({
-                id: '',
-                sections: [
-                    new View({
-                        sections: [
-                            new Action({
-                                label: 'GETTY',
-                                event: 'Route'
-                            }),
-                            {
-                                content: EFileParser,
-                                props: {
-                                    actions: [
-                                        new Action({
-                                            label: 'Add members',
-                                            event: (checks) => {
-                                                const query = {
-                                                    name: 'member',
-                                                    data: checks[0].model
-                                                };
-                                                dbClient.post(query);
-                                                console.log('QIERY ', query);
-                                            },
-                                        })
-                                    ]
-                                }
-                            }
-                        ],
-                        id: "Import members",
-                        layout: "Grid",
-                        size: "",
-                        navType: 'center'
-                    })
-                ],
-                children: [],
-                layout: 'Grid'
-            });
-        };
-        this.data = {
-            contactView: new View({
-                sections: [
-                    new Action({
-                        label: 'GETTY',
-                        event: 'Route'
-                    }),
-                    {
-                        content: EFileParser,
-                        props: useUser
-                    }
-                ],
-                id: "Import members",
-                layout: "Grid",
-                size: "",
-                navType: 'center'
-            })
-        };
-    }
+    id = "members";
+    firstName;
+    lastName;
+    contacts;
+    address;
+    created_at;
+    updated_at;
+    lastTime;
+    avatar;
+    groups;
+    sentInvitations;
+    receivedInvitations;
+    sessions;
+    services;
+    admin;
+    attendances;
     async getSingleData(id) {
         const groupView = new PageView({
             id: "",
@@ -128,10 +84,67 @@ export class Member {
         };
         return view;
     }
+    contactView = () => {
+        return new PageView({
+            id: '',
+            sections: [
+                new View({
+                    sections: [
+                        new Action({
+                            label: 'GETTY',
+                            event: 'Route'
+                        }),
+                        {
+                            content: EFileParser,
+                            props: {
+                                actions: [
+                                    new Action({
+                                        label: 'Add members',
+                                        event: (checks) => {
+                                            const query = {
+                                                name: 'member',
+                                                data: checks[0].model
+                                            };
+                                            dbClient.post(query);
+                                            console.log('QIERY ', query);
+                                        },
+                                    })
+                                ]
+                            }
+                        }
+                    ],
+                    id: "Import members",
+                    layout: "Grid",
+                    size: "",
+                    navType: 'center'
+                })
+            ],
+            children: [],
+            layout: 'Grid'
+        });
+    };
     async getData(key) {
         const view = this[key];
         console.log('Almiht ', view);
     }
+    data = {
+        contactView: new View({
+            sections: [
+                new Action({
+                    label: 'GETTY',
+                    event: 'Route'
+                }),
+                {
+                    content: EFileParser,
+                    props: useUser
+                }
+            ],
+            id: "Import members",
+            layout: "Grid",
+            size: "",
+            navType: 'center'
+        })
+    };
     async create(image) {
         const data = new QuestionType({
             id: "",
@@ -197,7 +210,6 @@ export class Member {
         return view;
     }
     async getListData(filters) {
-        var _a;
         let query = {
             name: "member",
             data: undefined,
@@ -223,7 +235,7 @@ export class Member {
             ]
         });
         if (data) {
-            const items = (_a = data.data) === null || _a === void 0 ? void 0 : _a.map((dat) => {
+            const items = data.data?.map((dat) => {
                 return new DataType({
                     id: '',
                     sections: [],

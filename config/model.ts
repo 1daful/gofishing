@@ -44,7 +44,7 @@ export class MemberList2 {
 export const dbClient = new SDKClient(new SupabaseRepo(config.api.Supabase))
 export const auth = new EAuth(config.api.Supabase)
 
-//const members = dbClient.get(MemberList)
+/*const members = dbClient.get(MemberList)
 
 export class Service extends DataType {
     constructor(data: Record<string, any>) {
@@ -227,7 +227,7 @@ export const getMilestones = async () => {
     }`
     const milestones = await dbClient.get(query)
     return milestones
-}
+}*/
 
 export async function addModel <T extends IDataView> (clazz: new (...args: any[]) => T, parentView?: IDataView, id?: string, ...query: any) {
     let view
@@ -282,7 +282,6 @@ export const models = [
         val: new Group()
     }
 ]
-
 /*export function addEntity<T>(classType: T) {
     entities.push(classType)
 }*/

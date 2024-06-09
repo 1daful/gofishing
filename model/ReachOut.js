@@ -15,11 +15,15 @@ import { config } from "../public/config";
 import { Member } from "./Member";
 import { Entity, Column, ManyToOne } from "typeorm";
 let ReachOut = class ReachOut {
+    id = 'reachouts';
+    title;
+    sender;
+    message_type;
+    content;
+    send_option;
     constructor() {
-        this.id = 'reachouts';
     }
     async create() {
-        var _a, _b;
         const membersQuery = gql `{
             member {
                 id
@@ -34,12 +38,12 @@ let ReachOut = class ReachOut {
                 name
             }
         }`;
-        const members = (_a = (await dbClient.get(membersQuery)).data) === null || _a === void 0 ? void 0 : _a.data;
-        const groups = (_b = (await dbClient.get(groupsQuery)).data) === null || _b === void 0 ? void 0 : _b.data;
+        const members = (await dbClient.get(membersQuery)).data?.data;
+        const groups = (await dbClient.get(groupsQuery)).data?.data;
         const options = [
             {
                 label: 'groups',
-                children: groups === null || groups === void 0 ? void 0 : groups.map((group) => {
+                children: groups?.map((group) => {
                     return {
                         label: group.name,
                         id: group.id,
@@ -48,7 +52,7 @@ let ReachOut = class ReachOut {
             },
             {
                 label: 'members',
-                children: members === null || members === void 0 ? void 0 : members.map((member) => {
+                children: members?.map((member) => {
                     return {
                         label: `${member.firstName} ${member.lastName}`,
                         id: member.id,

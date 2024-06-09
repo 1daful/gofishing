@@ -11,6 +11,14 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Member } from "./Member";
 import { Event } from "./Event";
 let Session = class Session {
+    id;
+    start_at;
+    end_at;
+    name;
+    author;
+    timeRemaining;
+    content;
+    event;
     create(data) {
         throw new Error("Method not implemented.");
     }

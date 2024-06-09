@@ -17,19 +17,24 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDat
 import { getData } from "./DataView";
 import { date } from "quasar";
 let Service = class Service {
-    constructor() {
-        this.id = 'services';
-        this.view = {
-            sections: [EUpload],
-            id: "videoView",
-            layout: "Grid",
-            size: "",
-            navType: "top"
-        };
-    }
+    id = 'services';
+    name;
+    anchors;
+    author;
+    created_at;
+    content;
+    timeElapse;
+    date;
+    events;
+    view = {
+        sections: [EUpload],
+        id: "videoView",
+        layout: "Grid",
+        size: "",
+        navType: "top"
+    };
     async create() {
-        var _a;
-        const userId = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.id;
+        const userId = (await auth.getUser()).data.user?.id;
         let id;
         const form = new QuestionType({
             title: "Create new service",
@@ -43,7 +48,10 @@ let Service = class Service {
                         const service = {
                             name: filledForm.name,
                             created_at: new Date().toUTCString(),
-                            author_id: userId
+                            author_id: userId,
+                            day: filledForm.day,
+                            startTime: filledForm.startTime,
+                            endTime: filledForm.endTime
                         };
                         const query = {
                             name: 'service',
@@ -61,13 +69,28 @@ let Service = class Service {
                             }
                         }
                     }
-                })
+                }),
             },
             content: [{
                     question: 'name',
                     name: 'name',
                     inputType: 'text'
                 },
+                {
+                    question: 'day',
+                    name: 'day',
+                    inputType: 'text'
+                },
+                {
+                    question: 'start',
+                    name: 'start_time',
+                    inputType: 'time'
+                },
+                {
+                    question: 'end',
+                    name: 'end_time',
+                    inputType: 'time'
+                }
             ]
         });
         const view = new PageView({
@@ -304,7 +327,7 @@ __decorate([
 __decorate([
     CreateDateColumn({ type: 'timestamp' }),
     __metadata("design:type", Date)
-], Service.prototype, "createdAt", void 0);
+], Service.prototype, "created_at", void 0);
 __decorate([
     Column(),
     __metadata("design:type", String)

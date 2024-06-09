@@ -61,9 +61,8 @@ const reachoutModel = new ReachOut();
 const memberModel = new Member();
 const attendanceModel = new Attendance();
 async function userIcon() {
-    var _a;
-    const names = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.user_metadata;
-    return names === null || names === void 0 ? void 0 : names.firstName;
+    const names = (await auth.getUser()).data.user?.user_metadata;
+    return names?.firstName;
 }
 const userAvatar = new Action({
     icon: await userIcon(),

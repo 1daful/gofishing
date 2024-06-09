@@ -11,12 +11,11 @@ export async function postData(query, questionsData) {
     return view;
 }
 export async function getData(query, callback, client) {
-    var _a;
     const useClient = client || dbClient;
     let data = await useClient.get(query);
     let section = [];
     if (data) {
-        section = (_a = data.data) === null || _a === void 0 ? void 0 : _a.map((dat) => {
+        section = data.data?.map((dat) => {
             return callback(dat);
         });
     }

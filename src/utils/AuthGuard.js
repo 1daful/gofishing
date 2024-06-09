@@ -14,12 +14,11 @@ export const authGuard = async (to, from, next) => {
     }
 };
 export const viewGuard = async (useViewGuard) => {
-    var _a, _b, _c;
     let show = false;
-    const userIdCol = ((_a = useViewGuard === null || useViewGuard === void 0 ? void 0 : useViewGuard.userColval) === null || _a === void 0 ? void 0 : _a.col) || 'user_id';
-    const userIdVal = ((_b = useViewGuard === null || useViewGuard === void 0 ? void 0 : useViewGuard.userColval) === null || _b === void 0 ? void 0 : _b.val) || ((_c = (await auth.getUser()).data.user) === null || _c === void 0 ? void 0 : _c.id);
-    const colval = useViewGuard === null || useViewGuard === void 0 ? void 0 : useViewGuard.colval;
-    const type = useViewGuard === null || useViewGuard === void 0 ? void 0 : useViewGuard.type;
+    const userIdCol = useViewGuard?.userColval?.col || 'user_id';
+    const userIdVal = useViewGuard?.userColval?.val || (await auth.getUser()).data.user?.id;
+    const colval = useViewGuard?.colval;
+    const type = useViewGuard?.type;
     if (userIdVal && (!colval || !type)) {
         show = !!useViewGuard;
     }

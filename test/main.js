@@ -30,11 +30,10 @@ const q = {
     ]
 };
 function header(target, key) {
-    var _a;
     const item = {
         header: []
     };
-    (_a = item.header) === null || _a === void 0 ? void 0 : _a.push({
+    item.header?.push({
         key: key,
         prop: 'label'
     });
@@ -45,6 +44,9 @@ class Person {
         this.age = age;
         this.name = name;
     }
+    name;
+    age;
+    items;
 }
 __decorate([
     header,

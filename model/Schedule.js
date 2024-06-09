@@ -6,6 +6,7 @@ export class Schedule {
     constructor(id) {
         this.id = id;
     }
+    id;
     create(data) {
         throw new Error("Method not implemented.");
     }

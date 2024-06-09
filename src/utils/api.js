@@ -1,24 +1,25 @@
 export class Api {
-    constructor() {
-        this.resource = {
-            request: {
-                url: ""
-            },
-            response(data) {
-                return {};
-            }
-        };
-    }
+    resource = {
+        request: {
+            url: ""
+        },
+        response(data) {
+            return {};
+        }
+    };
 }
 class gooBoks {
-    constructor() {
-        this.baseUrl = '';
-        this.volumeRes = new Resource(this, "", {}, (data) => ({
-            title: data.title
-        }));
-    }
+    baseUrl = '';
+    data;
+    volumeRes = new Resource(this, "", {}, (data) => ({
+        title: data.title
+    }));
 }
 class Resource {
+    api;
+    type;
+    request;
+    response;
     constructor(api, type, request, response) {
         this.api = api;
         this.type = type;
@@ -84,9 +85,9 @@ class Resource {
 }
 class Response {
     constructor(props = {}) {
-        this.data = {};
         Object.assign(this, props);
     }
+    data = {};
 }
 class Axios {
     get() {
@@ -98,4 +99,8 @@ export class Request {
         this.baseUrl = url;
         this.params = params;
     }
+    name;
+    baseUrl;
+    params;
+    data;
 }

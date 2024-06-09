@@ -12,6 +12,15 @@ import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedCol
 import { DataType } from "../src/utils/types";
 import { dbClient } from "../config/model";
 let Message = class Message {
+    id;
+    title;
+    content;
+    address;
+    created_at;
+    updated_at;
+    schedule;
+    thumbnail;
+    avatar;
     async create() {
         const membersQuery = gql `member {
             firstName

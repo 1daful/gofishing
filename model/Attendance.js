@@ -17,13 +17,15 @@ import { Event } from "./Event";
 import { useDate } from "../src/utils/useDate";
 import { Entity, ManyToOne, Column } from "typeorm";
 let Attendance = class Attendance {
-    constructor() {
-        this.id = 'attendance';
-        this.members = async () => {
-            const member = await dbClient.get(gql `{member}`);
-            return member;
-        };
-    }
+    id = 'attendance';
+    members = async () => {
+        const member = await dbClient.get(gql `{member}`);
+        return member;
+    };
+    event;
+    member;
+    timeliness;
+    client;
     async captureFaces() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');

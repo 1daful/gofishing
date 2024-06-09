@@ -17,9 +17,13 @@ import { Member } from "./Member";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
 import { Event } from './Event';
 let Invitation = class Invitation {
-    constructor() {
-        this.recipients = [];
-    }
+    id;
+    event;
+    content;
+    sender;
+    created_at;
+    recipients = [];
+    schedule;
     async create(userId) {
         const membersQuery = gql `member {
             firstName

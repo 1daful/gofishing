@@ -14,31 +14,13 @@ import { Member } from "./Member";
 import { Admin } from "./Admin";
 import { getData } from "./DataView";
 export class Group {
-    constructor() {
-        this.id = 'group';
-        this.singleDataItem = (data) => {
-            const singleDataItem = new DataType({
-                id: "",
-                sections: [],
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        }
-                    ],
-                    center: data.members.map((member) => {
-                        return {
-                            label: `${member.firstName} ${member.lastName}`
-                        };
-                    })
-                }
-            });
-            return singleDataItem;
-        };
-        this.listDataItems = (data) => {
-            return dataType;
-        };
-    }
+    id = 'group';
+    name;
+    created_at;
+    coordinator;
+    creator;
+    members;
+    admins;
     async create(data) {
         const form = {
             id: "",
@@ -54,9 +36,8 @@ export class Group {
             actions: {
                 submit: new Action({
                     async event(filledForm) {
-                        var _a;
                         const user = await auth.getUser();
-                        filledForm.admin_id = (_a = user.data.user) === null || _a === void 0 ? void 0 : _a.id;
+                        filledForm.admin_id = user.data.user?.id;
                         filledForm.id = filledForm.admin_id + new Date();
                         const groupQuery = {
                             name: "group",
@@ -148,6 +129,28 @@ export class Group {
         };
         return view;
     }
+    singleDataItem = (data) => {
+        const singleDataItem = new DataType({
+            id: "",
+            sections: [],
+            items: {
+                header: [
+                    {
+                        label: data.name
+                    }
+                ],
+                center: data.members.map((member) => {
+                    return {
+                        label: `${member.firstName} ${member.lastName}`
+                    };
+                })
+            }
+        });
+        return singleDataItem;
+    };
+    listDataItems = (data) => {
+        return dataType;
+    };
 }
 __decorate([
     Column(),
