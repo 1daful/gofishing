@@ -96,7 +96,7 @@ import { viewGuard } from "../utils/AuthGuard";
   
   let filledForm: Record<string, any> = {}
   let show: boolean = true
-  let view
+  let view: View
   
   export default defineComponent({
     data() {
@@ -149,8 +149,11 @@ import { viewGuard } from "../utils/AuthGuard";
     async onBeforeMount() {
       this.view =  new View({
         id: '',
-        sections: this.form.sections
-      }),
+        sections: this.form.sections,
+        navType: "center",
+        layout: "Grid",
+        size: ""
+      })
       if (this.form.viewGuard) {
         this.show = await viewGuard(this.form.viewGuard.userColval, this.form.viewGuard.colval, this.form.viewGuard.type)
       }
