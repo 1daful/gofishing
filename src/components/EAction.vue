@@ -4,7 +4,13 @@
   :size="action.style?.size" 
   class="q-mr-sm" :class="action.class" v-if="event && show" 
   color="primary"
+<<<<<<< HEAD
   :aria-label="action.style?.ariaLabel"></QBtn>
+=======
+  :aria-label="action.style?.ariaLabel"
+  :loading="loading"
+  :disable="loading"></QBtn>
+>>>>>>> master
   <QBtn :id="action.id" :label="action.label" :icon="action.icon" v-else-if="component && show">
     <QPopupProxy cover>
       <EView :view="component" v-bind="$attrs"></EView>
@@ -36,6 +42,11 @@ const props = defineProps({
 const type = props.action?.style?.type || 'unelevated'
 const shape = props.action?.style?.shape || 'none'
 
+<<<<<<< HEAD
+=======
+//const act = props.action
+
+>>>>>>> master
 let component: View
 let event: Function
 
@@ -67,7 +78,12 @@ const AwDialog = defineAsyncComponent(
   return components;
 };*/
 const router = useRouter()
+<<<<<<< HEAD
 let show = ref(true)
+=======
+let show = ref(false)
+let loading = ref(false)
+>>>>>>> master
 //let show = true
 onBeforeMount(() => {
   if (props.action) {
@@ -91,14 +107,40 @@ onBeforeMount(() => {
     }
     if (typeof props.action.event === 'function') {
       event = () => {
+<<<<<<< HEAD
         props.action.event(props.action.args || props.args);
+=======
+        loading.value = true
+        //const { data, error } = props.action.event(props.action.args || props.args);
+        try {
+          props.action.event(props.action.args || props.args);
+        loading.value =false
+          if (/*data &&*/ props.action.onResult) {
+            if(props.action.onResult.redirect) {
+              router.push(props.action.onResult.redirect)
+            }
+            else if(props.action.onResult.function) {
+              props.action.onResult.function(props.action.onResult.args)
+            }
+          }
+        }
+        catch {
+          if(props.action.onError?.function)
+            props.action.onError.function(props.action.onError.args)
+        }
+>>>>>>> master
       }
     }
   }
 });
 onMounted(async () => {
+<<<<<<< HEAD
     if (typeof props.action.viewGuard === 'object') {
       show.value = await viewGuard(props.action.viewGuard.userColval, props.action.viewGuard.colval, props.action.viewGuard.type)
+=======
+    /**if (typeof props.action.viewGuard === 'object') {
+      show.value = await viewGuard(props.action.viewGuard)
+>>>>>>> master
     }
      if (props.action.viewGuard === true) {
       show.value = await viewGuard()
@@ -106,6 +148,14 @@ onMounted(async () => {
     else if (props.action.viewGuard === false) {
       const guard = await viewGuard()
       if(guard) show.value = false
+<<<<<<< HEAD
     }
+=======
+    }**/
+  if (props.action.viewGuard !== undefined) {
+    show.value = await viewGuard(props.action.viewGuard)
+  }
+  else show.value = true
+>>>>>>> master
 })
 </script>

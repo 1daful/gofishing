@@ -1,6 +1,11 @@
 import { Component } from "vue"
 import { CarouselStyle, DataPoint, HorizontalPosition, Slides, VerticalPosition, ViewGuard } from "./DataTypes";
 import { IDataView } from "../../model/IDataView";
+<<<<<<< HEAD
+=======
+import { RouteLocationRaw, RouteRecord, RouteRecordRaw } from "vue-router";
+import { QSpinnerAudio } from "quasar";
+>>>>>>> master
 
 export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj is T {
     return obj instanceof classType;
@@ -112,13 +117,22 @@ export class Filters implements IView{
     options?: OptionsType
     rangeList?: string[]
     checks?: {
+<<<<<<< HEAD
+=======
+        id: string | number | symbol | undefined;
+>>>>>>> master
         attribute: string,
         values: {
             label: string,
             iChecked?: string,
             iUndetermined?: string,
             iUnchecked?: string,
+<<<<<<< HEAD
         }[]
+=======
+        }[] | string[],
+        model: any[]
+>>>>>>> master
     }[]
 }
 
@@ -289,14 +303,31 @@ export type ActionStyle = {
     ariaLabel?: string
 }
 
+<<<<<<< HEAD
 export type ActionState = {
     loading: boolean
+=======
+export type Loading = false | QSpinnerAudio
+
+export type ActionState = {
+    loading: Loading
+>>>>>>> master
     percentage: number
     darkPercentage?: boolean
     diasble?: boolean
 }
 
 export type ActionString = 'Submit' | 'Filter' | 'Route' | 'Modal' | 'Upload'
+<<<<<<< HEAD
+=======
+export type OnResult = {
+    function?: Function
+    args: any,
+    redirect?: RouteLocationRaw
+}
+
+export type Event = (args: any) => ({data: any, error: any})
+>>>>>>> master
 
 export class Action {
     constructor(action: Action) {
@@ -309,8 +340,13 @@ export class Action {
     iconRight?: string
     args?: any
     event!: Function | ActionString
+<<<<<<< HEAD
     onResult?: Function
     onError?: Function
+=======
+    onResult?: OnResult
+    onError?: OnResult
+>>>>>>> master
     style?: ActionStyle
     state?: ActionState
     class?: string
@@ -490,7 +526,12 @@ export type OptionsType = ({
 export class QuestionType implements IView{
     constructor(question: QuestionType) {
         Object.assign(this, question)
+<<<<<<< HEAD
     }
+=======
+    },
+    viewGuard: 
+>>>>>>> master
     sections!: ViewSection[];
     id!: string;
     title!: string;

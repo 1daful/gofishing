@@ -23,7 +23,11 @@ export class Message implements IDataView {
     @Column() thumbnail!: string
     avatar!: string
 
+<<<<<<< HEAD
     async getCreateData() {
+=======
+    async create() {
+>>>>>>> master
         const membersQuery = gql `member {
             firstName
             lastName
@@ -60,31 +64,50 @@ export class Message implements IDataView {
             }
         ]
         const form: QuestionType = {
+<<<<<<< HEAD
             title: "",
             index: 0,
+=======
+            id: "",
+            title: "",
+            index: 0,
+            sections: [],
+>>>>>>> master
             actions: {},
             content: [
                 {
                     question: 'title',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     inputType: 'text',
                     name: 'title'
                 },
                 {
                     question: 'sender',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     options: options,
                     name: 'senderId'
                 },
                 {
                     question: 'recipients',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     options: options,
                     name: 'recipientIds'
                 },
                 {
                     question: 'action point',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     options: [
                         'sms',
                         'email',
@@ -94,7 +117,10 @@ export class Message implements IDataView {
                 },
                 {
                     question: 'content',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     inputType: 'textarea',
                     name: 'content'
                 }
@@ -124,6 +150,11 @@ export class Message implements IDataView {
         const data = await dbClient.get(query)
         const dataType: DataType = new DataType({
             actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+<<<<<<< HEAD
+=======
+            id: "",
+            sections: [],
+>>>>>>> master
             items: {
                 header: [
                     {

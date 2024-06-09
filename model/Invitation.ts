@@ -36,7 +36,11 @@ export class Invitation implements IDataView {
     @Column({ type: 'timestamp' })
     schedule!: Date;
 
+<<<<<<< HEAD
     async getCreateData(userId: string) {
+=======
+    async create(userId: string) {
+>>>>>>> master
         const membersQuery = gql `member {
             firstName
             lastName
@@ -118,6 +122,11 @@ export class Invitation implements IDataView {
         const form: QuestionType = {
             title: "",
             index: 0,
+<<<<<<< HEAD
+=======
+            id: '',
+            sections: [],
+>>>>>>> master
             actions: {
                 submit: new Action({
                     label: 'send now',
@@ -147,7 +156,11 @@ export class Invitation implements IDataView {
 
                         const invitees = useUser().users.map(user => {
                             const obj = user
+<<<<<<< HEAD
                             obj.invitationId = invitation.id
+=======
+                            obj.id = invitation.id
+>>>>>>> master
                             return obj
                         })
                         new Mailer().sendEmail(email)
@@ -190,13 +203,19 @@ export class Invitation implements IDataView {
             content: [
                 {
                     question: 'title',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     inputType: 'text',
                     name: 'title'
                 },
                 {
                     question: 'sender',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     options: [
                         groupOption,
                         memberOption
@@ -205,7 +224,10 @@ export class Invitation implements IDataView {
                 },
                 {
                     question: 'messenger',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     options: [
                         'sms',
                         'email',
@@ -215,13 +237,19 @@ export class Invitation implements IDataView {
                 },
                 {
                     question: 'content',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     inputType: 'textarea',
                     name: 'content'
                 },
                 {
                     question: 'send to',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     name: 'sendOption',
                     options: [
                         'All',
@@ -239,13 +267,19 @@ export class Invitation implements IDataView {
                 },
                 {
                     question: 'event',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     options: [eventOption],
                     name: 'event'
                 },
                 {
                     question: 'schedule',
+<<<<<<< HEAD
                     answer: '',
+=======
+>>>>>>> master
                     inputType: 'schedule',
                     name: 'schedule'
                 },
@@ -274,6 +308,11 @@ export class Invitation implements IDataView {
         const data = await dbClient.get(query)
         const dataType: DataType = new DataType({
             actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+<<<<<<< HEAD
+=======
+            id: '',
+            sections: [],
+>>>>>>> master
             items: {
                 header: [
                     {
@@ -310,9 +349,17 @@ export class Invitation implements IDataView {
         if (recipientIds) {
             query = gql`message (recipient_ids: ${recipientIds})`
         }
+<<<<<<< HEAD
         const data = await dbClient.get('', query)
         const dataType: DataType = new DataType({
             actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+=======
+        const data = await dbClient.get(query)
+        const dataType: DataType = new DataType({
+            actionOverlay: data.actionPoint, //the actionPoint takes us to take action on the message
+            id: '',
+            sections: [],
+>>>>>>> master
             items: {
                 header: [
                     {

@@ -5,6 +5,10 @@ export class Widget extends View {
         super(view);
         this.name = name;
     }
+<<<<<<< HEAD
+=======
+    name;
+>>>>>>> master
 }
 export const useWidgets = defineStore({
     id: 'refState',

@@ -18,6 +18,7 @@ import EView from "../components/EView.vue";
 import { DataType, Filters, View, NavList } from "../utils/types";
 //import { mount } from "mount-vue-component";
 
+<<<<<<< HEAD
 const filterData: Filters = new Filters({
   indexName: "",
   rangeList: [
@@ -67,6 +68,10 @@ const data: DataType = {
   },
   setHeader: true,
 };
+=======
+
+//const viewa = useWidgets();
+>>>>>>> master
 /*const view2: View = {
   layouts: [
     {
@@ -81,7 +86,11 @@ const view = shallowRef(new View({
   layout: "Grid",
   navType: 'center',
   size: 'col-8',
+<<<<<<< HEAD
   sections: [data, filterData],
+=======
+  sections: [],
+>>>>>>> master
 }));
 
 

@@ -7,10 +7,16 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+<<<<<<< HEAD
 import { DataType, PageView, QuestionType } from "../src/utils/types";
 import { getCreateData } from "./DataView";
 import { dbClient } from "../config/model";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from "typeorm";
+=======
+import { Action, DataList, DataType, PageView, QuestionType, View } from "../src/utils/types";
+import { dbClient } from "../config/model";
+import { Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from "typeorm";
+>>>>>>> master
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 import { Group } from "./Group";
 import { Session } from "./Session";
@@ -18,10 +24,32 @@ import { Invitation } from "./Invitation";
 import { Service } from "./Service";
 import { Admin } from "./Admin";
 import { Attendance } from "./Attendance";
+<<<<<<< HEAD
 export class Member {
     constructor(data) {
         Object.assign(this, data);
     }
+=======
+import { useUser } from "../src/utils/useUser";
+import EFileParser from "../src/components/EFileParse.vue";
+export class Member {
+    id = "members";
+    firstName;
+    lastName;
+    contacts;
+    address;
+    created_at;
+    updated_at;
+    lastTime;
+    avatar;
+    groups;
+    sentInvitations;
+    receivedInvitations;
+    sessions;
+    services;
+    admin;
+    attendances;
+>>>>>>> master
     async getSingleData(id) {
         const groupView = new PageView({
             id: "",
@@ -66,17 +94,104 @@ export class Member {
             sections: [dataType],
             id: "",
             layout: "Grid",
+<<<<<<< HEAD
             size: "",
             navType: "top"
         };
         return view;
     }
     async getCreateData(image) {
+=======
+            children: []
+        };
+        return view;
+    }
+    contactView = () => {
+        return new PageView({
+            id: '',
+            sections: [
+                new View({
+                    sections: [
+                        new Action({
+                            label: 'GETTY',
+                            event: 'Route'
+                        }),
+                        {
+                            content: EFileParser,
+                            props: {
+                                actions: [
+                                    new Action({
+                                        label: 'Add members',
+                                        event: (checks) => {
+                                            const query = {
+                                                name: 'member',
+                                                data: checks[0].model
+                                            };
+                                            dbClient.post(query);
+                                            console.log('QIERY ', query);
+                                        },
+                                    })
+                                ]
+                            }
+                        }
+                    ],
+                    id: "Import members",
+                    layout: "Grid",
+                    size: "",
+                    navType: 'center'
+                })
+            ],
+            children: [],
+            layout: 'Grid'
+        });
+    };
+    async getData(key) {
+        const view = this[key];
+        console.log('Almiht ', view);
+    }
+    data = {
+        contactView: new View({
+            sections: [
+                new Action({
+                    label: 'GETTY',
+                    event: 'Route'
+                }),
+                {
+                    content: EFileParser,
+                    props: useUser
+                }
+            ],
+            id: "Import members",
+            layout: "Grid",
+            size: "",
+            navType: 'center'
+        })
+    };
+    async create(image) {
+>>>>>>> master
         const data = new QuestionType({
             id: "",
             title: 'Add new member data',
             index: 0,
+<<<<<<< HEAD
             actions: {},
+=======
+            actions: {
+                fileParse: new Action({
+                    label: 'Import members',
+                    event: 'Route',
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['contactView']
+                        },
+                        query: {
+                            view: 'contactView'
+                        }
+                    }
+                })
+            },
+>>>>>>> master
             sections: [],
             content: [
                 {
@@ -111,6 +226,7 @@ export class Member {
                 }
             ]
         });
+<<<<<<< HEAD
         const form = getCreateData({
             content: data,
             index: 1
@@ -121,6 +237,15 @@ export class Member {
             sections: [form],
             size: "",
             navType: "top"
+=======
+        const view = {
+            id: "",
+            layout: "Grid",
+            sections: [
+                data
+            ],
+            children: []
+>>>>>>> master
         };
         return view;
     }
@@ -132,6 +257,7 @@ export class Member {
             columns: []
         };
         const data = await dbClient.get(query);
+<<<<<<< HEAD
         const dataType = new DataType({
             id: '',
             sections: [],
@@ -161,6 +287,71 @@ export class Member {
             layout: "Grid",
             size: "",
             navType: "top"
+=======
+        const dataList = new DataList({
+            items: [],
+            actions: [
+                new Action({
+                    label: 'Add member',
+                    icon: 'add',
+                    event: 'Route',
+                    viewGuard: true,
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    }
+                })
+            ]
+        });
+        if (data) {
+            const items = data.data?.map((dat) => {
+                return new DataType({
+                    id: '',
+                    sections: [],
+                    items: {
+                        header: [
+                            {
+                                avatar: dat.avatar
+                            },
+                            {
+                                label: `${dat.firstName} ${dat.lastName}`
+                            }
+                        ],
+                        center: [
+                            {
+                                label: `Joined: ${data.created_at}`
+                            },
+                            {
+                                label: `Last seen: ${data.lastTime}`
+                            }
+                        ],
+                        footer: [
+                            {
+                                action: new Action({
+                                    label: 'open',
+                                    event: 'Route',
+                                    args: {
+                                        name: 'id',
+                                        params: {
+                                            id: dat.id
+                                        }
+                                    },
+                                })
+                            }
+                        ]
+                    }
+                });
+            });
+            dataList.items = items;
+        }
+        const view = {
+            sections: [dataList],
+            id: "",
+            layout: "Grid",
+            children: []
+>>>>>>> master
         };
         return view;
     }
@@ -183,10 +374,13 @@ export class Member {
     }
 }
 __decorate([
+<<<<<<< HEAD
     PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], Member.prototype, "id", void 0);
 __decorate([
+=======
+>>>>>>> master
     Column(),
     __metadata("design:type", String)
 ], Member.prototype, "firstName", void 0);

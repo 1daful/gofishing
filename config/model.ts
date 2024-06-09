@@ -44,7 +44,11 @@ export class MemberList2 {
 export const dbClient = new SDKClient(new SupabaseRepo(config.api.Supabase))
 export const auth = new EAuth(config.api.Supabase)
 
+<<<<<<< HEAD
 //const members = dbClient.get(MemberList)
+=======
+/*const members = dbClient.get(MemberList)
+>>>>>>> master
 
 export class Service extends DataType {
     constructor(data: Record<string, any>) {
@@ -227,12 +231,24 @@ export const getMilestones = async () => {
     }`
     const milestones = await dbClient.get(query)
     return milestones
+<<<<<<< HEAD
 }
 
 export async function addModel(childView: IDataView, parentView?: IDataView, id?: string, ...query: any) {
     let view
     const navList: NavList = new NavList({
         id: childView.id,
+=======
+}*/
+
+export async function addModel <T extends IDataView> (clazz: new (...args: any[]) => T, parentView?: IDataView, id?: string, ...query: any) {
+    let view
+    const childView = new clazz();
+    childView.id = childView.constructor.name
+    const navList: NavList = new NavList({
+        id: childView.id,
+        sections: [],
+>>>>>>> master
         content: [
             {
                 path: '/' + childView.id,
@@ -267,13 +283,25 @@ export async function addModel(childView: IDataView, parentView?: IDataView, id?
     //const view2 = await childView.getListData()
 }
 
+<<<<<<< HEAD
+=======
+export function getModel <T extends IDataView>(clazz: new (...args: any[]) => T): IDataView{
+    const model = new clazz();
+    model.id = model.constructor.name
+    return model
+}
+
+>>>>>>> master
 export const models = [
     {
         name: 'group',
         val: new Group()
     }
 ]
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
 /*export function addEntity<T>(classType: T) {
     entities.push(classType)
 }*/

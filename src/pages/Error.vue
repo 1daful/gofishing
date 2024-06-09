@@ -24,9 +24,13 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+<<<<<<< HEAD
 import { Utility } from "@edifiles/services";
 
 const utility = new Utility()
+=======
+import { getUrl } from "@edifiles/services";
+>>>>>>> master
 
 export default defineComponent({
   name: 'Error',
@@ -54,7 +58,11 @@ export default defineComponent({
       this.accessToken = this.$route.params.myUrl as unknown as string
       //console.log("myUrl ", this.myUrl)
       //console.log("accesToken ", this.accessToken)
+<<<<<<< HEAD
       const token = utility.getUrl(this.accessToken)
+=======
+      const token = getUrl(this.accessToken)
+>>>>>>> master
       //console.log("tok ", token)
       let errorDescription = ""
       errorDescription = token.error_description

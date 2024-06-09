@@ -9,51 +9,11 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Action, DataType, PageView } from "../src/utils/types";
 import { dbClient, auth } from "../config/model";
-<<<<<<< HEAD
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
-export class Group {
-    constructor() {
-        this.singleDataItem = (data) => {
-            const singleDataItem = new DataType({
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        }
-                    ],
-                    center: data.members.map((member) => {
-                        return {
-                            label: `${member.firstName} ${member.lastName}`
-                        };
-                    })
-                }
-            });
-            return singleDataItem;
-        };
-        this.listDataItems = (data) => {
-            const dataType = new DataType({
-                items: {
-                    header: data.map((group) => {
-                        return { label: group.name };
-                    }),
-                    footer: [
-                        {}
-                    ]
-                }
-            });
-            return dataType;
-        };
-    }
-    async getCreateData(data) {
-=======
-import { Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
-import { Member } from "./Member";
-import { Admin } from "./Admin";
-import { getData } from "./DataView";
-export class Group {
-    id = 'group';
+export class Organisation {
+    id;
     name;
     created_at;
     coordinator;
@@ -61,7 +21,6 @@ export class Group {
     members;
     admins;
     async create(data) {
->>>>>>> master
         const form = {
             id: "",
             title: "",
@@ -77,13 +36,9 @@ export class Group {
                 submit: new Action({
                     async event(filledForm) {
                         const user = await auth.getUser();
-<<<<<<< HEAD
-                        filledForm.admin_id = user.id;
-=======
                         filledForm.admin_id = user.data.user?.id;
->>>>>>> master
                         filledForm.id = filledForm.admin_id + new Date();
-                        const groupQuery = {
+                        const orgganisationQuery = {
                             name: "group",
                             data: filledForm,
                             columns: []
@@ -96,27 +51,16 @@ export class Group {
                             name: "admin",
                             data: admin
                         };
-<<<<<<< HEAD
-                        dbClient.postWithTransaction(groupQuery, adminQuery);
-                    }
-                })
-            }
-=======
-                        dbClient.post([groupQuery, adminQuery]);
+                        dbClient.post([orgganisationQuery, adminQuery]);
                     }
                 })
             },
             sections: []
->>>>>>> master
         };
         const view = new PageView({
             sections: [form],
             id: "",
             layout: "Grid",
-<<<<<<< HEAD
-            size: "",
-=======
->>>>>>> master
             children: []
         });
         return view;
@@ -129,40 +73,7 @@ export class Group {
             columns: []
         };
         const data = await dbClient.get(query);
-<<<<<<< HEAD
         const dataType = this.listDataItems(data);
-=======
-        const dataType = getData(query, (group) => {
-            return new DataType({
-                id: "",
-                sections: [],
-                items: {
-                    header: [
-                        { label: group.name }
-                    ],
-                    footer: [
-                        {
-                            action: new Action({
-                                label: "Join a group",
-                                async event() {
-                                    const user = await auth.getUser();
-                                    const query = {
-                                        name: "group",
-                                        data: {
-                                            id: data.id,
-                                            user_id: user.id
-                                        },
-                                        filter: [],
-                                    };
-                                    dbClient.post(query);
-                                }
-                            })
-                        }
-                    ]
-                }
-            });
-        });
->>>>>>> master
         const view = {
             id: "group",
             layout: "Grid",
@@ -181,21 +92,13 @@ export class Group {
         const data = await dbClient.get(query);
         const singleDataItem = this.singleDataItem(data);
         const view = {
-            id: "group",
+            id: "",
             layout: "Grid",
             sections: [singleDataItem],
             children: []
         };
         return view;
     }
-<<<<<<< HEAD
-}
-__decorate([
-    PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], Group.prototype, "id", void 0);
-__decorate([
-=======
     singleDataItem = (data) => {
         const singleDataItem = new DataType({
             id: "",
@@ -216,33 +119,48 @@ __decorate([
         return singleDataItem;
     };
     listDataItems = (data) => {
+        const dataType = new DataType({
+            id: "",
+            sections: [],
+            items: {
+                header: data.map((group) => {
+                    return { label: group.name };
+                }),
+                footer: [
+                    {}
+                ]
+            }
+        });
         return dataType;
     };
 }
 __decorate([
->>>>>>> master
+    PrimaryGeneratedColumn(),
+    __metadata("design:type", Number)
+], Organisation.prototype, "id", void 0);
+__decorate([
     Column(),
     __metadata("design:type", String)
-], Group.prototype, "name", void 0);
+], Organisation.prototype, "name", void 0);
 __decorate([
     CreateDateColumn(),
     __metadata("design:type", Date)
-], Group.prototype, "created_at", void 0);
+], Organisation.prototype, "created_at", void 0);
 __decorate([
     Column(),
     __metadata("design:type", String)
-], Group.prototype, "coordinator", void 0);
+], Organisation.prototype, "coordinator", void 0);
 __decorate([
     Column(),
     __metadata("design:type", String)
-], Group.prototype, "creator", void 0);
+], Organisation.prototype, "creator", void 0);
 __decorate([
     ManyToMany(() => Member, (member) => member.groups),
     JoinTable(),
     __metadata("design:type", Object)
-], Group.prototype, "members", void 0);
+], Organisation.prototype, "members", void 0);
 __decorate([
     ManyToMany(() => Admin, (admin) => admin.groups),
     JoinTable(),
     __metadata("design:type", Object)
-], Group.prototype, "admins", void 0);
+], Organisation.prototype, "admins", void 0);

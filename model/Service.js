@@ -8,12 +8,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import { auth, dbClient } from "../config/model";
+<<<<<<< HEAD
 import { Action, DataList, DataType, QuestionType, View } from "../src/utils/types";
+=======
+import { Action, DataList, DataType, PageView, QuestionType } from "../src/utils/types";
+>>>>>>> master
 import { Share } from "../service/shareSrv";
 import EUpload from "../src/components/EUpload.vue";
 import { Member } from "./Member";
 import { Event } from "./Event";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn } from 'typeorm';
+<<<<<<< HEAD
 let Service = class Service {
     constructor() {
         this.id = 'services';
@@ -28,6 +33,30 @@ let Service = class Service {
     async getCreateData() {
         var _a;
         const userId = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.id;
+=======
+import { getData } from "./DataView";
+import { date } from "quasar";
+let Service = class Service {
+    id = 'services';
+    name;
+    anchors;
+    author;
+    created_at;
+    content;
+    timeElapse;
+    date;
+    events;
+    view = {
+        sections: [EUpload],
+        id: "videoView",
+        layout: "Grid",
+        size: "",
+        navType: "top"
+    };
+    async create() {
+        const userId = (await auth.getUser()).data.user?.id;
+        let id;
+>>>>>>> master
         const form = new QuestionType({
             title: "Create new service",
             id: '',
@@ -35,26 +64,55 @@ let Service = class Service {
             sections: [],
             actions: {
                 submit: new Action({
+<<<<<<< HEAD
                     label: "Submit",
                     event(filledForm) {
                         const service = {
                             name: filledForm.name,
                             created_at: new Date().toUTCString(),
                             author_id: userId
+=======
+                    label: "Create",
+                    async event(filledForm) {
+                        const service = {
+                            name: filledForm.name,
+                            created_at: new Date().toUTCString(),
+                            author_id: userId,
+                            day: filledForm.day,
+                            startTime: filledForm.startTime,
+                            endTime: filledForm.endTime
+>>>>>>> master
                         };
                         const query = {
                             name: 'service',
                             data: service,
                         };
+<<<<<<< HEAD
                         dbClient.post(query);
                     }
                 })
+=======
+                        const { data, error } = await dbClient.post(query);
+                        id = data.data[0].id;
+                        return { data, error };
+                    },
+                    onResult: {
+                        redirect: {
+                            name: 'id',
+                            param: {
+                                id
+                            }
+                        }
+                    }
+                }),
+>>>>>>> master
             },
             content: [{
                     question: 'name',
                     name: 'name',
                     inputType: 'text'
                 },
+<<<<<<< HEAD
             ]
         });
         const view = new View({
@@ -63,11 +121,39 @@ let Service = class Service {
             sections: [form],
             size: '',
             navType: 'center'
+=======
+                {
+                    question: 'day',
+                    name: 'day',
+                    inputType: 'text'
+                },
+                {
+                    question: 'start',
+                    name: 'start_time',
+                    inputType: 'time'
+                },
+                {
+                    question: 'end',
+                    name: 'end_time',
+                    inputType: 'time'
+                }
+            ]
+        });
+        const view = new PageView({
+            id: "createService",
+            layout: "Grid",
+            sections: [form],
+            children: []
+>>>>>>> master
         });
         return view;
     }
     async getListData(query, dataArg) {
+<<<<<<< HEAD
         var _a;
+=======
+        const useQuery = query || 'service';
+>>>>>>> master
         let dataList = new DataList({
             items: [],
             actions: [
@@ -75,6 +161,10 @@ let Service = class Service {
                     label: 'Create',
                     icon: 'add',
                     event: 'Route',
+<<<<<<< HEAD
+=======
+                    viewGuard: true,
+>>>>>>> master
                     args: {
                         name: 'categories',
                         params: {
@@ -97,6 +187,7 @@ let Service = class Service {
             }
         }
         if (data) {
+<<<<<<< HEAD
             const items = (_a = data.data) === null || _a === void 0 ? void 0 : _a.map((dat) => {
                 var _a;
                 return new DataType({
@@ -137,6 +228,45 @@ let Service = class Service {
             sections: [dataList],
             size: '',
             navType: 'center'
+=======
+        }
+        const items = await getData(useQuery, (dat) => {
+            return new DataType({
+                id: '',
+                sections: [],
+                items: {
+                    header: [
+                        {
+                            label: dat.name
+                        },
+                        {
+                            label: date.formatDate(dat.created_at, 'YYYY-MM-DD, HH:mm A')
+                        },
+                    ],
+                    footer: [
+                        {
+                            action: new Action({
+                                label: 'open',
+                                event: 'Route',
+                                args: {
+                                    name: 'id',
+                                    params: {
+                                        id: dat.id
+                                    }
+                                },
+                            })
+                        }
+                    ]
+                }
+            });
+        });
+        dataList.items = items;
+        const view = new PageView({
+            id: "services",
+            layout: "Grid",
+            sections: [dataList],
+            children: []
+>>>>>>> master
         });
         return view;
     }
@@ -249,9 +379,17 @@ let Service = class Service {
                     },
                     {
                         action: new Action({
+<<<<<<< HEAD
                             label: 'edit',
                             icon: 'edit',
                             event() {
+=======
+                            label: 'Edit',
+                            icon: 'edit',
+                            event() {
+                                const { data, error } = { data: true, error: false };
+                                return { data, error };
+>>>>>>> master
                             },
                         })
                     },
@@ -261,15 +399,23 @@ let Service = class Service {
                 ]
             }
         });
+<<<<<<< HEAD
         const view = new View({
+=======
+        const view = new PageView({
+>>>>>>> master
             id: data.id,
             layout: "Grid",
             sections: [
                 dataType,
                 eventView
             ],
+<<<<<<< HEAD
             size: '',
             navType: 'center'
+=======
+            children: []
+>>>>>>> master
         });
         return view;
     }
@@ -293,7 +439,11 @@ __decorate([
 __decorate([
     CreateDateColumn({ type: 'timestamp' }),
     __metadata("design:type", Date)
+<<<<<<< HEAD
 ], Service.prototype, "createdAt", void 0);
+=======
+], Service.prototype, "created_at", void 0);
+>>>>>>> master
 __decorate([
     Column(),
     __metadata("design:type", String)

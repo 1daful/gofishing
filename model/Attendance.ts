@@ -12,9 +12,18 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Relation } from "typ
 
 @Entity()
 export class Attendance implements IDataView {
+<<<<<<< HEAD
 
     @PrimaryGeneratedColumn('uuid')
     id!: string;
+=======
+    //@PrimaryGeneratedColumn('uuid')
+    id: string = 'attendance';
+    members = async () => {
+        const member = await dbClient.get(gql`{member}`)
+        return member
+    }
+>>>>>>> master
 
     @ManyToOne(() => Event, event => event.attendances)
     event!: Relation<Event>;
@@ -24,6 +33,10 @@ export class Attendance implements IDataView {
 
     @Column({ type: 'int' })
     timeliness!: number;
+<<<<<<< HEAD
+=======
+    client: any;
+>>>>>>> master
 
     //client = new RestClient(config.api.)
     async captureFaces() {
@@ -49,7 +62,15 @@ export class Attendance implements IDataView {
         const formData = new FormData();
         formData.append('image', blob);
         const { newFace, existingFace, error } = await this.client.post('recognise_face', formData)
+<<<<<<< HEAD
 
+=======
+        const data = {
+            newFace,
+            existingFace
+        }
+        return { data, error}
+>>>>>>> master
         /*await fetch('/api/recognise_face', {
             method: 'POST',
             body: formData
@@ -197,6 +218,11 @@ export class Attendance implements IDataView {
                             label: 'Show Church Average'
                         }
                     ],
+<<<<<<< HEAD
+=======
+                    id: undefined,
+                    model: []
+>>>>>>> master
                 }
             ],
             id: "",
@@ -263,7 +289,11 @@ export class Attendance implements IDataView {
             navType: "top"
         }
 
+<<<<<<< HEAD
         const view: View = new View({
+=======
+        const view: PageView = new PageView({
+>>>>>>> master
             sections: [
                 graphView,
                 lateView,
@@ -271,10 +301,16 @@ export class Attendance implements IDataView {
                 getDonut("late"),
                 getDonut("early")
             ],
+<<<<<<< HEAD
             id: "",
             size: '',
             navType: 'center',
             layout: 'Grid'
+=======
+            layout: 'Grid',
+            id: "",
+            children: []
+>>>>>>> master
         })
         return view
     }
@@ -326,6 +362,7 @@ export class Attendance implements IDataView {
         return { series, label }
     }
 
+<<<<<<< HEAD
     async getCreateData(eventId: any) {
         const members = await dbClient.get(gql`{members}`)
         
@@ -373,14 +410,51 @@ export class Attendance implements IDataView {
             size: "",
             navType: "top"
         })
+=======
+    async filter() {
+        const member =  await this.members()
+        return new Filters ({
+        indexName: "Members",
+        rangeList: [],
+        checks: [
+            {
+                attribute: 'Members',
+                values: member.data.map((member: { firstName: any; lastName: any; }) => {
+                    return {
+                        label: `${member.firstName} ${member.lastName}`
+                    };
+                }),
+                id: undefined,
+                model: []
+            }
+        ],
+        id: "",
+        sections: [],
+        layout: "Grid",
+        size: ""
+    })}
+
+    async create() {
+        
+>>>>>>> master
         const actions = [
                 new Action({
                     event: this.captureFaces,
                     label: 'capture faces',
                 }),
                 new Action({
+<<<<<<< HEAD
                     event: "Modal",
                     args: memberView,
+=======
+                    event: "Route",
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: 'memberView'
+                        }
+                    },
+>>>>>>> master
                     label: "Mark members"
                 })
             ]
@@ -394,4 +468,46 @@ export class Attendance implements IDataView {
         return view
 
     }
+<<<<<<< HEAD
+=======
+    
+        async memberView(eventId: any) {
+            const members = await this.members()
+        return new PageView({
+            sections: [
+                await this.filter(),
+                 new Action({
+                    label: 'Check In',
+                    async event() {
+                        const query: QueryType = {
+                            name: "attendance",
+                            data: members.data.map((member: { id: any; }) => {
+                                return {
+                                    event_id: eventId,
+                                    member_id: member.id, 
+                                    time_taken: new Date()
+                                }
+                            }),
+                            filters: [],
+                            columns: []
+                        }
+                        const { data, error} = await dbClient.post(query)
+                        return { data, error }
+                    },
+                    onResult: {
+                        redirect: {
+                            path: '/events',
+                            params: {
+                                id: eventId
+                            }
+                        }
+                    }
+                 })
+            ],
+            id: "",
+            layout: "Grid",
+            children:[]
+        })
+        }
+>>>>>>> master
 }

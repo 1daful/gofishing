@@ -8,6 +8,12 @@ import { config } from "../public/config";
 import { Service } from "../model/Service";
 import { ReachOut } from '../model/ReachOut';
 import { Event } from '../model/Event';
+<<<<<<< HEAD
+=======
+import { Member } from '../model/Member';
+import { Attendance } from '../model/Attendance';
+//import { auth } from './model';
+>>>>>>> master
 
 /*const postQuery = `
   query GetPost($postId: ID!) {
@@ -59,7 +65,16 @@ const authAction = new ActionGroup({
         }),
         new Action({
             label: 'Sign Out',
+<<<<<<< HEAD
             event: auth.logout,
+=======
+            event: async () => {
+                return await auth.logout()
+            },
+            onResult: {
+                redirect: '/'
+            },
+>>>>>>> master
             viewGuard: true
         })
     ]
@@ -74,6 +89,11 @@ const home: PageView = new PageView({
 const serviceModel = new Service()
 const eventModel = new Event()
 const reachoutModel = new ReachOut()
+<<<<<<< HEAD
+=======
+const memberModel = new Member()
+const attendanceModel = new Attendance()
+>>>>>>> master
 
 async function userIcon() {
     const names = (await auth.getUser()).data.user?.user_metadata
@@ -91,7 +111,11 @@ const mainLayout: PageView = new PageView({
         menus, search, authAction, userAvatar
     ],
     children: [
+<<<<<<< HEAD
         home, serviceModel, eventModel, reachoutModel
+=======
+        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel
+>>>>>>> master
     ]
 })
 export const GlobalView = {
@@ -108,7 +132,12 @@ export const GlobalView = {
 export  const view = new PageView({
     id: '',
     layout: 'Grid',
+<<<<<<< HEAD
     sections: []
+=======
+    sections: [],
+    children: []
+>>>>>>> master
 })
 
 /*const resolver = (type: string) => {

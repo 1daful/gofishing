@@ -8,12 +8,20 @@ import { onMounted, provide, ref } from "vue";
 import { useRoute } from "vue-router";
 import { GraphqlClient } from "@edifiles/services";
 import { config } from "../public/config";
+<<<<<<< HEAD
+=======
+//import { init } from "../config/datasource";
+>>>>>>> master
 
 const newClient = new GraphqlClient(config)
 
 const $q = useQuasar();
 const r = useRoute();
 const mainHeader = ref(null);
+<<<<<<< HEAD
+=======
+
+>>>>>>> master
 // set status
 $q.dark.set(true); // or false or "auto"
 // get status
@@ -26,6 +34,10 @@ console.log($q.dark.mode); // "auto", true, false
 $q.dark.toggle();
 provide("mainHeader", "mainHeader");
 onMounted(() => {
+<<<<<<< HEAD
+=======
+  //init()
+>>>>>>> master
   /*GlobalView.mainLayout.children.forEach(child => {
     useRouter().addRoute('MainLayout', {
       path: `/${child.id}`,

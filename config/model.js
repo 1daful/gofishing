@@ -7,6 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+<<<<<<< HEAD
 import { DataType, NavList, View, isType } from '../src/utils/types';
 import { EAuth, Repository, SDKClient } from "@edifiles/services";
 import { header } from '../src/utils/DataView';
@@ -14,13 +15,23 @@ import { SupabaseRepo } from '@edifiles/services/dist/module/model/SupabaseRepo'
 import { gql } from 'graphql-tag';
 import { config } from "../public/config";
 import { Slides } from '../src/utils/DataTypes';
+=======
+import { NavList, isType } from '../src/utils/types';
+import { EAuth, Repository, SDKClient } from "@edifiles/services";
+import { header } from '../src/utils/DataView';
+import { SupabaseRepo } from '@edifiles/services/dist/module/model/SupabaseRepo';
+import { config } from "../public/config";
+>>>>>>> master
 import { GlobalView } from './edifiles.config';
 import { Group } from '../model/Group';
 export const domainNames = [];
 const db = new Repository(config.api.Supabase);
 export class MemberList2 {
     constructor(data) {
+<<<<<<< HEAD
         this.card = true;
+=======
+>>>>>>> master
         Object.assign(this, data);
         this.items.header.forEach((content) => {
             let key = content[content.prop];
@@ -31,6 +42,19 @@ export class MemberList2 {
             console.log('PROP ', content);
         });
     }
+<<<<<<< HEAD
+=======
+    overlay;
+    id;
+    card = true;
+    firstName;
+    lastName;
+    contacts;
+    address;
+    createdAt;
+    lastTime;
+    thumbnail;
+>>>>>>> master
 }
 __decorate([
     header('left'),
@@ -50,6 +74,7 @@ __decorate([
 ], MemberList2.prototype, "thumbnail", void 0);
 export const dbClient = new SDKClient(new SupabaseRepo(config.api.Supabase));
 export const auth = new EAuth(config.api.Supabase);
+<<<<<<< HEAD
 export class Service extends DataType {
     constructor(data) {
         super(data);
@@ -173,6 +198,15 @@ export async function addModel(childView, parentView, id, ...query) {
     let view;
     const navList = new NavList({
         id: childView.id,
+=======
+export async function addModel(clazz, parentView, id, ...query) {
+    let view;
+    const childView = new clazz();
+    childView.id = childView.constructor.name;
+    const navList = new NavList({
+        id: childView.id,
+        sections: [],
+>>>>>>> master
         content: [
             {
                 path: '/' + childView.id,
@@ -205,6 +239,14 @@ export async function addModel(childView, parentView, id, ...query) {
     }
     console.log("GlobalView: ", GlobalView);
 }
+<<<<<<< HEAD
+=======
+export function getModel(clazz) {
+    const model = new clazz();
+    model.id = model.constructor.name;
+    return model;
+}
+>>>>>>> master
 export const models = [
     {
         name: 'group',

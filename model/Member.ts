@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { DataType, PageView, QuestionType, View } from "../src/utils/types"
 import { IDataView } from "./IDataView"
 import { getCreateData, getListData } from "./DataView"
@@ -5,16 +6,35 @@ import { dbClient } from "../config/model"
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, ManyToMany, JoinTable, OneToOne, Relation } from "typeorm"
 import { QueryFilter, QueryType } from "@edifiles/services"
 import { filter, foreignColumns } from "@edifiles/services/dist/module/utility/Query"
+=======
+import { Action, DataList, DataType, PageView, QuestionType, View } from "../src/utils/types"
+import { IDataView } from "./IDataView"
+import { dbClient } from "../config/model"
+import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, ManyToMany, JoinTable, OneToOne, Relation } from "typeorm"
+import { QueryFilter, QueryType } from "@edifiles/services"
+import { filter, foreignColumns, query } from "@edifiles/services/dist/module/utility/Query"
+>>>>>>> master
 import { Group } from "./Group"
 import { Session } from "./Session"
 import { Invitation } from "./Invitation"
 import { Service } from "./Service"
 import { Admin } from "./Admin"
 import { Attendance } from "./Attendance"
+<<<<<<< HEAD
 
 export class Member implements IDataView {
     @PrimaryGeneratedColumn()
     id!: number;
+=======
+import { useUser } from "../src/utils/useUser"
+import EFileParser from "../src/components/EFileParse.vue";
+import EUpload from "../src/components/EUpload.vue"
+import { getData } from "./DataView"
+
+export class Member implements IDataView {
+    //@PrimaryGeneratedColumn()
+    id = "members";
+>>>>>>> master
  
     @Column()
     firstName!: string;
@@ -67,9 +87,15 @@ export class Member implements IDataView {
     @OneToMany(() => Attendance, (attendance) => attendance.member)
     attendances!: Relation<Attendance>
     
+<<<<<<< HEAD
     constructor(data: Record<string, any>) {
         Object.assign(this, data)
     }
+=======
+    /*constructor(data: Record<string, any>) {
+        Object.assign(this, data)
+    }*/
+>>>>>>> master
 
     async getSingleData(id: string) {
         //const query = gql `member (id: ${id})`
@@ -114,12 +140,20 @@ export class Member implements IDataView {
             }
         })
 
+<<<<<<< HEAD
         const view: View = {
             sections: [dataType],
             id: "",
             layout: "Grid",
             size: "",
             navType: "top"
+=======
+        const view: PageView = {
+            sections: [dataType],
+            id: "",
+            layout: "Grid",
+            children: []
+>>>>>>> master
         }
         return view
         //return await getSingleData(query)
@@ -127,13 +161,98 @@ export class Member implements IDataView {
 
     //overlay!: string
    // card = true
+<<<<<<< HEAD
 
     async getCreateData(image: string) {
+=======
+   contactView = ()=>{
+    return new PageView({
+        id: '',
+        sections: [
+        new View({
+            sections: [
+                new Action({
+                    label: 'GETTY',
+                    event: 'Route'
+                }),
+                {
+                    content: EFileParser,
+                    props: {
+                        actions: [
+                            new Action({
+                                label: 'Add members',
+                                event: (checks: []) => {
+                                    const query: QueryType = {
+                                        name: 'member',
+                                        data: checks[0].model
+                                    }
+
+                                    dbClient.post(query)
+                                    console.log('QIERY ', query)
+                                },
+                            })
+                        ]
+                    }
+                }
+            ],
+            id: "Import members",
+            layout: "Grid",
+            size: "",
+            navType: 'center'
+        })
+        ],
+        children: [],
+        layout: 'Grid'
+    })
+   }
+    async getData(key: string) {
+        const view = this[key]
+        console.log('Almiht ', view)
+    }
+    data = {
+        contactView: new View({
+            sections: [
+                new Action({
+                    label: 'GETTY',
+                    event: 'Route'
+                }),
+                {
+                    content: EFileParser,
+                    props: useUser
+                }
+            ],
+            id: "Import members",
+            layout: "Grid",
+            size: "",
+            navType: 'center'
+        })
+   }
+    async create(image: string) {
+       
+>>>>>>> master
         const data = new QuestionType({
             id: "",
             title: 'Add new member data',
             index: 0,
+<<<<<<< HEAD
             actions: {},
+=======
+            actions: {
+                fileParse: new Action({
+                    label: 'Import members',
+                    event: 'Route',
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['contactView']
+                        },
+                        query: {
+                            view:'contactView'
+                        }
+                    }
+                })
+            },
+>>>>>>> master
             sections: [],
             content: [
                 {
@@ -169,6 +288,7 @@ export class Member implements IDataView {
             ]
         })
 
+<<<<<<< HEAD
         const form = getCreateData({
             content: data,
             index: 1
@@ -180,6 +300,15 @@ export class Member implements IDataView {
             sections: [form],
             size: "",
             navType: "top"
+=======
+        const view: PageView = {
+            id: "",
+            layout: "Grid",
+            sections: [
+                data
+            ],
+            children: []
+>>>>>>> master
         }
         return view
     }
@@ -192,6 +321,7 @@ export class Member implements IDataView {
             filters: filters,
             columns: []
         }
+<<<<<<< HEAD
         const data: Member = await dbClient.get(query)
         const dataType: DataType = new DataType({
             id: '',
@@ -223,6 +353,72 @@ export class Member implements IDataView {
             layout: "Grid",
             size: "",
             navType: "top"
+=======
+        const data = await dbClient.get(query)
+        const dataList = new DataList({
+            items: [],
+            actions: [
+                new Action({
+                    label: 'Add member',
+                    icon: 'add',
+                    event: 'Route',
+                    viewGuard: true,
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    }
+                })
+            ]
+        })
+        if (data) {
+            const items = data.data?.map((dat: Member)=>{
+                return new DataType({
+                    id: '',
+                    sections: [],
+                    items: {
+                        header: [
+                            {
+                                avatar: dat.avatar
+                            },
+                            {
+                                label: `${dat.firstName} ${dat.lastName}`
+                            }
+                        ],
+                        center: [
+                            {
+                                label: `Joined: ${data.created_at}`
+                            },
+                            {
+                                label: `Last seen: ${data.lastTime}`
+                            }
+                        ],
+                        footer: [
+                            {
+                                action: new Action({
+                                    label: 'open',
+                                    event: 'Route',
+                                    args: {
+                                        name: 'id',
+                                        params: {
+                                            id: dat.id
+                                        }
+                                    },
+                                })
+                            }
+                        ]
+                    }
+                })
+            })
+            dataList.items = items
+        }
+        const view: PageView = {
+            sections: [dataList],
+            id: "",
+            layout: "Grid",
+            children: []
+>>>>>>> master
         }
         return view
     }

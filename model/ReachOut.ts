@@ -1,5 +1,9 @@
 import gql from "graphql-tag";
+<<<<<<< HEAD
 import { Action, DataType, View, QuestionType } from "../src/utils/types";
+=======
+import { Action, DataType, View, QuestionType, PageView } from "../src/utils/types";
+>>>>>>> master
 import { IDataView } from "./IDataView";
 import { addModel, dbClient } from "../config/model";
 import { RestClient, Callback, EmailType } from "@edifiles/services";
@@ -32,7 +36,11 @@ export class ReachOut implements IDataView {
     
     constructor() {
     }
+<<<<<<< HEAD
     async getCreateData() {
+=======
+    async create() {
+>>>>>>> master
         const membersQuery = gql `{
             member {
                 id
@@ -211,11 +219,18 @@ export class ReachOut implements IDataView {
             ]
         }
 
+<<<<<<< HEAD
         const view: View = new View({
             sections: [form],
             id: "",
             size: '',
             navType: 'center',
+=======
+        const view: PageView = new PageView({
+            sections: [form],
+            id: "",
+            children: [],
+>>>>>>> master
             layout: "Grid"
         })
         return view
@@ -285,15 +300,23 @@ export class ReachOut implements IDataView {
                 ]
             }
         })}
+<<<<<<< HEAD
         const view: View = new View({
+=======
+        const view: PageView = new PageView({
+>>>>>>> master
             sections: [
                 createReachOut,
                 dataType
             ],
             id: "",
             layout: "Grid",
+<<<<<<< HEAD
             size: '',
             navType: 'center'
+=======
+            children: []
+>>>>>>> master
         })
         return view
     }

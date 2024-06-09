@@ -1,7 +1,13 @@
 <template>
+<<<<<<< HEAD
   <div :id="form.id" v-if=show>
     <p>{{ form.title }}</p>
   <div v-for="dialogue in form.content">
+=======
+  <div :id="form.id" v-if=show class="q-ma-md">
+    <p>{{ form.title }}</p>
+  <div v-for="dialogue in form.content" class="q-gutter-md margin q-ma-md">
+>>>>>>> master
     <component
       :is="dialogue.component"
       v-if="dialogue.component"
@@ -80,6 +86,10 @@
       ></QInput>
     </template>
   </div>
+<<<<<<< HEAD
+=======
+  <EView :view="view"></EView>
+>>>>>>> master
   <template v-for="(action, key) in form.actions" :key="key">
     <EAction :action=action :args="filledForm"></EAction>
   </template>
@@ -87,17 +97,32 @@
 </template>
 
   <script lang="ts">
+<<<<<<< HEAD
   import { InputType, QuestionType } from "../utils/types";
   import { defineComponent } from "vue";
   import EAction from "./EAction.vue";
+=======
+  import { InputType, QuestionType, View } from "../utils/types";
+  import { defineComponent } from "vue";
+  import EAction from "./EAction.vue";
+  import EView from "./EView.vue";
+>>>>>>> master
 import { viewGuard } from "../utils/AuthGuard";
   
   let filledForm: Record<string, any> = {}
   let show: boolean = true
+<<<<<<< HEAD
+=======
+  let view: View
+>>>>>>> master
   
   export default defineComponent({
     data() {
       return {
+<<<<<<< HEAD
+=======
+        view,
+>>>>>>> master
         filledForm,
         show
       };
@@ -143,6 +168,16 @@ import { viewGuard } from "../utils/AuthGuard";
       }
     },
     async onBeforeMount() {
+<<<<<<< HEAD
+=======
+      this.view =  new View({
+        id: '',
+        sections: this.form.sections,
+        navType: "center",
+        layout: "Grid",
+        size: ""
+      })
+>>>>>>> master
       if (this.form.viewGuard) {
         this.show = await viewGuard(this.form.viewGuard.userColval, this.form.viewGuard.colval, this.form.viewGuard.type)
       }

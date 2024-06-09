@@ -11,6 +11,11 @@ import { Event } from "./Event";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, Relation } from 'typeorm';
 import { QueryFilter, QueryModifier, QueryType } from "@edifiles/services";
 import { filter, foreignColumns } from "@edifiles/services/dist/module/utility/Query";
+<<<<<<< HEAD
+=======
+import { getData } from "./DataView";
+import { date } from "quasar";
+>>>>>>> master
 
 @Entity()
 export class Service implements IDataView {
@@ -28,7 +33,11 @@ export class Service implements IDataView {
     author!: Relation<Member>;
 
     @CreateDateColumn({ type: 'timestamp' })
+<<<<<<< HEAD
     createdAt!: Date;
+=======
+    created_at!: Date;
+>>>>>>> master
 
     @Column()
     content!: string;
@@ -49,7 +58,11 @@ export class Service implements IDataView {
         size: "",
         navType: "top"
     }
+<<<<<<< HEAD
     async getCreateData() {
+=======
+    async create() {
+>>>>>>> master
         /*const membersQuery = gql `{
             member {
                 id
@@ -98,6 +111,10 @@ export class Service implements IDataView {
             }
         ]*/
         const userId = (await auth.getUser()).data.user?.id
+<<<<<<< HEAD
+=======
+        let id
+>>>>>>> master
         const form: QuestionType = new QuestionType({
             title: "Create new service",
             id: '',
@@ -105,12 +122,25 @@ export class Service implements IDataView {
             sections: [],
             actions: {
                 submit: new Action({
+<<<<<<< HEAD
                     label: "Submit",
                     event(filledForm: any) {
                         const service = {
                             name: filledForm.name,
                             created_at: new Date().toUTCString(),
                             author_id: userId
+=======
+                    label: "Create",
+                    async event(filledForm: any) {
+                        const service = {
+                            name: filledForm.name,
+                            created_at: new Date().toUTCString(),
+                            //created_at: date,
+                            author_id: userId,
+                            day: filledForm.day,
+                            startTime: filledForm.startTime,
+                            endTime: filledForm.endTime
+>>>>>>> master
                         }
 
                         const query: QueryType = {
@@ -118,15 +148,37 @@ export class Service implements IDataView {
                             data: service,
                         }
                         //dbClient.post(gql`{service (data: ${service})}`)
+<<<<<<< HEAD
                         dbClient.post(query)
                     }
                 })
+=======
+                        const { data, error } = await dbClient.post(query)
+                        id = data.data[0].id
+                        return {data, error}
+                    },
+                    onResult: {
+                        redirect: {
+                            name: 'id',
+                            param: {
+                                id
+                            }
+                        }
+                    }
+                }),
+                /*addEvent: {
+                    label: 'Add Event',
+                    event: 'Modal',
+                    args: new Event().create()
+                }*/
+>>>>>>> master
             },
             content: [{
                 question: 'name',
                 name: 'name',
                 inputType: 'text'
             },
+<<<<<<< HEAD
             /*{
                 question: 'anchors',
                 name: 'anchors',
@@ -140,19 +192,56 @@ export class Service implements IDataView {
             sections: [form],
             size: '',
             navType: 'center'
+=======
+            {
+                question: 'day',
+                name: 'day',
+                inputType: 'text'
+                //options: options
+            },
+            {
+                question: 'start',
+                name: 'start_time',
+                inputType: 'time'
+            },
+            {
+                question: 'end',
+                name: 'end_time',
+                inputType: 'time'
+            }
+        ]
+        })
+            
+        const view: PageView = new PageView({
+            id: "createService",
+            layout: "Grid",
+            sections: [form],
+            children: []
+>>>>>>> master
         })
         return view
     }
 
     async getListData(query?: QueryType | QueryFilter | QueryModifier, dataArg?: any) {
         //const query = gql `service (id: ${id})`
+<<<<<<< HEAD
         let dataList: DataList = new DataList({
             items: [],
+=======
+        const useQuery = query || 'service'
+        //const eventQuery = 'event'
+        let dataList: DataList = new DataList({
+            items: [],  
+>>>>>>> master
             actions: [
                 new Action({
                     label: 'Create',
                     icon: 'add',
                     event: 'Route',
+<<<<<<< HEAD
+=======
+                    viewGuard: true,
+>>>>>>> master
                     args: {
                         name: 'categories',
                         params: {
@@ -175,7 +264,11 @@ export class Service implements IDataView {
             }
         }
         if (data) {
+<<<<<<< HEAD
             const items = data.data?.map((dat)=>{
+=======
+            /*const items = data.data?.map((dat)=>{
+>>>>>>> master
                 return new DataType({
                     id: '',
                     sections: [],
@@ -199,12 +292,16 @@ export class Service implements IDataView {
                                             id: dat.id
                                         }
                                     },
+<<<<<<< HEAD
                                     viewGuard: true
+=======
+>>>>>>> master
                                 })
                             }
                         ]
                     }
                 })
+<<<<<<< HEAD
             })
             dataList.items = items
         }
@@ -214,6 +311,47 @@ export class Service implements IDataView {
             sections: [dataList],
             size: '',
             navType: 'center'
+=======
+            })*/
+        }
+        const items: DataType[] = await getData(useQuery, (dat: Service)=> {
+            return new DataType({
+                id: '',
+                sections: [],
+                items: {
+                    header: [
+                        {
+                            label: dat.name
+                        },
+                        {
+                            //label: dat.created_at?.toLocaleString()
+                            label: date.formatDate(dat.created_at, 'YYYY-MM-DD, HH:mm A')
+                        },
+                    ],
+                    footer: [
+                        {
+                            action: new Action({
+                                label: 'open',
+                                event: 'Route',
+                                args: {
+                                    name: 'id',
+                                    params: {
+                                        id: dat.id
+                                    }
+                                },
+                            })
+                        }
+                    ]
+                }
+            }) 
+        })
+        dataList.items = items
+        const view: PageView = new PageView({
+            id: "services",
+            layout: "Grid",
+            sections: [dataList],
+            children: []
+>>>>>>> master
         })
         return view
     }
@@ -330,9 +468,17 @@ export class Service implements IDataView {
                     {
                         action: 
                         new Action({
+<<<<<<< HEAD
                             label: 'edit',
                             icon: 'edit',
                             event() {
+=======
+                            label: 'Edit',
+                            icon: 'edit',
+                            event() {
+                                const { data, error } = { data: true, error: false}
+                                return { data, error }
+>>>>>>> master
                             },
                         })
                     },
@@ -342,15 +488,23 @@ export class Service implements IDataView {
                 ]
             }
         })
+<<<<<<< HEAD
         const view: View = new View({
+=======
+        const view: PageView = new PageView({
+>>>>>>> master
             id: data.id,
             layout: "Grid",
             sections: [
                 dataType,
                 eventView
             ],
+<<<<<<< HEAD
             size: '',
             navType: 'center'
+=======
+            children: []
+>>>>>>> master
         })
         return view
     }

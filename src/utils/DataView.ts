@@ -1,5 +1,12 @@
 import { HorizontalPosition, Slide, Slides } from "./DataTypes";
 import { Action, DataItem } from "./types";
+<<<<<<< HEAD
+=======
+
+export const getEvent: any = async (callback: Function /*(...arg: [])=> { data: any, error: any }*/, ...args: any[]) => {
+    return await callback(...args)
+}
+>>>>>>> master
 /*export const decoFunc = (position?: HorizontalPosition, prop?: string, keyLabel?: string, dataContent?: {
     icon?: string;
     img?: string;

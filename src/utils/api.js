@@ -1,4 +1,5 @@
 export class Api {
+<<<<<<< HEAD
     constructor() {
         this.resource = {
             request: {
@@ -19,6 +20,29 @@ class gooBoks {
     }
 }
 class Resource {
+=======
+    resource = {
+        request: {
+            url: ""
+        },
+        response(data) {
+            return {};
+        }
+    };
+}
+class gooBoks {
+    baseUrl = '';
+    data;
+    volumeRes = new Resource(this, "", {}, (data) => ({
+        title: data.title
+    }));
+}
+class Resource {
+    api;
+    type;
+    request;
+    response;
+>>>>>>> master
     constructor(api, type, request, response) {
         this.api = api;
         this.type = type;
@@ -84,9 +108,15 @@ class Resource {
 }
 class Response {
     constructor(props = {}) {
+<<<<<<< HEAD
         this.data = {};
         Object.assign(this, props);
     }
+=======
+        Object.assign(this, props);
+    }
+    data = {};
+>>>>>>> master
 }
 class Axios {
     get() {
@@ -98,4 +128,11 @@ export class Request {
         this.baseUrl = url;
         this.params = params;
     }
+<<<<<<< HEAD
+=======
+    name;
+    baseUrl;
+    params;
+    data;
+>>>>>>> master
 }
