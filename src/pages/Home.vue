@@ -16,7 +16,8 @@
 import { onBeforeMount, shallowRef } from "vue";
 import EView from "../components/EView.vue";
 import { DataType, Filters, View, NavList } from "../utils/types";
-//import { mount } from "mount-vue-component";
+import { GlobalView } from "../../config/edifiles.config";
+/*import { mount } from "mount-vue-component";
 
 const filterData: Filters = new Filters({
   indexName: "",
@@ -38,7 +39,7 @@ const filterData: Filters = new Filters({
   ],
 });
 
-//const viewa = useWidgets();
+const viewa = useWidgets();
 const data: DataType = {
   //icon: "schedule",
   //overlay: "../../public/hero_sunset.jpeg",
@@ -67,7 +68,7 @@ const data: DataType = {
   },
   setHeader: true,
 };
-/*const view2: View = {
+const view2: View = {
   layouts: [
     {
       type: "List",
@@ -75,6 +76,7 @@ const data: DataType = {
     },
   ],
 };*/
+
 const view = shallowRef(new View({
   heading: 'Welcome',
   id: 'home',
