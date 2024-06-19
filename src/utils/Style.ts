@@ -52,4 +52,3 @@ function style (type: string, args: any) {
     }
 }
 
-

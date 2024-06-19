@@ -7,14 +7,14 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-import { Action, DataType, PageView } from "../src/utils/types";
+import { Action, DataList, DataType, PageView, QuestionType } from "../src/utils/types";
 import { dbClient, auth } from "../config/model";
 import { Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
 import { getData } from "./DataView";
 export class Group {
-    id = 'group';
+    id = 'groups';
     name;
     created_at;
     coordinator;
@@ -22,7 +22,7 @@ export class Group {
     members;
     admins;
     async create(data) {
-        const form = {
+        const form = new QuestionType({
             id: "",
             title: "",
             index: 0,
@@ -57,7 +57,7 @@ export class Group {
                 })
             },
             sections: []
-        };
+        });
         const view = new PageView({
             sections: [form],
             id: "",
@@ -68,13 +68,31 @@ export class Group {
     }
     async getListData(filter) {
         const query = {
-            name: "",
+            name: "group",
             data: undefined,
             filters: filter,
             columns: []
         };
-        const data = await dbClient.get(query);
-        const dataType = getData(query, (group) => {
+        const dataList = new DataList({
+            id: "",
+            sections: [],
+            items: [],
+            actions: [
+                new Action({
+                    label: 'Create',
+                    icon: 'add',
+                    event: 'Route',
+                    viewGuard: true,
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    },
+                })
+            ]
+        });
+        const dataType = await getData(query, (group) => {
             return new DataType({
                 id: "",
                 sections: [],
@@ -89,9 +107,9 @@ export class Group {
                                 async event() {
                                     const user = await auth.getUser();
                                     const query = {
-                                        name: "group",
+                                        name: "group_member",
                                         data: {
-                                            id: data.id,
+                                            id: group.id,
                                             user_id: user.id
                                         },
                                         filter: [],
@@ -104,12 +122,13 @@ export class Group {
                 }
             });
         });
-        const view = {
+        dataList.items = dataType;
+        const view = new PageView({
             id: "group",
             layout: "Grid",
-            sections: [dataType],
+            sections: [dataList],
             children: []
-        };
+        });
         return view;
     }
     async getSingleData(filter) {
@@ -147,9 +166,6 @@ export class Group {
             }
         });
         return singleDataItem;
-    };
-    listDataItems = (data) => {
-        return dataType;
     };
 }
 __decorate([

@@ -10,20 +10,13 @@
     ></component>
     <QSelect
     :label="dialogue.question"
-      v-model="filledForm[dialogue.name]"
+      v-model="filledForm[dialogue.label]"
       :options="dialogue.options"
       v-if="dialogue.options"
       :ref="dialogue.name"
     >
 
       <template v-slot:option="scope">
-        <q-expansion-item
-          expand-separator
-          group="somegroup"
-          :default-opened="hasChild(scope, dialogue.name)"
-            header-class="text-weight-bold"
-          :label="scope.opt.label"
-        >
             <q-item
             v-if="!scope.opt.children"
               clickable
@@ -39,13 +32,24 @@
                 <q-input class="q-ml-md" :type="scope.opt.inputType" v-model="scope.opt.answer"></q-input>
               </q-item-section>
             </q-item>
+        <q-expansion-item v-else="scope.opt.children"
+          expand-separator
+          group="somegroup"
+          :default-opened="hasChild(scope, dialogue.name)"
+            header-class="text-weight-bold"
+          :label="scope.opt.label"
+        >
           <template v-for="child in scope.opt.children"
           :key="child.id">
             <q-item
               clickable
               v-ripple
               v-close-popup
-              @click="filledForm[dialogue.name] = child.id || child.label"
+              @click="() => {
+                //filledForm[dialogue.name] = child.id || child.label
+                filledForm[dialogue.name] = child.meta
+                filledForm[dialogue.label] = child.label
+              }"
               :class="{ 'bg-light-blue-1': filledForm[dialogue.name] === child.label }"
             >
               <q-item-section>
@@ -61,8 +65,8 @@
     <template 
       v-else-if="dialogue.inputType">
       <QInput
+        type="datetime-local"
         :label="dialogue.question"
-        type="date"
         v-model="filledForm[dialogue.name]"
         outlined
         :ref="dialogue.name"
@@ -143,7 +147,8 @@ import { viewGuard } from "../utils/AuthGuard";
         return scope.label
       },
       hasChild (scope: any, name: string) {
-        return scope.opt.children.some(c => c.label === this.filledForm[name])
+        console.log('SCOPE: ', scope.opt)
+        //return scope.opt.children.some(c => c.label === this.filledForm[name])
       }
     },
     async onBeforeMount() {

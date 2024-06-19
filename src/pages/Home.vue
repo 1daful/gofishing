@@ -16,6 +16,7 @@
 import { onBeforeMount, shallowRef } from "vue";
 import EView from "../components/EView.vue";
 import { DataType, Filters, View, NavList } from "../utils/types";
+import { GlobalView } from "../../config/edifiles.config";
 //import { mount } from "mount-vue-component";
 
 
@@ -28,13 +29,17 @@ import { DataType, Filters, View, NavList } from "../utils/types";
     },
   ],
 };*/
+const service = GlobalView.mainLayout.children.find((child) => {
+  return child.id === 'service'
+})
+const serviceData = service?.getListData()
 const view = shallowRef(new View({
   heading: 'Welcome',
   id: 'home',
   layout: "Grid",
   navType: 'center',
   size: 'col-8',
-  sections: [],
+  sections: [serviceData],
 }));
 
 

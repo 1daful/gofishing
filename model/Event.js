@@ -214,7 +214,7 @@ let Event = class Event {
                             args: {
                                 path: '/attendance/create',
                                 query: {
-                                    filters: data.id
+                                    filters: id
                                 }
                             }
                         }),
@@ -237,7 +237,7 @@ let Event = class Event {
                                     categories: ['createSessionDataView']
                                 },
                                 query: {
-                                    filters: data.id
+                                    filters: id
                                 }
                             }
                         })
@@ -346,6 +346,7 @@ let Event = class Event {
     createSessionDataView = async (eventId) => {
         const membersQuery = {
             name: 'member',
+            columns: ['id', 'firstName'],
             data: undefined
         };
         const groupsQuery = {
@@ -354,14 +355,32 @@ let Event = class Event {
         };
         const groupOptions = await dbClient.get(groupsQuery);
         const memberOptions = await dbClient.get(membersQuery);
+        const groups = groupOptions.data.map((group) => {
+            return {
+                label: group.firstName,
+                meta: {
+                    id: group.id,
+                    type: 'group'
+                }
+            };
+        });
+        const members = memberOptions.data.map((member) => {
+            return {
+                label: member.firstName,
+                meta: {
+                    id: member.id,
+                    type: 'member'
+                }
+            };
+        });
         const options = [
             {
                 label: 'members',
-                data: memberOptions
+                children: members
             },
             {
                 label: 'groups',
-                data: groupOptions
+                children: groups
             }
         ];
         const question = new QuestionType({
@@ -370,13 +389,23 @@ let Event = class Event {
             index: 0,
             actions: {
                 submit: new Action({
+                    label: 'create',
                     event(filledForm) {
+                        let groupId;
+                        let memberId;
+                        if (filledForm.anchor.type === 'group') {
+                            groupId = filledForm.anchor.id;
+                        }
+                        else if (filledForm.anchor.type === 'member') {
+                            memberId = filledForm.anchor.id;
+                        }
                         const session = {
                             event_id: eventId,
                             name: filledForm.name,
                             start_at: filledForm.start_at,
                             end_at: filledForm.end_at,
-                            anchor: filledForm.anchor,
+                            anchor_group_id: groupId,
+                            anchor_member_id: memberId,
                             content: filledForm.content
                         };
                         const sessionQuery = {

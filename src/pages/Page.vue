@@ -73,7 +73,7 @@ export default defineComponent({
       return categories?.[categories.length - 1]
       else return categories
     }
-    //console.log('Query ', filters)
+    console.log('Query ', route)
     
 
     // Return reactive properties or methods here

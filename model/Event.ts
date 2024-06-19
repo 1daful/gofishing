@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { DataType, QuestionType, Action, View, DataList, PageView, Filters } from "../src/utils/types";
+import { DataType, QuestionType, Action, View, DataList, PageView, Filters, OptionsType } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { addModel, auth, dbClient } from "../config/model";
 import { QueryFilter, QueryType } from "@edifiles/services";
@@ -10,6 +10,8 @@ import { Attendance } from "./Attendance";
 import { Service } from "./Service";
 import { getData } from "./DataView";
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
+import { Group } from "./Group";
+import { Member } from "./Member";
 
 @Entity()
 export class Event implements IDataView {
@@ -238,7 +240,8 @@ export class Event implements IDataView {
                                 args: {
                                     path: '/attendance/create',
                                     query: {
-                                        filters: data.id
+                                        filters: id
+                                        //filters: 'ID'
                                     }
                                 }
                             }),
@@ -261,7 +264,8 @@ export class Event implements IDataView {
                                        categories: ['createSessionDataView']
                                    },
                                    query: {
-                                    filters: data.id
+                                        filters: id
+                                        //filters: 'ID'
                                    }
                                }
                            })
@@ -404,6 +408,7 @@ export class Event implements IDataView {
     createSessionDataView = async (eventId: string) => {
         const membersQuery: QueryType = {
             name: 'member',
+            columns: ['id', 'firstName'],
             data: undefined
         }
 
@@ -414,14 +419,32 @@ export class Event implements IDataView {
     
         const groupOptions = await dbClient.get(groupsQuery)
         const memberOptions = await dbClient.get(membersQuery)
-        const options = [
+        const groups = groupOptions.data.map((group: Group)=> {
+            return {
+                label: group.firstName,
+                meta: {
+                    id: group.id,
+                    type: 'group'
+                }
+            }
+        })
+        const members = memberOptions.data.map((member: Member)=> {
+            return {
+                label: member.firstName,
+                meta: {
+                    id: member.id,
+                    type: 'member'
+                }
+            }
+        })
+        const options: OptionsType[] = [
             {
                 label: 'members',
-                data: memberOptions
+                children: members
             },
             {
                 label: 'groups',
-                data: groupOptions
+                children: groups
             }
         ]
 
@@ -431,13 +454,23 @@ export class Event implements IDataView {
             index: 0,
             actions: {
                 submit: new Action({
+                    label: 'create',
                     event(filledForm: any) {
+                        let groupId
+                        let memberId
+                        if (filledForm.anchor.type === 'group') {
+                            groupId = filledForm.anchor.id
+                        }
+                        else if (filledForm.anchor.type === 'member') {
+                            memberId = filledForm.anchor.id
+                        }
                         const session = {
                             event_id: eventId,
                             name: filledForm.name,
                             start_at: filledForm.start_at,
                             end_at: filledForm.end_at,
-                            anchor: filledForm.anchor,
+                            anchor_group_id: groupId,
+                            anchor_member_id: memberId,
                             content: filledForm.content
                         };
                         const sessionQuery: QueryType = {

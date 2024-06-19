@@ -10,6 +10,7 @@ import { ReachOut } from '../model/ReachOut';
 import { Event } from '../model/Event';
 import { Member } from '../model/Member';
 import { Attendance } from '../model/Attendance';
+import { Group } from '../model/Group';
 //import { auth } from './model';
 
 /*const postQuery = `
@@ -80,6 +81,7 @@ const home: PageView = new PageView({
     children: []
 })
 const serviceModel = new Service()
+const groupModel = new Group()
 const eventModel = new Event()
 const reachoutModel = new ReachOut()
 const memberModel = new Member()
@@ -101,7 +103,7 @@ const mainLayout: PageView = new PageView({
         menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel
+        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel, groupModel
     ]
 })
 export const GlobalView = {

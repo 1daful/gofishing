@@ -259,8 +259,7 @@ export class QuestionType {
     constructor(question) {
         Object.assign(this, question);
     }
-    viewGuard;
-    ViewSection;
+    sections;
     id;
     title;
     index;

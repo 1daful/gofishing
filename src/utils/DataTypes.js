@@ -5,21 +5,15 @@ export class Slides {
     }
     content;
 }
-export class ListStyle {
-    constructor(listStyle) {
-        Object.assign(this, listStyle);
-    }
-    bordered;
-    dense;
-    dark;
-    padding;
-}
 export class Menu {
     header = {
         reveal: true,
         bordered: false,
         elevated: true,
-        class: "fixed-nav"
+        class: {
+            custom: "fixed-nav",
+            margin: 'q-ma-auto'
+        }
     };
     toolBar = {
         class: "justify-end"
@@ -58,3 +52,4 @@ export class Menu {
         class: "lt-md"
     });
 }
+;

@@ -419,7 +419,7 @@ export class Table {}
 
 export class Form {}
 
-export type InputType = 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule'
+export type InputType = 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule' | "dattetime-local"
 
 export type OptionsType = ({
     id?: string | number,
@@ -427,7 +427,7 @@ export type OptionsType = ({
     inputType?: InputType,
     children?: OptionsType,
     params?: any
-} | string)[]
+} | string)
 
 /*export class QuestionType {
     constructor(data: {
@@ -503,8 +503,7 @@ export type OptionsType = ({
 export class QuestionType implements IView{
     constructor(question: QuestionType) {
         Object.assign(this, question)
-    },
-    viewGuard: 
+    }
     sections!: ViewSection[];
     id!: string;
     title!: string;

@@ -1,16 +1,17 @@
 import { QueryFilter, QueryType } from "@edifiles/services";
-import { Action, DataType, PageView, QuestionType, View } from "../src/utils/types";
+import { Action, DataList, DataType, OptionsType, PageView, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient, auth } from "../config/model";
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany, JoinTable, ManyToMany, Relation } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
 import { getData } from "./DataView";
+import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 
 export class Group implements IDataView {
     
   //@PrimaryGeneratedColumn()
-  id: string = 'group';
+  id: string = 'groups';
 
   @Column()
   name!: string;
@@ -33,7 +34,23 @@ export class Group implements IDataView {
   admins!: Relation<Admin[]>;
 
     async create(data?: any) {
-        const form: QuestionType = {
+        const adminGetQuery: QueryType = {
+            name: "admin",
+            columns: [
+                'id', foreignColumns('member', ['firstName'])
+            ],
+            data: undefined
+        }
+        const adminData = await dbClient.get(adminGetQuery)
+        const adminOptions: OptionsType[] = adminData.data.map((admin) => {
+            return {
+                id: admin.,
+                meta: {
+
+                }
+            }
+        })
+        const form: QuestionType = new QuestionType ({
             id: "",
             title: "",
             index: 0,
@@ -42,10 +59,16 @@ export class Group implements IDataView {
                     question: 'name',
                     name: 'name',
                     inputType: 'text'
-                }   
+                },
+                {
+                    question: 'admin',
+                    name: 'admin_id',
+                    options
+                }
             ],
             actions: {
                 submit: new Action({
+                    label: 'Create',
                     async event(filledForm: any) {
                         const user = await auth.getUser();
                         filledForm.admin_id = user.data.user?.id;
@@ -68,7 +91,7 @@ export class Group implements IDataView {
                 })
             },
             sections: []
-        }
+        })
 
         const view: PageView = new PageView({
             sections: [form],
@@ -81,14 +104,34 @@ export class Group implements IDataView {
     
     async getListData(filter?: QueryFilter[]): Promise<PageView> {
         const query: QueryType = {
-            name: "",
+            name: "group",
             data: undefined,
             filters: filter,
             columns: []
         }
 
-        const data: Group[] = await dbClient.get(query)
-        const dataType: DataType = getData(query, (group: Group)=> {
+        const dataList: DataList = new DataList({
+            id: "",
+            sections: [],
+            items: [],
+            actions: [
+                new Action({
+                    label: 'Create',
+                    icon: 'add',
+                    event: 'Route',
+                    viewGuard: true,
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: ['create']
+                        }
+                    },
+                })
+            ]
+        })
+
+        //const data: Group[] = await dbClient.get(query)
+        const dataType: DataType[] = await getData(query, (group: Group)=> {
             return new DataType({
                 id: "",
                 sections: [],
@@ -103,10 +146,10 @@ export class Group implements IDataView {
                                 async event() {
                                     const user = await auth.getUser()
                                     const query = {
-                                        name: "group",
+                                        name: "group_member",
                                         data: {
                                             //user_id: useUser().user.id
-                                            id: data.id,
+                                            id: group.id,
                                             user_id: user.id
                                         },
                                         filter: [],
@@ -119,13 +162,13 @@ export class Group implements IDataView {
                 }
             })
         })
-
-        const view: PageView = {
+        dataList.items = dataType
+        const view: PageView = new PageView({
             id: "group",
             layout: "Grid",
-            sections: [dataType],
+            sections: [dataList],
             children: []
-        }
+        })
         return view
     }
     async getSingleData?(filter: any): Promise<PageView> {
@@ -167,8 +210,8 @@ export class Group implements IDataView {
         return singleDataItem
     };
 
-    listDataItems: Function = (data: Group[]) => {
+    /*listDataItems: Function = (data: Group[]) => {
         
         return dataType
-    };
+    };*/
 }

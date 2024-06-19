@@ -9,6 +9,7 @@ import { ReachOut } from '../model/ReachOut';
 import { Event } from '../model/Event';
 import { Member } from '../model/Member';
 import { Attendance } from '../model/Attendance';
+import { Group } from '../model/Group';
 const auth = new EAuth(config.api.Supabase);
 const search = new View({
     id: 'search',
@@ -56,6 +57,7 @@ const home = new PageView({
     children: []
 });
 const serviceModel = new Service();
+const groupModel = new Group();
 const eventModel = new Event();
 const reachoutModel = new ReachOut();
 const memberModel = new Member();
@@ -75,7 +77,7 @@ const mainLayout = new PageView({
         menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel
+        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel, groupModel
     ]
 });
 export const GlobalView = {

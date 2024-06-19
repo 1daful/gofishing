@@ -28,28 +28,24 @@ export type CarouselStyle = {
     padding?: boolean,
     arrows?: boolean,
     height?: string,
-    class?: string
+    class?: ClassStyle
 }
 
-export type HeaderStyle = {
+export type HeaderStyle =  {
     reveal?: boolean,
     bordered?: boolean,
     elevated?: boolean,
-    class?: string
+    class?: ClassStyle
 }
 
-export class ListStyle {
-    constructor(listStyle: ListStyle) {
-        Object.assign(this, listStyle)
-    }
-
+export type ListStyle = & {
     bordered?: boolean
     dense?: boolean
     dark?: boolean
     padding?: boolean
 }
 
-export type Hero = {
+export type Hero =  {
     title: string,
     subtitle: string,
     buttonText: string,
@@ -60,11 +56,14 @@ export type HorizontalPosition = 'left' | 'center' | 'right'
 export type VerticalPosition = 'top' | 'middle' | 'bottom'
 
 export class Menu {
-    header: HeaderStyle = {
+    header: Partial<HeaderStyle> = {
         reveal: true,
         bordered: false,
         elevated: true,
-        class: "fixed-nav"
+        class: {
+            custom: "fixed-nav",
+            margin: 'q-ma-auto'
+        }
     }
 
     toolBar = {
@@ -130,3 +129,242 @@ export type ViewGuard = {
     colval?: Colval,
     type?: string
 } | boolean
+
+type Position =
+  | 'fullscreen'
+  | 'fixed'
+  | 'absolute'
+  | 'fixed-center'
+  | 'absolute-center'
+  | 'fixed-top'
+  | 'absolute-top'
+  | 'fixed-right'
+  | 'absolute-right'
+  | 'fixed-bottom'
+  | 'absolute-bottom'
+  | 'fixed-left'
+  | 'absolute-left'
+  | 'fixed-top-left'
+  | 'absolute-top-left'
+  | 'fixed-top-right'
+  | 'absolute-top-right'
+  | 'fixed-bottom-left'
+  | 'absolute-bottom-left'
+  | 'fixed-bottom-right'
+  | 'absolute-bottom-right'
+  | 'relative-position'
+  | 'float-left'
+  | 'pull-left'
+  | 'float-right'
+  | 'pull-right'
+  | 'on-left'
+  | 'on-right'
+  | 'vertical-top'
+  | 'vertical-middle'
+  | 'vertical-bottom';
+
+
+  type TextAlignment = 
+  | 'text-right'
+  | 'text-left'
+  | 'text-center'
+  | 'text-justify';
+
+type TextTransformation = 
+  | 'text-uppercase'
+  | 'text-lowercase'
+  | 'text-capitalize';
+
+type TextFontWeight = 
+  | 'text-weight-thin'
+  | 'text-weight-light'
+  | 'text-weight-regular'
+  | 'text-weight-medium'
+  | 'text-weight-bold'
+  | 'text-weight-bolder';
+
+type TextFontStyle = 'text-italic'
+| 'quote'
+| 'block'
+| 'no-margin'
+| 'no-padding';;
+
+type TextTruncation = 'text-truncate';
+
+type TextType = 
+  | 'text-h1'
+  | 'text-h2'
+  | 'text-h3'
+  | 'text-h4'
+  | 'text-h5'
+  | 'text-h6'
+  | 'text-subtitle1'
+  | 'text-subtitle2'
+  | 'text-body1'
+  | 'text-body2'
+  | 'text-caption'
+  | 'text-overline'
+  | 'caption'
+  | 'light-paragraph'
+  | 'thin-paragraph';
+
+
+type Typography = {
+    alignment: TextAlignment,
+    transformation: TextTransformation,
+    weight: TextFontWeight,
+    font: TextFontStyle,
+    truncate: TextTruncation,
+    type: TextType
+}
+
+type Shadow =
+  | 'no-shadow'
+  | 'inset-shadow'
+  | 'shadow-1'
+  | 'shadow-2'
+  | 'shadow-3'
+  | 'shadow-4'
+  | 'shadow-5'
+  | 'shadow-6'
+  | 'shadow-7'
+  | 'shadow-8'
+  | 'shadow-9'
+  | 'shadow-10'
+  | 'shadow-11'
+  | 'shadow-12'
+  | 'shadow-13'
+  | 'shadow-14'
+  | 'shadow-15'
+  | 'shadow-16'
+  | 'shadow-17'
+  | 'shadow-18'
+  | 'shadow-19'
+  | 'shadow-20'
+  | 'shadow-21'
+  | 'shadow-22'
+  | 'shadow-23'
+  | 'shadow-24'
+  | 'shadow-up-1'
+  | 'shadow-up-2'
+  | 'shadow-up-3'
+  | 'shadow-up-4'
+  | 'shadow-up-5'
+  | 'shadow-up-6'
+  | 'shadow-up-7'
+  | 'shadow-up-8'
+  | 'shadow-up-9'
+  | 'shadow-up-10'
+  | 'shadow-up-11'
+  | 'shadow-up-12'
+  | 'shadow-up-13'
+  | 'shadow-up-14'
+  | 'shadow-up-15'
+  | 'shadow-up-16'
+  | 'shadow-up-17'
+  | 'shadow-up-18'
+  | 'shadow-up-19'
+  | 'shadow-up-20'
+  | 'shadow-up-21'
+  | 'shadow-up-22'
+  | 'shadow-up-23'
+  | 'shadow-up-24'
+  | 'shadow-transition';
+
+  type Padding = 
+  | 'q-pa-none' | 'q-pa-xs' | 'q-pa-sm' | 'q-pa-md' | 'q-pa-lg' | 'q-pa-xl'
+  | 'q-pt-none' | 'q-pt-xs' | 'q-pt-sm' | 'q-pt-md' | 'q-pt-lg' | 'q-pt-xl'
+  | 'q-pr-none' | 'q-pr-xs' | 'q-pr-sm' | 'q-pr-md' | 'q-pr-lg' | 'q-pr-xl'
+  | 'q-pb-none' | 'q-pb-xs' | 'q-pb-sm' | 'q-pb-md' | 'q-pb-lg' | 'q-pb-xl'
+  | 'q-pl-none' | 'q-pl-xs' | 'q-pl-sm' | 'q-pl-md' | 'q-pl-lg' | 'q-pl-xl'
+  | 'q-px-none' | 'q-px-xs' | 'q-px-sm' | 'q-px-md' | 'q-px-lg' | 'q-px-xl'
+  | 'q-py-none' | 'q-py-xs' | 'q-py-sm' | 'q-py-md' | 'q-py-lg' | 'q-py-xl';
+
+  type Margin = 
+  | 'q-ma-none' | 'q-ma-auto' | 'q-ma-xs' | 'q-ma-sm' | 'q-ma-md' | 'q-ma-lg' | 'q-ma-xl'
+  | 'q-mt-none' | 'q-mt-auto' | 'q-mt-xs' | 'q-mt-sm' | 'q-mt-md' | 'q-mt-lg' | 'q-mt-xl'
+  | 'q-mr-none' | 'q-mr-auto' | 'q-mr-xs' | 'q-mr-sm' | 'q-mr-md' | 'q-mr-lg' | 'q-mr-xl'
+  | 'q-mb-none' | 'q-mb-auto' | 'q-mb-xs' | 'q-mb-sm' | 'q-mb-md' | 'q-mb-lg' | 'q-mb-xl'
+  | 'q-ml-none' | 'q-ml-auto' | 'q-ml-xs' | 'q-ml-sm' | 'q-ml-md' | 'q-ml-lg' | 'q-ml-xl'
+  | 'q-mx-none' | 'q-mx-auto' | 'q-mx-xs' | 'q-mx-sm' | 'q-mx-md' | 'q-mx-lg' | 'q-mx-xl'
+  | 'q-my-none' | 'q-my-auto' | 'q-my-xs' | 'q-my-sm' | 'q-my-md' | 'q-my-lg' | 'q-my-xl';
+
+  type Visibility =
+  'hidden'
+  | 'invisible'
+  | 'transparent'
+  | 'disabled'
+  | 'dimmed'
+  | 'light-dimmed'
+  | 'highlight-and-fade'
+  | 'ellipsis'
+  | 'ellipsis-2-lines'
+  | 'ellipsis-3-lines'
+  | 'z-top'
+  | 'z-max'
+  | 'z-absolute';
+
+  type Animate =
+  | 'animate-spin'
+  | 'animate-spin-reverse'
+  | 'animate-blink'
+  | 'animate-pop'
+  | 'animate-scale'
+  | 'animate-fade'
+  | 'animate-bounce'
+
+  type PlatformOnly =
+  'desktop-only'
+  | 'mobile-only'
+  | 'cordova-only'
+  | 'electron-only'
+  | 'touch-only'
+  | 'no-touch-only'
+  | 'mat-only'
+  | 'ios-only'
+  | 'platform-ios-only'
+  | 'platform-android-only'
+  | 'within-iframe-only'
+
+  type PlatformHide =
+  'desktop-hide'
+  | 'mobile-hide'
+  | 'cordova-hide'
+  | 'electron-hide'
+  | 'touch-hide'
+  | 'no-touch-hide'
+  | 'mat-hide'
+  | 'ios-hide'
+  | 'platform-ios-hide'
+  | 'platform-android-hide'
+  | 'within-iframe-hide'
+
+  type Orientation =
+  'orientation-portrait' | 'orientation-landscape'
+
+  type WindowWidth =
+  | 'xs'
+  | 'sm'
+  | 'md'
+  | 'lg'
+  | 'xl'
+  | 'lt-sm'
+  | 'lt-md'
+  | 'lt-lg'
+  | 'lt-xl'
+  | 'gt-xs'
+  | 'gt-sm'
+  | 'gt-md'
+  | 'gt-lg';
+
+  type ClassStyle = Partial<{
+    margin: Margin,
+    padding: Padding,
+    shadow: Shadow,
+    position: Position,
+    orientation: Orientation,
+    width: WindowWidth,
+    visibility: Visibility,
+    animate: Animate,
+    custom: string
+  }>
