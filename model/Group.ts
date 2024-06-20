@@ -34,19 +34,19 @@ export class Group implements IDataView {
   admins!: Relation<Admin[]>;
 
     async create(data?: any) {
-        const adminGetQuery: QueryType = {
+        const memberQuery: QueryType = {
             name: "admin",
             columns: [
                 'id', foreignColumns('member', ['firstName'])
             ],
             data: undefined
         }
-        const adminData = await dbClient.get(adminGetQuery)
-        const adminOptions: OptionsType[] = adminData.data.map((admin) => {
+        const memberData = await dbClient.get(memberQuery)
+        const memberOptions: OptionsType[] = memberData.data.map((member) => {
             return {
-                id: admin.,
+                label: member.firstName,
                 meta: {
-
+                    id: member.id
                 }
             }
         })
@@ -60,19 +60,20 @@ export class Group implements IDataView {
                     name: 'name',
                     inputType: 'text'
                 },
-                {
+
+                /*{
                     question: 'admin',
                     name: 'admin_id',
-                    options
-                }
+                    options: memberOptions
+                }*/
             ],
             actions: {
                 submit: new Action({
                     label: 'Create',
                     async event(filledForm: any) {
                         const user = await auth.getUser();
-                        filledForm.admin_id = user.data.user?.id;
-                        filledForm.id = filledForm.admin_id + new Date();
+                        //filledForm.admin_id = user.data.user?.id;
+                        filledForm.creator_id =  user.data.user?.id
                         const groupQuery: QueryType = {
                             name: "group",
                             data: filledForm,
@@ -88,7 +89,16 @@ export class Group implements IDataView {
                         };
                         dbClient.post([groupQuery, adminQuery]);
                     }
-                })
+                }),
+                add: {
+                    event: ()=> {
+                        const groupRegQuery: QueryType = {
+                            name: "",
+                            data: unde
+                        }
+                      dbClient.post(groupRegQuery)  
+                    }
+                }
             },
             sections: []
         })

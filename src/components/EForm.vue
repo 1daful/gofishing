@@ -10,6 +10,7 @@
     ></component>
     <QSelect
     :label="dialogue.question"
+      @update:model-value="showOpt"
       v-model="filledForm[dialogue.label]"
       :options="dialogue.options"
       v-if="dialogue.options"
@@ -145,6 +146,9 @@ import { viewGuard } from "../utils/AuthGuard";
       },
       getValue (scope: any) {
         return scope.label
+      },
+      showOpt () {
+
       },
       hasChild (scope: any, name: string) {
         console.log('SCOPE: ', scope.opt)
