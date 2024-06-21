@@ -23,15 +23,19 @@
               clickable
               v-ripple
               v-close-popup
-              @click="filledForm[dialogue.name] = scope.opt.id || scope.opt.label"
+              @click="() => {
+                //filledForm[dialogue.name] = child.id || child.label
+                filledForm[dialogue.name] = scope.opt.meta
+                filledForm[dialogue.label] = scope.opt.label
+              }"
               :class="{ 'bg-light-blue-1': filledForm[dialogue.name] === scope.opt.label }"
             >
               <q-item-section>
                 <q-item-label v-html="scope.opt.label" class="q-ml-md" ></q-item-label>
               </q-item-section>
-              <q-item-section>
-                <q-input class="q-ml-md" :type="scope.opt.inputType" v-model="scope.opt.answer"></q-input>
-              </q-item-section>
+              <!--q-item-section>
+                <q-input class="q-ml-md" :type="scope.opt.inputType" v-model="scope.opt.label"></q-input>
+              </q-item-section-->
             </q-item>
         <q-expansion-item v-else="scope.opt.children"
           expand-separator
@@ -147,8 +151,8 @@ import { viewGuard } from "../utils/AuthGuard";
       getValue (scope: any) {
         return scope.label
       },
-      showOpt () {
-
+      showOpt (value: string) {
+        console.log("OPTION ", value)
       },
       hasChild (scope: any, name: string) {
         console.log('SCOPE: ', scope.opt)

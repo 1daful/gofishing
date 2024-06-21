@@ -34,10 +34,10 @@ export class Group implements IDataView {
   admins!: Relation<Admin[]>;
 
     async create(data?: any) {
-        const memberQuery: QueryType = {
-            name: "admin",
+        /*const memberQuery: QueryType = {
+            name: "member",
             columns: [
-                'id', foreignColumns('member', ['firstName'])
+                'id', 'firstName'
             ],
             data: undefined
         }
@@ -49,7 +49,7 @@ export class Group implements IDataView {
                     id: member.id
                 }
             }
-        })
+        })*/
         const form: QuestionType = new QuestionType ({
             id: "",
             title: "",
@@ -59,8 +59,8 @@ export class Group implements IDataView {
                     question: 'name',
                     name: 'name',
                     inputType: 'text'
-                },
-
+                }
+                
                 /*{
                     question: 'admin',
                     name: 'admin_id',
@@ -80,7 +80,7 @@ export class Group implements IDataView {
                             columns: []
                         };
                         const admin = {
-                            id: filledForm.admin_id,
+                            user_id: user.data.user?.id,
                             group_id: filledForm.id
                         };
                         const adminQuery: QueryType = {
@@ -90,15 +90,18 @@ export class Group implements IDataView {
                         dbClient.post([groupQuery, adminQuery]);
                     }
                 }),
-                add: {
-                    event: ()=> {
+                /*add: {
+                    label: 'Add Members',
+                    event: (filled: any)=> {
                         const groupRegQuery: QueryType = {
-                            name: "",
-                            data: unde
+                            name: "group_registration",
+                            data: {
+                                group_id" filledForm.
+                            }
                         }
                       dbClient.post(groupRegQuery)  
                     }
-                }
+                }*/
             },
             sections: []
         })

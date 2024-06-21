@@ -13,7 +13,6 @@ import { Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
 import { getData } from "./DataView";
-import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 export class Group {
     id = 'groups';
     name;
@@ -23,22 +22,6 @@ export class Group {
     members;
     admins;
     async create(data) {
-        const memberQuery = {
-            name: "admin",
-            columns: [
-                'id', foreignColumns('member', ['firstName'])
-            ],
-            data: undefined
-        };
-        const memberData = await dbClient.get(memberQuery);
-        const memberOptions = memberData.data.map((member) => {
-            return {
-                label: member.firstName,
-                meta: {
-                    id: member.id
-                }
-            };
-        });
         const form = new QuestionType({
             id: "",
             title: "",
@@ -48,11 +31,6 @@ export class Group {
                     question: 'name',
                     name: 'name',
                     inputType: 'text'
-                },
-                {
-                    question: 'admin',
-                    name: 'admin_id',
-                    options: memberOptions
                 }
             ],
             actions: {
@@ -67,7 +45,7 @@ export class Group {
                             columns: []
                         };
                         const admin = {
-                            id: filledForm.admin_id,
+                            user_id: user.data.user?.id,
                             group_id: filledForm.id
                         };
                         const adminQuery = {
@@ -76,7 +54,7 @@ export class Group {
                         };
                         dbClient.post([groupQuery, adminQuery]);
                     }
-                })
+                }),
             },
             sections: []
         });
