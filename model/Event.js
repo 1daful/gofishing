@@ -380,7 +380,12 @@ let Event = class Event {
             },
             {
                 label: 'groups',
-                children: groups
+                children: groups,
+                events: {
+                    click: () => {
+                        console.log('Clicked');
+                    }
+                }
             }
         ];
         const question = new QuestionType({
@@ -435,7 +440,12 @@ let Event = class Event {
                 {
                     question: 'anchor',
                     name: 'anchor',
-                    options: options
+                    options: options,
+                    events: {
+                        click: () => {
+                            console.log('Clicked');
+                        }
+                    }
                 },
                 {
                     question: 'content',

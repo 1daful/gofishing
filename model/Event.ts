@@ -500,7 +500,12 @@ export class Event implements IDataView {
                 {
                     question: 'anchor',
                     name: 'anchor',
-                    options: options
+                    options: options,
+                        events: {
+                            click: ()=> {
+                                console.log('Clicked')
+                            }
+                        }
                 },
                 {
                     question: 'content',

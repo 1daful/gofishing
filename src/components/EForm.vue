@@ -6,11 +6,13 @@
       :is="dialogue.component"
       v-if="dialogue.component"
       v-bind="$attrs"
+      v-on="diaalogue.events"
       :ref="dialogue.name"
     ></component>
     <QSelect
     :label="dialogue.question"
-      @update:model-value="showOpt"
+      v-on="dialogue.events"
+      v-bind="dialogue.props"
       v-model="filledForm[dialogue.label]"
       :options="dialogue.options"
       v-if="dialogue.options"
@@ -23,8 +25,9 @@
               clickable
               v-ripple
               v-close-popup
-              @click="() => {
-                //filledForm[dialogue.name] = child.id || child.label
+              v-bind="dialogue.props"
+              v-on="dualogue.events"
+                @click="() => {
                 filledForm[dialogue.name] = scope.opt.meta
                 filledForm[dialogue.label] = scope.opt.label
               }"
@@ -50,6 +53,7 @@
               clickable
               v-ripple
               v-close-popup
+              v-on="chizild.events"
               @click="() => {
                 //filledForm[dialogue.name] = child.id || child.label
                 filledForm[dialogue.name] = child.meta

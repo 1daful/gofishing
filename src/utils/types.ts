@@ -72,6 +72,8 @@ export class View implements IView {
     constructor(view: View) {
         Object.assign(this, view);
     }
+    events: []
+    props: []
     heading?: string;
     sections: ViewSection[] = []
     icon?: string | undefined;
