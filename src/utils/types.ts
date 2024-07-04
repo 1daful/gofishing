@@ -72,8 +72,8 @@ export class View implements IView {
     constructor(view: View) {
         Object.assign(this, view);
     }
-    events: []
-    props: []
+    events!: []
+    props!: []
     heading?: string;
     sections: ViewSection[] = []
     icon?: string | undefined;
@@ -515,7 +515,7 @@ export class QuestionType implements IView{
     content!: {
         question: string;
         inputType?: 'number' | 'search' | 'textarea' | 'time' | 'text' | 'password' | 'email' | 'tel' | 'file' | 'url' | 'date' | 'schedule';
-        component?: Component;
+        component?: VComponent;
         options?: OptionsType;
         action?: Action;
         name: string;
@@ -574,6 +574,7 @@ export class VComponent implements IView{
     sections!: ViewSection[];
     content!: Component
     props?: any
+    events?: any
     view?: ViewAccess
 }
 

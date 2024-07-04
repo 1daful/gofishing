@@ -1,4 +1,4 @@
-import { QueryFilter, QueryType } from "@edifiles/services";
+import { QueryFilter, QueryType, SupabaseRepo } from "@edifiles/services";
 import { Action, DataList, DataType, OptionsType, PageView, QuestionType, View } from "../src/utils/types";
 import { IDataView } from "./IDataView";
 import { dbClient, auth } from "../config/model";
@@ -7,6 +7,7 @@ import { Member } from "./Member";
 import { Admin } from "./Admin";
 import { getData } from "./DataView";
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
+import { config } from "../public/config";
 
 export class Group implements IDataView {
     
@@ -87,7 +88,10 @@ export class Group implements IDataView {
                             name: "admin",
                             data: admin
                         };
-                        dbClient.post([groupQuery, adminQuery]);
+                       dbClient.post(groupQuery);
+                       dbClient.post(adminQuery);
+                       //let dbC  = new SupabaseRepo(config.api.Supabase)
+                        //dbC.postWithTransaction([groupQuery, adminQuery]);
                     }
                 }),
                 /*add: {

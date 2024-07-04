@@ -1,24 +1,63 @@
 <template>
   <div v-for="(view, key) in layout">
-      <EView :view="view" :key="view.id"></EView>
+    <Suspense>
+    <EView :view="view" :key="view.id"></EView>
+    </Suspense>
   </div>
   <!--RouterView></RouterView>-->
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import { useRoute } from 'vue-router';
 import EView from "../components/EView.vue";
 import { IDataView } from '../../model/IDataView';
-import { data } from '../../config/model';
 import { GlobalView } from '../../config/edifiles.config';
 import { View, isType, NavList, PageView, ActionGroup } from '../utils/types';
-import { defineComponent, shallowRef } from "vue";
+import { defineComponent, onBeforeMount, onMounted, ref, shallowRef } from "vue";
 
-export default defineComponent({
-  data() {
+//export default defineComponent({
+  //data() {
     let dataView: IDataView | PageView | undefined
     const route = useRoute();
+    const layout = ref({})
 
+    const sView: PageView = new PageView({
+      id: 'listView',
+      layout: 'Grid',
+      sections: [],
+      children: []
+    });
+
+    const id: string | number = route.params.id as string;
+    const type: string = route.params.type as string;
+    const categories: string[] = route.params.categories as string[];
+    const filters = route.query.filters
+    const vie = ()=> {
+      if (Array.isArray(categories))
+      return categories?.[categories.length - 1]
+      else return categories
+    }
+    console.log('Query ', route)
+    let view
+    // Return reactive properties or methods here
+   /* return {
+      dataView,
+      layout,
+      id,
+      type,
+      categories,
+      filters,
+      vie
+    };*/
+
+  //let view = shallowRef(sView)
+  /*let view: PageView = new PageView({
+    children: [],
+    sections: [],
+    id: '',
+    layout: 'Grid'
+  })*/
+  function processMenus (view: PageView){
     const layout = {
     top: new View({
         id: '',
@@ -57,68 +96,35 @@ export default defineComponent({
     })
 }
 
-    const sView: PageView = new PageView({
-      id: 'listView',
-      layout: 'Grid',
-      sections: [],
-      children: []
-    });
-
-    const id: string | number = route.params.id as string;
-    const type: string = route.params.type as string;
-    const categories: string[] = route.params.categories as string[];
-    const filters = route.query.filters
-    const vie = ()=> {
-      if (Array.isArray(categories))
-      return categories?.[categories.length - 1]
-      else return categories
-    }
-    console.log('Query ', route)
-    
-
-    // Return reactive properties or methods here
-    return {
-      dataView,
-      layout,
-      view: shallowRef(sView),
-      id,
-      type,
-      categories,
-      filters,
-      vie
-    };
-  },
-  components: {
-    EView
-  },
-
-  methods: {
-  processMenus (){
-        this.view?.sections.forEach(section => {
+        view.sections.forEach(section => {
             if(isType(section, View) || isType(section, NavList) || isType(section, ActionGroup)) {
-                this.layout[section.navType].sections.push(section)
+                layout[section.navType].sections.push(section)
             }
             else {
-                this.layout.center.sections.push(section)
+                layout.center.sections.push(section)
             }
         });
-    },
+        console.log('Layout ', layout)
+        return layout
+    }
 
-    async processView () {
-      console.log('Type ', this.type)
-      console.log('categories ', this.categories)
-      console.log('id ', this.id)
-      if (this.type) {
+    async function processView () {
+      let vieew
+      console.log('Type ', type)
+      console.log('categories ', categories)
+      console.log('id ', id)
+      if (type) {
         let section
-        this.dataView = GlobalView.mainLayout.children.find((child) => {
+        dataView = GlobalView.mainLayout.children.find((child) => {
          
-          return child.id === this.type;
+          return child.id === type;
         });
-      if (!this.categories && !this.id) {
-          console.log('TYPE ', this.type)
-          this.view = await this.dataView?.getListData(this.filters);
+      if (!categories && !id) {
+          console.log('TYPE ', type)
+          vieew = await dataView?.getListData(filters);
+          console.log('Type View ', vieew)
         } 
-      else if (this.categories /*&& !this.id*/) {
+      else if (categories /*&& !this.id*/) {
           /*if (this.categories[0] === 'create') {
           section = await this.dataView?.getCreateData(this.filters);
             this.view = section
@@ -130,35 +136,36 @@ export default defineComponent({
           this.view = view
           console.log('ID ', this.view)
         }*/
-        if (this.vie()) {
-          console.log('VIE ', this.vie())
-          this.view = await (this.dataView[this.vie().toString()]).call(this.dataView, this.filters)
-          console.log("View: ", this.view)
+        if (vie()) {
+          console.log('VIE ', vie())
+          vieew = await (dataView[vie().toString()]).call(dataView, filters)
+          console.log("View: ", vieew)
           
         }
           else {
-          this.view = await this.dataView?.getListData(this.filters);
+          vieew = await dataView?.getListData(filters);
           }
         } 
-        else if (this.id) {
-          console.log('This ID ', this.id)
-          this.view = await this.dataView?.getSingleData(this.id)
-          console.log('ID ', this.view)
+        else if (id) {
+          console.log('This ID ', id)
+          vieew = await dataView?.getSingleData(id)
+          console.log('ID ', vieew)
         }
       } 
       else {
-        this.view = GlobalView.mainLayout.children.find((child) => {
+        vieew = GlobalView.mainLayout.children.find((child) => {
           return child.id === 'home';
         }) as PageView;
       }
-    },
-    async processData() {
-      await this.processView()
-      this.processMenus()
+      return vieew
     }
-  },
-  mounted() {
-    this.processData()
-  }
-});
+    async function processData() {
+      view = await processView()
+      layout.value = processMenus(view)
+    }
+  
+  onBeforeMount(()=> {
+    processData()
+    console.log('LAYOUT ', layout)
+  })
 </script>

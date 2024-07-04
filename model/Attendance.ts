@@ -362,7 +362,10 @@ export class Attendance implements IDataView {
         
         const actions = [
                 new Action({
-                    event: this.captureFaces,
+                    event: async () => {
+                        const { data, error } = await this.captureFaces()
+                        
+                    },
                     label: 'capture faces',
                 }),
                 new Action({

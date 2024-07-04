@@ -38,6 +38,8 @@ export class View {
     constructor(view) {
         Object.assign(this, view);
     }
+    events;
+    props;
     heading;
     sections = [];
     icon;
@@ -290,6 +292,7 @@ export class VComponent {
     sections;
     content;
     props;
+    events;
     view;
 }
 function insert(view, ...content) {

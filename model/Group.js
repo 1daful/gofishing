@@ -52,7 +52,8 @@ export class Group {
                             name: "admin",
                             data: admin
                         };
-                        dbClient.post([groupQuery, adminQuery]);
+                        dbClient.post(groupQuery);
+                        dbClient.post(adminQuery);
                     }
                 }),
             },

@@ -287,7 +287,9 @@ let Attendance = class Attendance {
     async create() {
         const actions = [
             new Action({
-                event: this.captureFaces,
+                event: async () => {
+                    const { data, error } = await this.captureFaces();
+                },
                 label: 'capture faces',
             }),
             new Action({

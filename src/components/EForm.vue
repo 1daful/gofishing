@@ -1,17 +1,18 @@
 <template>
   <div :id="form.id" v-if=show class="q-ma-md">
     <p>{{ form.title }}</p>
+  <QSelect label="LABEL" @update:model-value="onOptionSelected" v-model="model.oty" :options="options"></QSelect>
   <div v-for="dialogue in form.content" class="q-gutter-md margin q-ma-md">
     <component
-      :is="dialogue.component"
+      :is="dialogue.component.content"
       v-if="dialogue.component"
-      v-bind="$attrs"
-      v-on="diaalogue.events"
+      v-bind="dialogue.component.props"
+      v-on="dialogue.component.events"
       :ref="dialogue.name"
     ></component>
     <QSelect
     :label="dialogue.question"
-      v-on="dialogue.events"
+      @update:model-value="onOptionSelected"
       v-bind="dialogue.props"
       v-model="filledForm[dialogue.label]"
       :options="dialogue.options"
@@ -25,11 +26,11 @@
               clickable
               v-ripple
               v-close-popup
-              v-bind="dialogue.props"
-              v-on="dualogue.events"
                 @click="() => {
                 filledForm[dialogue.name] = scope.opt.meta
                 filledForm[dialogue.label] = scope.opt.label
+                if(dialogue.events)
+                dialogue.events.selected()
               }"
               :class="{ 'bg-light-blue-1': filledForm[dialogue.name] === scope.opt.label }"
             >
@@ -53,7 +54,7 @@
               clickable
               v-ripple
               v-close-popup
-              v-on="chizild.events"
+              v-on="child.events"
               @click="() => {
                 //filledForm[dialogue.name] = child.id || child.label
                 filledForm[dialogue.name] = child.meta
@@ -80,12 +81,16 @@
         outlined
         :ref="dialogue.name"
         v-if="dialogue.inputType === 'schedule'"
+        v-on="dialogue.events"
+        v-bind="dialogue.props"
         @update:model-value="handleInput(dialogue.inputType, filledForm[dialogue.name])"
       ></QInput>
       <QInput
         :label="dialogue.question"
         :type="dialogue.inputType"
         v-model="filledForm[dialogue.name]"
+        v-on="dialogue.events"
+        v-bind="dialogue.props"
         @update:model-value="handleInput(dialogue.inputType, filledForm[dialogue.name])"
         outlined
         :ref="dialogue.name"
@@ -110,10 +115,13 @@ import { viewGuard } from "../utils/AuthGuard";
   let filledForm: Record<string, any> = {}
   let show: boolean = true
   let view: View
+  //let model = []
   
   export default defineComponent({
     data() {
       return {
+        options: ['Aaaaaaaaaaaaa', 'Bbbbnnnnn'],
+        model: {},
         view,
         filledForm,
         show
@@ -152,6 +160,10 @@ import { viewGuard } from "../utils/AuthGuard";
         //useData().set(type, value)
       console.log('FILLED_FORM', this.filledForm)
       },
+      onOptionSelected (value) {
+      console.log('Selected option:', value)
+      // Your custom logic here
+    },
       getValue (scope: any) {
         return scope.label
       },

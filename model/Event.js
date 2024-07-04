@@ -16,6 +16,7 @@ import { Attendance } from "./Attendance";
 import { Service } from "./Service";
 import { getData } from "./DataView";
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
+import { ref, computed, reactive } from "vue";
 let Event = class Event {
     id = 'events';
     create_at;
@@ -83,6 +84,7 @@ let Event = class Event {
                     question: 'start',
                     name: "start_at",
                     inputType: 'schedule',
+                    show: show
                 },
                 {
                     question: 'end',
@@ -344,6 +346,8 @@ let Event = class Event {
         return dataType;
     }
     createSessionDataView = async (eventId) => {
+        let show = ref(true);
+        let disable =computed(()=>{return !show })
         const membersQuery = {
             name: 'member',
             columns: ['id', 'firstName'],
@@ -353,8 +357,24 @@ let Event = class Event {
             name: 'member',
             data: undefined
         };
+        const serviceQuery = {
+            name: "service",
+            data: undefined,
+            columns: [
+                'name', 'id'
+            ]
+        };
+        const serviceOptions = await dbClient.get(serviceQuery);
         const groupOptions = await dbClient.get(groupsQuery);
         const memberOptions = await dbClient.get(membersQuery);
+        const services = serviceOptions.data.map((service) => {
+            return {
+                label: service.name,
+                meta: {
+                    id: service.id
+                }
+            };
+        });
         const groups = groupOptions.data.map((group) => {
             return {
                 label: group.firstName,
@@ -380,12 +400,7 @@ let Event = class Event {
             },
             {
                 label: 'groups',
-                children: groups,
-                events: {
-                    click: () => {
-                        console.log('Clicked');
-                    }
-                }
+                children: groups
             }
         ];
         const question = new QuestionType({
@@ -411,7 +426,8 @@ let Event = class Event {
                             end_at: filledForm.end_at,
                             anchor_group_id: groupId,
                             anchor_member_id: memberId,
-                            content: filledForm.content
+                            content: filledForm.content,
+                            service: filledForm.service
                         };
                         const sessionQuery = {
                             name: 'session',
@@ -428,9 +444,26 @@ let Event = class Event {
                     inputType: 'text'
                 },
                 {
+                    question: 'Service',
+                    name: 'service',
+                    label: 'service',
+                    options: services,
+                    events: {
+                    selected: () => {
+                            show.value = false
+                            question.content[2].props['v-show'] = show.value;
+                            console.log('THE SERVICE')
+                        }
+                    }
+                },
+                {
                     question: 'start',
                     name: 'start_at',
-                    inputType: 'schedule'
+                    inputType: 'schedule',
+                    props: reactive({
+                        //disable:false
+                        'v-show': show.value
+                    })
                 },
                 {
                     question: 'end',
@@ -440,12 +473,8 @@ let Event = class Event {
                 {
                     question: 'anchor',
                     name: 'anchor',
+                    label: 'anchor',
                     options: options,
-                    events: {
-                        click: () => {
-                            console.log('Clicked');
-                        }
-                    }
                 },
                 {
                     question: 'content',

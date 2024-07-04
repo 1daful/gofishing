@@ -12,6 +12,8 @@ import { getData } from "./DataView";
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 import { Group } from "./Group";
 import { Member } from "./Member";
+import EFilters from "../src/components/EFilters.vue";
+import { ref } from "vue";
 
 @Entity()
 export class Event implements IDataView {
@@ -43,6 +45,8 @@ export class Event implements IDataView {
 
     @ManyToOne(() => Service, (service) => service.events)
     service!: Relation<Service>
+
+    //show = ref(true)
 
     async create(data?: any) {
         const serviceQuery: QueryType = {
@@ -102,6 +106,7 @@ export class Event implements IDataView {
                         question: 'start',
                         name: "start_at",
                         inputType: 'schedule',
+                        show: show
                     },
                     {
                         question: 'end',
@@ -406,6 +411,7 @@ export class Event implements IDataView {
     }
 
     createSessionDataView = async (eventId: string) => {
+        let show = ref(true)
         const membersQuery: QueryType = {
             name: 'member',
             columns: ['id', 'firstName'],
@@ -416,9 +422,28 @@ export class Event implements IDataView {
             name:  'member',
             data: undefined
         }
+
+        const serviceQuery: QueryType = {
+            name: "service",
+            data: undefined,
+            columns: [
+                'name',  'id'
+            ]
+        }
+        
+        const serviceOptions = await dbClient.get(serviceQuery)
     
         const groupOptions = await dbClient.get(groupsQuery)
         const memberOptions = await dbClient.get(membersQuery)
+
+        const services = serviceOptions.data.map((service: Service)=> {
+            return {
+                label: service.name,
+                meta: {
+                    id: service.id
+                }
+            }
+        })
         const groups = groupOptions.data.map((group: Group)=> {
             return {
                 label: group.firstName,
@@ -471,7 +496,8 @@ export class Event implements IDataView {
                             end_at: filledForm.end_at,
                             anchor_group_id: groupId,
                             anchor_member_id: memberId,
-                            content: filledForm.content
+                            content: filledForm.content,
+                            service: filledForm.service
                         };
                         const sessionQuery: QueryType = {
                             name: 'session',
@@ -488,9 +514,56 @@ export class Event implements IDataView {
                     inputType: 'text'
                 },
                 {
+                    question: 'Service',
+                    name: 'service',
+                    label: 'service',
+                    options: services,
+                    events: {
+                        selected: ()=> {
+                            show.value = false
+                            
+                        }
+                    }
+                },
+            /*{
+                    question: "Add to service",
+                    name: "Add",
+                    component: {
+                        id: '',
+                        sections: [],
+                        content: EFilters,
+                        props: {
+                            data: {
+                            id: '',
+                            sections:[],
+                            layout: 'Grid',
+                            size: '',
+                            indexName: 'Add name to service',
+                            options: [],
+                            checks: [
+                                {
+                                    id: '',
+                                    attribute: 'Add to service',
+                                    model: [],
+                                    values: ['Add value to service']
+                                }
+                            ]
+                        }
+                    },
+                        events: {
+                            'update:model': ()=>{
+                                show.value = !show.value
+                            }
+                        }
+                    }
+                },*/
+                {
                     question: 'start',
                     name: 'start_at',
-                    inputType: 'schedule'
+                    inputType: 'schedule',
+                    props: {
+                      disable: !show.value  
+                    }
                 },
                 {
                     question: 'end',
@@ -500,12 +573,8 @@ export class Event implements IDataView {
                 {
                     question: 'anchor',
                     name: 'anchor',
+                    label: 'anchor',
                     options: options,
-                        events: {
-                            click: ()=> {
-                                console.log('Clicked')
-                            }
-                        }
                 },
                 {
                     question: 'content',
