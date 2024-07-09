@@ -346,7 +346,9 @@ let Event = class Event {
         return dataType;
     }
     createSessionDataView = async (eventId) => {
-        let show = ref(true);
+        let show = ()=> {
+            return true
+        }
         let disable =computed(()=>{return !show })
         const membersQuery = {
             name: 'member',

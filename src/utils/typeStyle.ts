@@ -28,6 +28,13 @@ export type FilterStyle = {
 
 }
 
+export type ImageStyle = {
+    height: string
+    width: string
+    src: string
+    attribute: string
+}
+
 export type NavStyle = {}
 
 export type HeroStyle = {

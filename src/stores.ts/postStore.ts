@@ -28,9 +28,9 @@ interface Post {
   // store/postStore.ts
 import { defineStore } from 'pinia'
 import axios from 'axios'
+import { dbClient } from '../../config/model';
 
 // Replace with your actual API endpoint
-const apiUrl = 'https://your-wordpress-api-endpoint/wp-json/wp/v2/posts';
 
 interface State {
   posts: Post[];
@@ -52,10 +52,10 @@ export const usePostStore = defineStore('post', {
       this.loading = true;
       this.error = null;
       try {
-        const response = await axios.get(apiUrl);
+        const response: any = await dbClient.get('post');
         this.posts = response.data;
         //this.$emit('postsFetched', this.posts);
-      } catch (error) {
+      } catch (error: any) {
         this.error = error.message;
       } finally {
         this.loading = false;
@@ -76,7 +76,7 @@ export const usePostStore = defineStore('post', {
       }
     },
 
-    async createPost(newPost: Partial<WordPressPost>) {
+    async createPost(newPost: Partial<Post>) {
       this.loading = true;
       this.error = null;
       try {
@@ -90,7 +90,7 @@ export const usePostStore = defineStore('post', {
       }
     },
 
-    async updatePost(id: number, updatedPost: Partial<WordPressPost>) {
+    async updatePost(id: number, updatedPost: Partial<Post>) {
       this.loading = true;
       this.error = null;
       try {

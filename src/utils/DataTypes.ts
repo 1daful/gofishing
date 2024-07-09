@@ -1,6 +1,44 @@
-import { Action, Colval, DataType, VComponent } from "./types"
-import { Component } from "vue"
+import { CardStyle, ImageStyle } from "./typeStyle";
+import { ActionState, ActionString, Colval, DataType, LayoutType, OnResult, ViewSection } from "./types"
+import { Component, reactive } from "vue"
 
+/*export function UseComponent<T>(comp: T){
+  return comp
+
+}*/
+
+  class Comp{
+    static getComp<T>(arg0: { layout: string; props: never[]; sections: never[]; }) {
+      throw new Error("Method not implemented.");
+    }
+    constructor(obj: Object) {
+      Object.assign(this, obj)
+    }
+    comp!: any
+  }
+
+  // Define a constructor type
+type Constructor<T = {}> = new (...args: any[]) => T;
+
+// Generic mixin function that adds properties to a class
+function AddProperties<TBase extends Constructor>(Base: TBase, propertiesToAdd: object) {
+  return class extends Base {
+    constructor(...args: any[]) {
+      super(...args);
+
+      // Dynamically add properties to the instance
+      Object.assign(this, propertiesToAdd);
+    }
+  };
+}
+
+  function getComp<T extends Object>(obj: T): T { 
+    let comp = new Comp(obj)
+  
+    Object.assign(comp, obj)
+    return comp as unknown as T
+  }
+ 
 export class Slides {
     constructor(...data: DataType[]) {
         this.content = data
@@ -80,7 +118,7 @@ export class Menu {
 
     listStyle?: ListStyle
 
-    closeBtn: Action = new Action({
+    closeBtn: Action = getComp<Action>({
         id: "closeMenuBtn",
         icon: 'close',
         event: (drawerOpen: boolean)=> {drawerOpen = !drawerOpen},
@@ -93,7 +131,7 @@ export class Menu {
         },
         class: "lt-md"
     })
-    openBtn: Action = new Action({
+    openBtn: Action = getComp<Action>({
         id: "menuBtn",
         icon: 'menu',
         event: (drawerOpen: boolean)=> {drawerOpen = !drawerOpen},
@@ -368,3 +406,109 @@ type Shadow =
     animate: Animate,
     custom: string
   }>
+
+  interface IComponent {
+    component: VComponent
+  }
+
+  type VComponent = {
+    id?: string,
+    props?: Record<string, any>
+    events?: Record<string, any>
+    sections?: ViewSection
+    component?: Component
+    viewGuard?: ViewGuard
+    style?:  Record<string, any>
+    class?: any
+    watcher?: Function
+  }
+
+  type View = VComponent & {
+    sections: ViewSection
+    layout: LayoutType
+    card?: boolean | CardStyle
+  }
+
+  type Input = VComponent & {
+    model: any
+    label: string
+    icon?: string
+  }
+
+  type Visual = VComponent & {
+    label?: string
+    icon?: string
+  }
+
+  type Loader = VComponent & {
+    loading: boolean
+  }
+
+  type FormView = View & {
+    title: Label
+    actions: Record<string, Action>
+  }
+
+  type FormList = View & {
+    title: Label
+    forms: FormView[]
+    actions: Record<string, Action>
+  }
+
+  type DataView = View & {
+    title: Label
+    dataContents: Record<string, DataContent>
+    thumbnail?: string | ImageStyle
+    overlay?: string | ImageStyle
+    actions?: Record<string, Action>
+  }
+
+  type DataList = View & {
+    dataList: []
+  }
+
+  export type Label = Visual | string
+
+export type DataContent = Label | Action
+
+  export type Action = Visual & {
+    type?: string
+    iconRight?: string
+    args?: any
+    event: Function | ActionString
+    onResult?: OnResult
+    onError?: OnResult
+    state?: ActionState
+}
+
+
+
+
+
+export type ViewSection = View | DataType | FormView | VComponent | Component | NavList | Slides | DataGraph | DataTable
+
+
+
+  let view: View = {
+    layout: "Grid",
+    props: undefined,
+    events: undefined,
+    sections: [],
+    viewGuard: false
+  }
+  let gh = Comp.getComp<View>({
+    layout: 'Horizontal',
+    props: [],
+    sections: []
+  })
+
+
+  let dataView: DataView = {
+    sections: [
+      getComp<Action>({
+        sections: [],
+        event: 'Filter'
+      })
+    ],
+    layout: 'Vertical'
+  }
