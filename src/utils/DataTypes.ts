@@ -8,9 +8,6 @@ import { Component, reactive } from "vue"
 }*/
 
   class Comp{
-    static getComp<T>(arg0: { layout: string; props: never[]; sections: never[]; }) {
-      throw new Error("Method not implemented.");
-    }
     constructor(obj: Object) {
       Object.assign(this, obj)
     }
@@ -495,20 +492,4 @@ export type ViewSection = View | DataType | FormView | VComponent | Component | 
     events: undefined,
     sections: [],
     viewGuard: false
-  }
-  let gh = Comp.getComp<View>({
-    layout: 'Horizontal',
-    props: [],
-    sections: []
-  })
-
-
-  let dataView: DataView = {
-    sections: [
-      getComp<Action>({
-        sections: [],
-        event: 'Filter'
-      })
-    ],
-    layout: 'Vertical'
   }

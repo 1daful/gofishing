@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-const apiUrl = 'https://your-wordpress-api-endpoint/wp-json/wp/v2/posts';
+import { dbClient } from '../../config/model';
 export const usePostStore = defineStore('post', {
     state: () => ({
         posts: [],
@@ -13,7 +13,7 @@ export const usePostStore = defineStore('post', {
             this.loading = true;
             this.error = null;
             try {
-                const response = await axios.get(apiUrl);
+                const response = await dbClient.get('post');
                 this.posts = response.data;
             }
             catch (error) {

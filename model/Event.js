@@ -16,7 +16,7 @@ import { Attendance } from "./Attendance";
 import { Service } from "./Service";
 import { getData } from "./DataView";
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
-import { ref, computed, reactive } from "vue";
+import { ref } from "vue";
 let Event = class Event {
     id = 'events';
     create_at;
@@ -200,7 +200,7 @@ let Event = class Event {
                 }
             ],
             columns: [
-                'name', 'start_at', 'end_at', foreignColumns('session', ['name', 'content'])
+                'name', 'start_at', 'end_at', foreignColumns('session', ['name', 'content', 'start_at', 'end_at'])
             ],
             data: undefined
         };
@@ -244,22 +244,23 @@ let Event = class Event {
                             }
                         })
                     },
-                ],
-                footer: data.session?.map((session) => {
-                    return this.getSessionDataView(session);
-                })
+                ]
             },
             sections: [],
             id: ''
         });
+        let sess = data.session?.map((session) => {
+            return this.getSessionDataView(session);
+        });
         const view = new PageView({
             sections: [
-                dataType
+                dataType,
             ],
             id: "",
             layout: "Grid",
             children: []
         });
+        view.sections.push(...sess);
         return view;
     }
     async getEvents(eventStatus, query) {
@@ -316,7 +317,19 @@ let Event = class Event {
     }
     getSessionDataView(session) {
         let startTime = session.start_at;
-        let timeRemaining = "";
+        let endTime = session.end_at;
+        function timeRemaining(startTime, endTime) {
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+            const difference = end.getTime() - start.getTime();
+            const seconds = Math.floor((difference / 1000) % 60);
+            const minutes = Math.floor((difference / (1000 * 60)) % 60);
+            const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const timeRemaining = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+            return timeRemaining;
+        }
+        console.log(timeRemaining(startTime, endTime));
         let timeElapse = '';
         const dataType = new DataType({
             items: {
@@ -346,10 +359,7 @@ let Event = class Event {
         return dataType;
     }
     createSessionDataView = async (eventId) => {
-        let show = ()=> {
-            return true
-        }
-        let disable =computed(()=>{return !show })
+        let show = ref(true);
         const membersQuery = {
             name: 'member',
             columns: ['id', 'firstName'],
@@ -451,10 +461,8 @@ let Event = class Event {
                     label: 'service',
                     options: services,
                     events: {
-                    selected: () => {
-                            show.value = false
-                            question.content[2].props['v-show'] = show.value;
-                            console.log('THE SERVICE')
+                        selected: () => {
+                            show.value = false;
                         }
                     }
                 },
@@ -462,10 +470,9 @@ let Event = class Event {
                     question: 'start',
                     name: 'start_at',
                     inputType: 'schedule',
-                    props: reactive({
-                        //disable:false
-                        'v-show': show.value
-                    })
+                    props: {
+                        disable: !show.value
+                    }
                 },
                 {
                     question: 'end',

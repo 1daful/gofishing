@@ -228,7 +228,7 @@ export class Event implements IDataView {
                 }
             ],
             columns: [
-                'name', 'start_at', 'end_at', foreignColumns('session', ['name', 'content'])
+                'name', 'start_at', 'end_at', foreignColumns('session', ['name', 'content', 'start_at', 'end_at'])
             ],
             data: undefined
         }
@@ -275,11 +275,7 @@ export class Event implements IDataView {
                                }
                            })
                        },
-                   ],
-                   footer: 
-                       data.session?.map((session) => {
-                           return this.getSessionDataView(session);
-                       })
+                   ]
                        /*{
                            action: new Action({
                                label: ''
@@ -298,14 +294,18 @@ export class Event implements IDataView {
                id: ''
            })
 
+        let sess = data.session?.map((session) => {
+               return this.getSessionDataView(session);
+           })
         const view: PageView = new PageView({
             sections: [
-                dataType
+                dataType,
             ],
             id: "",
             layout: "Grid",
             children:[]
         })
+        view.sections.push(...sess)
         return view
     }
 
@@ -371,7 +371,31 @@ export class Event implements IDataView {
 
     getSessionDataView(session: Session) {
         let startTime = session.start_at
-        let timeRemaining = ""
+        let endTime = session.end_at
+        function timeRemaining(startTime: string, endTime: string): string {
+            // Parse the start and end times into Date objects
+            const start = new Date(startTime);
+            const end = new Date(endTime);
+        
+            // Calculate the difference in milliseconds
+            const difference = end.getTime() - start.getTime();
+        
+            // Convert difference into days, hours, minutes, and seconds
+            const seconds = Math.floor((difference / 1000) % 60);
+            const minutes = Math.floor((difference / (1000 * 60)) % 60);
+            const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        
+            // Format the result as a string
+            const timeRemaining = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+        
+            return timeRemaining;
+        }
+        
+        // Example usage
+        //const startTime = '2024-07-12T08:00:00';
+        //const endTime = '2024-07-13T10:30:45';
+        console.log(timeRemaining(startTime, endTime));
         let timeElapse = ''
         const dataType: DataType = new DataType({
             items: {

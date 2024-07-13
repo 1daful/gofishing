@@ -1,4 +1,22 @@
-import { Action } from "./types";
+class Comp {
+    constructor(obj) {
+        Object.assign(this, obj);
+    }
+    comp;
+}
+function AddProperties(Base, propertiesToAdd) {
+    return class extends Base {
+        constructor(...args) {
+            super(...args);
+            Object.assign(this, propertiesToAdd);
+        }
+    };
+}
+function getComp(obj) {
+    let comp = new Comp(obj);
+    Object.assign(comp, obj);
+    return comp;
+}
 export class Slides {
     constructor(...data) {
         this.content = data;
@@ -25,7 +43,7 @@ export class Menu {
         backgroundColor: ""
     };
     listStyle;
-    closeBtn = new Action({
+    closeBtn = getComp({
         id: "closeMenuBtn",
         icon: 'close',
         event: (drawerOpen) => { drawerOpen = !drawerOpen; },
@@ -38,7 +56,7 @@ export class Menu {
         },
         class: "lt-md"
     });
-    openBtn = new Action({
+    openBtn = getComp({
         id: "menuBtn",
         icon: 'menu',
         event: (drawerOpen) => { drawerOpen = !drawerOpen; },
@@ -53,3 +71,10 @@ export class Menu {
     });
 }
 ;
+let view = {
+    layout: "Grid",
+    props: undefined,
+    events: undefined,
+    sections: [],
+    viewGuard: false
+};
