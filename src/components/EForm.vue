@@ -1,7 +1,7 @@
 <template>
-  <div :id="form.id" v-if=show>
+  <div :id="form.id" v-if=show class="q-ma-md">
     <p>{{ form.title }}</p>
-  <div v-for="dialogue in form.content">
+  <div v-for="dialogue in form.content" class="q-gutter-md margin q-ma-md">
     <component
       :is="dialogue.component"
       v-if="dialogue.component"
@@ -80,6 +80,7 @@
       ></QInput>
     </template>
   </div>
+  <EView :view="view"></EView>
   <template v-for="(action, key) in form.actions" :key="key">
     <EAction :action=action :args="filledForm"></EAction>
   </template>
@@ -87,17 +88,20 @@
 </template>
 
   <script lang="ts">
-  import { InputType, QuestionType } from "../utils/types";
+  import { InputType, QuestionType, View } from "../utils/types";
   import { defineComponent } from "vue";
   import EAction from "./EAction.vue";
+  import EView from "./EView.vue";
 import { viewGuard } from "../utils/AuthGuard";
   
   let filledForm: Record<string, any> = {}
   let show: boolean = true
+  let view: View
   
   export default defineComponent({
     data() {
       return {
+        view,
         filledForm,
         show
       };
@@ -143,6 +147,13 @@ import { viewGuard } from "../utils/AuthGuard";
       }
     },
     async onBeforeMount() {
+      this.view =  new View({
+        id: '',
+        sections: this.form.sections,
+        navType: "center",
+        layout: "Grid",
+        size: ""
+      })
       if (this.form.viewGuard) {
         this.show = await viewGuard(this.form.viewGuard.userColval, this.form.viewGuard.colval, this.form.viewGuard.type)
       }

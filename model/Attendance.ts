@@ -12,9 +12,12 @@ import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, Relation } from "typ
 
 @Entity()
 export class Attendance implements IDataView {
-
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+    //@PrimaryGeneratedColumn('uuid')
+    id: string = 'attendance';
+    members = async () => {
+        const member = await dbClient.get(gql`{member}`)
+        return member
+    }
 
     @ManyToOne(() => Event, event => event.attendances)
     event!: Relation<Event>;
@@ -50,7 +53,11 @@ export class Attendance implements IDataView {
         const formData = new FormData();
         formData.append('image', blob);
         const { newFace, existingFace, error } = await this.client.post('recognise_face', formData)
-
+        const data = {
+            newFace,
+            existingFace
+        }
+        return { data, error}
         /*await fetch('/api/recognise_face', {
             method: 'POST',
             body: formData
@@ -328,63 +335,44 @@ export class Attendance implements IDataView {
         return { series, label }
     }
 
-    async getCreateData(eventId: any) {
-        const members = await dbClient.get(gql`{members}`)
+    async filter() {
+        const member =  await this.members()
+        return new Filters ({
+        indexName: "Members",
+        rangeList: [],
+        checks: [
+            {
+                attribute: 'Members',
+                values: member.data.map((member: { firstName: any; lastName: any; }) => {
+                    return {
+                        label: `${member.firstName} ${member.lastName}`
+                    };
+                }),
+                id: undefined,
+                model: []
+            }
+        ],
+        id: "",
+        sections: [],
+        layout: "Grid",
+        size: ""
+    })}
+
+    async create() {
         
-        const filter: Filters = {
-            indexName: "Members",
-            rangeList: [],
-            checks: [
-                {
-                    attribute: 'Members',
-                    values: members.map((member: { firstName: any; lastName: any; }) => {
-                        return {
-                            label: `${member.firstName} ${member.lastName}`
-                        };
-                    }),
-                    id: undefined,
-                    model: []
-                }
-            ],
-            id: "",
-            sections: [],
-            layout: "Grid",
-            size: ""
-        }
-        const memberView: View = new View({
-            sections: [
-                 filter,
-                 new Action({
-                    event() {
-                        const query: QueryType = {
-                            name: "member",
-                            data: members.map((member: { id: any; }) => {
-                                return {
-                                    eventId,
-                                    userId: member.id, 
-                                    timeTaken: new Date()
-                                }
-                            }),
-                            filters: [],
-                            columns: []
-                        }
-                        dbClient.post(query)
-                    }
-                 })
-            ],
-            id: "",
-            layout: "Grid",
-            size: "",
-            navType: "top"
-        })
         const actions = [
                 new Action({
                     event: this.captureFaces,
                     label: 'capture faces',
                 }),
                 new Action({
-                    event: "Modal",
-                    args: memberView,
+                    event: "Route",
+                    args: {
+                        name: 'categories',
+                        params: {
+                            categories: 'memberView'
+                        }
+                    },
                     label: "Mark members"
                 })
             ]
@@ -398,4 +386,43 @@ export class Attendance implements IDataView {
         return view
 
     }
+    
+        async memberView(eventId: any) {
+            const members = await this.members()
+        return new PageView({
+            sections: [
+                await this.filter(),
+                 new Action({
+                    label: 'Check In',
+                    async event() {
+                        const query: QueryType = {
+                            name: "attendance",
+                            data: members.data.map((member: { id: any; }) => {
+                                return {
+                                    event_id: eventId,
+                                    member_id: member.id, 
+                                    time_taken: new Date()
+                                }
+                            }),
+                            filters: [],
+                            columns: []
+                        }
+                        const { data, error} = await dbClient.post(query)
+                        return { data, error }
+                    },
+                    onResult: {
+                        redirect: {
+                            path: '/events',
+                            params: {
+                                id: eventId
+                            }
+                        }
+                    }
+                 })
+            ],
+            id: "",
+            layout: "Grid",
+            children:[]
+        })
+        }
 }

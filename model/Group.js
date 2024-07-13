@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 import { Action, DataType, PageView } from "../src/utils/types";
 import { dbClient, auth } from "../config/model";
+<<<<<<< HEAD
 import { PrimaryGeneratedColumn, Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
 import { Member } from "./Member";
 import { Admin } from "./Admin";
@@ -16,8 +17,6 @@ export class Group {
     constructor() {
         this.singleDataItem = (data) => {
             const singleDataItem = new DataType({
-                id: "",
-                sections: [],
                 items: {
                     header: [
                         {
@@ -35,8 +34,6 @@ export class Group {
         };
         this.listDataItems = (data) => {
             const dataType = new DataType({
-                id: "",
-                sections: [],
                 items: {
                     header: data.map((group) => {
                         return { label: group.name };
@@ -50,6 +47,21 @@ export class Group {
         };
     }
     async getCreateData(data) {
+=======
+import { Column, CreateDateColumn, JoinTable, ManyToMany } from "typeorm";
+import { Member } from "./Member";
+import { Admin } from "./Admin";
+import { getData } from "./DataView";
+export class Group {
+    id = 'group';
+    name;
+    created_at;
+    coordinator;
+    creator;
+    members;
+    admins;
+    async create(data) {
+>>>>>>> master
         const form = {
             id: "",
             title: "",
@@ -64,9 +76,12 @@ export class Group {
             actions: {
                 submit: new Action({
                     async event(filledForm) {
-                        var _a;
                         const user = await auth.getUser();
-                        filledForm.admin_id = (_a = user.data.user) === null || _a === void 0 ? void 0 : _a.id;
+<<<<<<< HEAD
+                        filledForm.admin_id = user.id;
+=======
+                        filledForm.admin_id = user.data.user?.id;
+>>>>>>> master
                         filledForm.id = filledForm.admin_id + new Date();
                         const groupQuery = {
                             name: "group",
@@ -81,16 +96,27 @@ export class Group {
                             name: "admin",
                             data: admin
                         };
+<<<<<<< HEAD
+                        dbClient.postWithTransaction(groupQuery, adminQuery);
+                    }
+                })
+            }
+=======
                         dbClient.post([groupQuery, adminQuery]);
                     }
                 })
             },
             sections: []
+>>>>>>> master
         };
         const view = new PageView({
             sections: [form],
             id: "",
             layout: "Grid",
+<<<<<<< HEAD
+            size: "",
+=======
+>>>>>>> master
             children: []
         });
         return view;
@@ -103,7 +129,40 @@ export class Group {
             columns: []
         };
         const data = await dbClient.get(query);
+<<<<<<< HEAD
         const dataType = this.listDataItems(data);
+=======
+        const dataType = getData(query, (group) => {
+            return new DataType({
+                id: "",
+                sections: [],
+                items: {
+                    header: [
+                        { label: group.name }
+                    ],
+                    footer: [
+                        {
+                            action: new Action({
+                                label: "Join a group",
+                                async event() {
+                                    const user = await auth.getUser();
+                                    const query = {
+                                        name: "group",
+                                        data: {
+                                            id: data.id,
+                                            user_id: user.id
+                                        },
+                                        filter: [],
+                                    };
+                                    dbClient.post(query);
+                                }
+                            })
+                        }
+                    ]
+                }
+            });
+        });
+>>>>>>> master
         const view = {
             id: "group",
             layout: "Grid",
@@ -129,12 +188,39 @@ export class Group {
         };
         return view;
     }
+<<<<<<< HEAD
 }
 __decorate([
     PrimaryGeneratedColumn(),
     __metadata("design:type", Number)
 ], Group.prototype, "id", void 0);
 __decorate([
+=======
+    singleDataItem = (data) => {
+        const singleDataItem = new DataType({
+            id: "",
+            sections: [],
+            items: {
+                header: [
+                    {
+                        label: data.name
+                    }
+                ],
+                center: data.members.map((member) => {
+                    return {
+                        label: `${member.firstName} ${member.lastName}`
+                    };
+                })
+            }
+        });
+        return singleDataItem;
+    };
+    listDataItems = (data) => {
+        return dataType;
+    };
+}
+__decorate([
+>>>>>>> master
     Column(),
     __metadata("design:type", String)
 ], Group.prototype, "name", void 0);

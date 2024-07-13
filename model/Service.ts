@@ -12,6 +12,7 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDat
 import { QueryFilter, QueryModifier, QueryType } from "@edifiles/services";
 import { filter, foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 import { getData } from "./DataView";
+import { date } from "quasar";
 
 @Entity()
 export class Service implements IDataView {
@@ -29,7 +30,7 @@ export class Service implements IDataView {
     author!: Relation<Member>;
 
     @CreateDateColumn({ type: 'timestamp' })
-    createdAt!: Date;
+    created_at!: Date;
 
     @Column()
     content!: string;
@@ -50,7 +51,7 @@ export class Service implements IDataView {
         size: "",
         navType: "top"
     }
-    async getCreateData() {
+    async create() {
         /*const membersQuery = gql `{
             member {
                 id
@@ -99,6 +100,7 @@ export class Service implements IDataView {
             }
         ]*/
         const userId = (await auth.getUser()).data.user?.id
+        let id
         const form: QuestionType = new QuestionType({
             title: "Create new service",
             id: '',
@@ -106,12 +108,16 @@ export class Service implements IDataView {
             sections: [],
             actions: {
                 submit: new Action({
-                    label: "Submit",
-                    event(filledForm: any) {
+                    label: "Create",
+                    async event(filledForm: any) {
                         const service = {
                             name: filledForm.name,
                             created_at: new Date().toUTCString(),
-                            author_id: userId
+                            //created_at: date,
+                            author_id: userId,
+                            day: filledForm.day,
+                            startTime: filledForm.startTime,
+                            endTime: filledForm.endTime
                         }
 
                         const query: QueryType = {
@@ -119,20 +125,47 @@ export class Service implements IDataView {
                             data: service,
                         }
                         //dbClient.post(gql`{service (data: ${service})}`)
-                        dbClient.post(query)
+                        const { data, error } = await dbClient.post(query)
+                        id = data.data[0].id
+                        return {data, error}
+                    },
+                    onResult: {
+                        redirect: {
+                            name: 'id',
+                            param: {
+                                id
+                            }
+                        }
                     }
-                })
+                }),
+                /*addEvent: {
+                    label: 'Add Event',
+                    event: 'Modal',
+                    args: new Event().create()
+                }*/
             },
             content: [{
                 question: 'name',
                 name: 'name',
                 inputType: 'text'
             },
-            /*{
-                question: 'anchors',
-                name: 'anchors',
+            {
+                question: 'day',
+                name: 'day',
+                inputType: 'text'
                 //options: options
-            }*/]
+            },
+            {
+                question: 'start',
+                name: 'start_time',
+                inputType: 'time'
+            },
+            {
+                question: 'end',
+                name: 'end_time',
+                inputType: 'time'
+            }
+        ]
         })
             
         const view: PageView = new PageView({
@@ -147,6 +180,7 @@ export class Service implements IDataView {
     async getListData(query?: QueryType | QueryFilter | QueryModifier, dataArg?: any) {
         //const query = gql `service (id: ${id})`
         const useQuery = query || 'service'
+        //const eventQuery = 'event'
         let dataList: DataList = new DataList({
             items: [],  
             actions: [
@@ -218,7 +252,8 @@ export class Service implements IDataView {
                             label: dat.name
                         },
                         {
-                            label: dat.created_at?.toString()
+                            //label: dat.created_at?.toLocaleString()
+                            label: date.formatDate(dat.created_at, 'YYYY-MM-DD, HH:mm A')
                         },
                     ],
                     footer: [
@@ -360,9 +395,11 @@ export class Service implements IDataView {
                     {
                         action: 
                         new Action({
-                            label: 'edit',
+                            label: 'Edit',
                             icon: 'edit',
                             event() {
+                                const { data, error } = { data: true, error: false}
+                                return { data, error }
                             },
                         })
                     },

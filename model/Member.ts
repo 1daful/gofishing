@@ -191,7 +191,7 @@ export class Member implements IDataView {
             navType: 'center'
         })
    }
-    async getCreateData(image: string) {
+    async create(image: string) {
        
         const data = new QuestionType({
             id: "",

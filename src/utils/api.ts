@@ -1,4 +1,4 @@
-import { IMediaApi } from "../../src (1)/api/IMediaApi"
+import { IMediaApi } from "../../src/api/IMediaApi"
 
 export class Api {
     resource = {

@@ -13,43 +13,14 @@ import { PrimaryGeneratedColumn, Column, CreateDateColumn, JoinTable, ManyToMany
 import { Member } from "./Member";
 import { Admin } from "./Admin";
 export class Organisation {
-    constructor() {
-        this.singleDataItem = (data) => {
-            const singleDataItem = new DataType({
-                id: "",
-                sections: [],
-                items: {
-                    header: [
-                        {
-                            label: data.name
-                        }
-                    ],
-                    center: data.members.map((member) => {
-                        return {
-                            label: `${member.firstName} ${member.lastName}`
-                        };
-                    })
-                }
-            });
-            return singleDataItem;
-        };
-        this.listDataItems = (data) => {
-            const dataType = new DataType({
-                id: "",
-                sections: [],
-                items: {
-                    header: data.map((group) => {
-                        return { label: group.name };
-                    }),
-                    footer: [
-                        {}
-                    ]
-                }
-            });
-            return dataType;
-        };
-    }
-    async getCreateData(data) {
+    id;
+    name;
+    created_at;
+    coordinator;
+    creator;
+    members;
+    admins;
+    async create(data) {
         const form = {
             id: "",
             title: "",
@@ -64,9 +35,8 @@ export class Organisation {
             actions: {
                 submit: new Action({
                     async event(filledForm) {
-                        var _a;
                         const user = await auth.getUser();
-                        filledForm.admin_id = (_a = user.data.user) === null || _a === void 0 ? void 0 : _a.id;
+                        filledForm.admin_id = user.data.user?.id;
                         filledForm.id = filledForm.admin_id + new Date();
                         const orgganisationQuery = {
                             name: "group",
@@ -129,6 +99,40 @@ export class Organisation {
         };
         return view;
     }
+    singleDataItem = (data) => {
+        const singleDataItem = new DataType({
+            id: "",
+            sections: [],
+            items: {
+                header: [
+                    {
+                        label: data.name
+                    }
+                ],
+                center: data.members.map((member) => {
+                    return {
+                        label: `${member.firstName} ${member.lastName}`
+                    };
+                })
+            }
+        });
+        return singleDataItem;
+    };
+    listDataItems = (data) => {
+        const dataType = new DataType({
+            id: "",
+            sections: [],
+            items: {
+                header: data.map((group) => {
+                    return { label: group.name };
+                }),
+                footer: [
+                    {}
+                ]
+            }
+        });
+        return dataType;
+    };
 }
 __decorate([
     PrimaryGeneratedColumn(),

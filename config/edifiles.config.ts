@@ -9,6 +9,8 @@ import { Service } from "../model/Service";
 import { ReachOut } from '../model/ReachOut';
 import { Event } from '../model/Event';
 import { Member } from '../model/Member';
+import { Attendance } from '../model/Attendance';
+//import { auth } from './model';
 
 /*const postQuery = `
   query GetPost($postId: ID!) {
@@ -60,7 +62,12 @@ const authAction = new ActionGroup({
         }),
         new Action({
             label: 'Sign Out',
-            event: auth.logout,
+            event: async () => {
+                return await auth.logout()
+            },
+            onResult: {
+                redirect: '/'
+            },
             viewGuard: true
         })
     ]
@@ -76,6 +83,7 @@ const serviceModel = new Service()
 const eventModel = new Event()
 const reachoutModel = new ReachOut()
 const memberModel = new Member()
+const attendanceModel = new Attendance()
 
 async function userIcon() {
     const names = (await auth.getUser()).data.user?.user_metadata
@@ -93,7 +101,7 @@ const mainLayout: PageView = new PageView({
         menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel, eventModel, reachoutModel, memberModel
+        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel
     ]
 })
 export const GlobalView = {

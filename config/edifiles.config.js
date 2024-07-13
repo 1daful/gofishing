@@ -7,7 +7,11 @@ import { config } from "../public/config";
 import { Service } from "../model/Service";
 import { ReachOut } from '../model/ReachOut';
 import { Event } from '../model/Event';
+<<<<<<< HEAD
+=======
 import { Member } from '../model/Member';
+import { Attendance } from '../model/Attendance';
+>>>>>>> master
 const auth = new EAuth(config.api.Supabase);
 const search = new View({
     id: 'search',
@@ -38,7 +42,16 @@ const authAction = new ActionGroup({
         }),
         new Action({
             label: 'Sign Out',
+<<<<<<< HEAD
             event: auth.logout,
+=======
+            event: async () => {
+                return await auth.logout();
+            },
+            onResult: {
+                redirect: '/'
+            },
+>>>>>>> master
             viewGuard: true
         })
     ]
@@ -52,11 +65,18 @@ const home = new PageView({
 const serviceModel = new Service();
 const eventModel = new Event();
 const reachoutModel = new ReachOut();
-const memberModel = new Member();
+<<<<<<< HEAD
 async function userIcon() {
     var _a;
     const names = (_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.user_metadata;
     return names === null || names === void 0 ? void 0 : names.firstName;
+=======
+const memberModel = new Member();
+const attendanceModel = new Attendance();
+async function userIcon() {
+    const names = (await auth.getUser()).data.user?.user_metadata;
+    return names?.firstName;
+>>>>>>> master
 }
 const userAvatar = new Action({
     icon: await userIcon(),
@@ -69,7 +89,11 @@ const mainLayout = new PageView({
         menus, search, authAction, userAvatar
     ],
     children: [
-        home, serviceModel, eventModel, reachoutModel, memberModel
+<<<<<<< HEAD
+        home, serviceModel, eventModel, reachoutModel
+=======
+        home, serviceModel, eventModel, reachoutModel, memberModel, attendanceModel
+>>>>>>> master
     ]
 });
 export const GlobalView = {
@@ -78,8 +102,12 @@ export const GlobalView = {
 export const view = new PageView({
     id: '',
     layout: 'Grid',
+<<<<<<< HEAD
+    sections: []
+=======
     sections: [],
     children: []
+>>>>>>> master
 });
 export const config2 = {
     template: {

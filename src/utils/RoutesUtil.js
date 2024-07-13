@@ -5,7 +5,11 @@ export function getRoute(name) {
     if (r) {
         r.forEach(route => {
             if (route.name === name && route.children)
+<<<<<<< HEAD
                 url = route === null || route === void 0 ? void 0 : route.children;
+=======
+                url = route?.children;
+>>>>>>> master
         });
     }
     console.log("rouet", url);

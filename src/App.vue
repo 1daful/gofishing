@@ -8,6 +8,7 @@ import { onMounted, provide, ref } from "vue";
 import { useRoute } from "vue-router";
 import { GraphqlClient } from "@edifiles/services";
 import { config } from "../public/config";
+//import { init } from "../config/datasource";
 
 const newClient = new GraphqlClient(config)
 
@@ -26,6 +27,7 @@ console.log($q.dark.mode); // "auto", true, false
 $q.dark.toggle();
 provide("mainHeader", "mainHeader");
 onMounted(() => {
+  //init()
   /*GlobalView.mainLayout.children.forEach(child => {
     useRouter().addRoute('MainLayout', {
       path: `/${child.id}`,

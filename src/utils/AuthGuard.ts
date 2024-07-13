@@ -95,8 +95,8 @@ export const viewGuard = async (useViewGuard:  ViewGuard): Promise<boolean> => {
     else show = false
   }
   return show
+<<<<<<< HEAD
+}
+=======
 }*/
-
-  export const navGuard = async (t: any, from: any, next: any) => {
     
-  }

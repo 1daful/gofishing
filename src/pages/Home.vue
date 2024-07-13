@@ -19,6 +19,7 @@ import { DataType, Filters, View, NavList } from "../utils/types";
 import { GlobalView } from "../../config/edifiles.config";
 /*import { mount } from "mount-vue-component";
 
+<<<<<<< HEAD
 const filterData: Filters = new Filters({
   indexName: "",
   rangeList: [
@@ -68,7 +69,15 @@ const data: DataType = {
   },
   setHeader: true,
 };
+<<<<<<< HEAD
 const view2: View = {
+=======
+=======
+
+//const viewa = useWidgets();
+>>>>>>> master
+/*const view2: View = {
+>>>>>>> b4b68845e382ae23975960697d038f30f8df2156
   layouts: [
     {
       type: "List",
@@ -83,7 +92,7 @@ const view = shallowRef(new View({
   layout: "Grid",
   navType: 'center',
   size: 'col-8',
-  sections: [data, filterData],
+  sections: [],
 }));
 
 

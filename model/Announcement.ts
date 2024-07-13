@@ -4,7 +4,7 @@ import { IDataView } from "./IDataView";
 import { dbClient } from "../config/model";
 
 export class Announcement implements IDataView {
-    async getCreateData() {
+    async create() {
         const membersQuery = gql `member {
             firstName
             lastName

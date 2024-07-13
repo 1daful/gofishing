@@ -9,7 +9,7 @@ export class Schedule implements IDataView {
         this.id = id
     }
     id: string;
-    getCreateData(data?: any) {
+    create(data?: any) {
         throw new Error("Method not implemented.");
     }
     async getListData() {
