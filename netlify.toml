@@ -2,3 +2,12 @@
   from = "/*"
   to = "/index.html"
   status = 200
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "functions"
+
+[dev]
+  command = "bpm run build"
+  targetPort = 3000
+  port = 8888
