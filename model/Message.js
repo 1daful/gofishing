@@ -12,9 +12,6 @@ import { Entity, Column, CreateDateColumn, UpdateDateColumn, PrimaryGeneratedCol
 import { DataType } from "../src/utils/types";
 import { dbClient } from "../config/model";
 let Message = class Message {
-<<<<<<< HEAD
-    async getCreateData() {
-=======
     id;
     title;
     content;
@@ -25,7 +22,6 @@ let Message = class Message {
     thumbnail;
     avatar;
     async create() {
->>>>>>> master
         const membersQuery = gql `member {
             firstName
             lastName
@@ -59,50 +55,29 @@ let Message = class Message {
             }
         ];
         const form = {
-<<<<<<< HEAD
-            title: "",
-            index: 0,
-=======
             id: "",
             title: "",
             index: 0,
             sections: [],
->>>>>>> master
             actions: {},
             content: [
                 {
                     question: 'title',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     inputType: 'text',
                     name: 'title'
                 },
                 {
                     question: 'sender',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     options: options,
                     name: 'senderId'
                 },
                 {
                     question: 'recipients',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     options: options,
                     name: 'recipientIds'
                 },
                 {
                     question: 'action point',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     options: [
                         'sms',
                         'email',
@@ -112,10 +87,6 @@ let Message = class Message {
                 },
                 {
                     question: 'content',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     inputType: 'textarea',
                     name: 'content'
                 }
@@ -143,11 +114,8 @@ let Message = class Message {
         const data = await dbClient.get(query);
         const dataType = new DataType({
             actionOverlay: data.actionPoint,
-<<<<<<< HEAD
-=======
             id: "",
             sections: [],
->>>>>>> master
             items: {
                 header: [
                     {

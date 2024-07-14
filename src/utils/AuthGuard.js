@@ -13,15 +13,6 @@ export const authGuard = async (to, from, next) => {
         });
     }
 };
-<<<<<<< HEAD
-export const viewGuard = async (userColval, colval, type) => {
-    var _a;
-    let show = false;
-    const userIdCol = (userColval === null || userColval === void 0 ? void 0 : userColval.col) || 'user_id';
-    const userIdVal = (userColval === null || userColval === void 0 ? void 0 : userColval.val) || await ((_a = (await auth.getUser()).data.user) === null || _a === void 0 ? void 0 : _a.id);
-    if (!colval || !type && userIdVal) {
-        show = true;
-=======
 export const viewGuard = async (useViewGuard) => {
     let show = false;
     const userIdCol = useViewGuard?.userColval?.col || 'user_id';
@@ -30,7 +21,6 @@ export const viewGuard = async (useViewGuard) => {
     const type = useViewGuard?.type;
     if (userIdVal && (!colval || !type)) {
         show = !!useViewGuard;
->>>>>>> master
     }
     else if (colval && type && userIdVal) {
         const query = {
@@ -51,20 +41,10 @@ export const viewGuard = async (useViewGuard) => {
             columns: []
         };
         const data = await dbClient.get(query);
-<<<<<<< HEAD
-        if (data) {
-            show = true;
-        }
-        else
-            show = false;
-=======
         show = !!data;
     }
     if (!userIdVal) {
         show = !useViewGuard;
->>>>>>> master
     }
     return show;
-};
-export const navGuard = async (t, from, next) => {
 };

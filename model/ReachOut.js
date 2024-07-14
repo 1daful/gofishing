@@ -8,24 +8,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 import gql from "graphql-tag";
-<<<<<<< HEAD
-import { Action, DataType, View } from "../src/utils/types";
-=======
 import { Action, DataType, PageView } from "../src/utils/types";
->>>>>>> master
 import { dbClient } from "../config/model";
 import { RestClient, Callback } from "@edifiles/services";
 import { config } from "../public/config";
 import { Member } from "./Member";
 import { Entity, Column, ManyToOne } from "typeorm";
 let ReachOut = class ReachOut {
-<<<<<<< HEAD
-    constructor() {
-        this.id = 'reachouts';
-    }
-    async getCreateData() {
-        var _a, _b;
-=======
     id = 'reachouts';
     title;
     sender;
@@ -35,7 +24,6 @@ let ReachOut = class ReachOut {
     constructor() {
     }
     async create() {
->>>>>>> master
         const membersQuery = gql `{
             member {
                 id
@@ -50,21 +38,12 @@ let ReachOut = class ReachOut {
                 name
             }
         }`;
-<<<<<<< HEAD
-        const members = (_a = (await dbClient.get(membersQuery)).data) === null || _a === void 0 ? void 0 : _a.data;
-        const groups = (_b = (await dbClient.get(groupsQuery)).data) === null || _b === void 0 ? void 0 : _b.data;
-        const options = [
-            {
-                label: 'groups',
-                children: groups === null || groups === void 0 ? void 0 : groups.map((group) => {
-=======
         const members = (await dbClient.get(membersQuery)).data?.data;
         const groups = (await dbClient.get(groupsQuery)).data?.data;
         const options = [
             {
                 label: 'groups',
                 children: groups?.map((group) => {
->>>>>>> master
                     return {
                         label: group.name,
                         id: group.id,
@@ -73,11 +52,7 @@ let ReachOut = class ReachOut {
             },
             {
                 label: 'members',
-<<<<<<< HEAD
-                children: members === null || members === void 0 ? void 0 : members.map((member) => {
-=======
                 children: members?.map((member) => {
->>>>>>> master
                     return {
                         label: `${member.firstName} ${member.lastName}`,
                         id: member.id,
@@ -199,18 +174,10 @@ let ReachOut = class ReachOut {
                 }
             ]
         };
-<<<<<<< HEAD
-        const view = new View({
-            sections: [form],
-            id: "",
-            size: '',
-            navType: 'center',
-=======
         const view = new PageView({
             sections: [form],
             id: "",
             children: [],
->>>>>>> master
             layout: "Grid"
         });
         return view;
@@ -265,23 +232,14 @@ let ReachOut = class ReachOut {
                 }
             });
         }
-<<<<<<< HEAD
-        const view = new View({
-=======
         const view = new PageView({
->>>>>>> master
             sections: [
                 createReachOut,
                 dataType
             ],
             id: "",
             layout: "Grid",
-<<<<<<< HEAD
-            size: '',
-            navType: 'center'
-=======
             children: []
->>>>>>> master
         });
         return view;
     }

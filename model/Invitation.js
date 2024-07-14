@@ -17,12 +17,6 @@ import { Member } from "./Member";
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable, CreateDateColumn } from 'typeorm';
 import { Event } from './Event';
 let Invitation = class Invitation {
-<<<<<<< HEAD
-    constructor() {
-        this.recipients = [];
-    }
-    async getCreateData(userId) {
-=======
     id;
     event;
     content;
@@ -31,7 +25,6 @@ let Invitation = class Invitation {
     recipients = [];
     schedule;
     async create(userId) {
->>>>>>> master
         const membersQuery = gql `member {
             firstName
             lastName
@@ -90,11 +83,8 @@ let Invitation = class Invitation {
         const form = {
             title: "",
             index: 0,
-<<<<<<< HEAD
-=======
             id: '',
             sections: [],
->>>>>>> master
             actions: {
                 submit: new Action({
                     label: 'send now',
@@ -122,11 +112,7 @@ let Invitation = class Invitation {
                         };
                         const invitees = useUser().users.map(user => {
                             const obj = user;
-<<<<<<< HEAD
-                            obj.invitationId = invitation.id;
-=======
                             obj.id = invitation.id;
->>>>>>> master
                             return obj;
                         });
                         new Mailer().sendEmail(email);
@@ -165,19 +151,11 @@ let Invitation = class Invitation {
             content: [
                 {
                     question: 'title',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     inputType: 'text',
                     name: 'title'
                 },
                 {
                     question: 'sender',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     options: [
                         groupOption,
                         memberOption
@@ -186,10 +164,6 @@ let Invitation = class Invitation {
                 },
                 {
                     question: 'messenger',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     options: [
                         'sms',
                         'email',
@@ -199,19 +173,11 @@ let Invitation = class Invitation {
                 },
                 {
                     question: 'content',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     inputType: 'textarea',
                     name: 'content'
                 },
                 {
                     question: 'send to',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     name: 'sendOption',
                     options: [
                         'All',
@@ -229,19 +195,11 @@ let Invitation = class Invitation {
                 },
                 {
                     question: 'event',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     options: [eventOption],
                     name: 'event'
                 },
                 {
                     question: 'schedule',
-<<<<<<< HEAD
-                    answer: '',
-=======
->>>>>>> master
                     inputType: 'schedule',
                     name: 'schedule'
                 },
@@ -269,11 +227,8 @@ let Invitation = class Invitation {
         const data = await dbClient.get(query);
         const dataType = new DataType({
             actionOverlay: data.actionPoint,
-<<<<<<< HEAD
-=======
             id: '',
             sections: [],
->>>>>>> master
             items: {
                 header: [
                     {
@@ -309,17 +264,11 @@ let Invitation = class Invitation {
         if (recipientIds) {
             query = gql `message (recipient_ids: ${recipientIds})`;
         }
-<<<<<<< HEAD
-        const data = await dbClient.get('', query);
-        const dataType = new DataType({
-            actionOverlay: data.actionPoint,
-=======
         const data = await dbClient.get(query);
         const dataType = new DataType({
             actionOverlay: data.actionPoint,
             id: '',
             sections: [],
->>>>>>> master
             items: {
                 header: [
                     {

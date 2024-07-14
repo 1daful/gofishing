@@ -1,8 +1,5 @@
 export class InstanceLoader {
-<<<<<<< HEAD
-=======
     context;
->>>>>>> master
     constructor(context) {
         this.context = context;
     }

@@ -2,24 +2,6 @@ export function isType(obj, classType) {
     return obj instanceof classType;
 }
 export function isView(section) {
-<<<<<<< HEAD
-    return (section === null || section === void 0 ? void 0 : section.insert) !== undefined;
-}
-export function isDataType(section) {
-    return (section === null || section === void 0 ? void 0 : section.items) !== undefined;
-}
-export function isDataList(section) {
-    return (section === null || section === void 0 ? void 0 : section.items) && (section === null || section === void 0 ? void 0 : section.actions) !== undefined;
-}
-export function isQuestionType(section) {
-    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
-}
-export function isNavList(section) {
-    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
-}
-export function isVComponent(section) {
-    return (section === null || section === void 0 ? void 0 : section.content) !== undefined;
-=======
     return section?.insert !== undefined;
 }
 export function isDataType(section) {
@@ -36,17 +18,12 @@ export function isNavList(section) {
 }
 export function isVComponent(section) {
     return section?.content !== undefined;
->>>>>>> master
 }
 export function isComponent(section) {
     return section !== undefined;
 }
 export function isIView(section) {
-<<<<<<< HEAD
-    return (section === null || section === void 0 ? void 0 : section.sections) !== undefined;
-=======
     return section?.sections !== undefined;
->>>>>>> master
 }
 function isSectionType(value) {
     return value === 'x-section' || value === 'y-section';
@@ -59,20 +36,6 @@ export function isActionString(value) {
 }
 export class View {
     constructor(view) {
-<<<<<<< HEAD
-        this.sections = [];
-        this.insert = (...content) => {
-            insert(this, ...content);
-        };
-        Object.assign(this, view);
-    }
-}
-export class Filters {
-    constructor(filters) {
-        this.layout = 'Grid';
-        Object.assign(this, filters);
-    }
-=======
         Object.assign(this, view);
     }
     heading;
@@ -109,14 +72,11 @@ export class Filters {
     options;
     rangeList;
     checks;
->>>>>>> master
 }
 export class NavList {
     constructor(navList) {
         Object.assign(this, navList);
     }
-<<<<<<< HEAD
-=======
     sections;
     id;
     content;
@@ -124,14 +84,11 @@ export class NavList {
     style;
     class;
     view;
->>>>>>> master
 }
 export class DataGraph {
     constructor(data) {
         Object.assign(this, data);
     }
-<<<<<<< HEAD
-=======
     heading;
     id;
     layout;
@@ -148,20 +105,11 @@ export class DataGraph {
     data;
     xaxisType;
     view;
->>>>>>> master
 }
 export class DataTable {
     constructor(data) {
         Object.assign(this, data);
     }
-<<<<<<< HEAD
-}
-export class DataType {
-    constructor(data) {
-        this.card = true;
-        Object.assign(this, data);
-    }
-=======
     sections;
     id;
     columns;
@@ -190,14 +138,11 @@ export class DataType {
     actionOverlay;
     computeAction;
     viewGuard;
->>>>>>> master
 }
 export class DataList {
     constructor(data) {
         Object.assign(this, data);
     }
-<<<<<<< HEAD
-=======
     heading;
     id;
     layout;
@@ -210,14 +155,11 @@ export class DataList {
     sections;
     items;
     actions;
->>>>>>> master
 }
 export class Action {
     constructor(action) {
         Object.assign(this, action);
     }
-<<<<<<< HEAD
-=======
     id;
     type;
     label;
@@ -231,14 +173,11 @@ export class Action {
     state;
     class;
     viewGuard;
->>>>>>> master
 }
 export class ActionGroup {
     constructor(actions) {
         Object.assign(this, actions);
     }
-<<<<<<< HEAD
-=======
     name;
     actions;
     style;
@@ -246,14 +185,11 @@ export class ActionGroup {
     class;
     navType;
     viewGuard;
->>>>>>> master
 }
 export class Video {
     constructor(video) {
         Object.assign(this, video);
     }
-<<<<<<< HEAD
-=======
     title;
     duration;
     url;
@@ -261,7 +197,6 @@ export class Video {
     publishedDate;
     description;
     thumbnailUrl;
->>>>>>> master
     play() {
         if (!this.isPlaying) {
             console.log(`Playing ${this.title}`);
@@ -292,10 +227,7 @@ export class Video {
     }
 }
 export class User {
-<<<<<<< HEAD
-=======
     id;
->>>>>>> master
 }
 export class Notification {
 }
@@ -314,13 +246,10 @@ export class Comment {
 export class Text {
 }
 export class Calendar {
-<<<<<<< HEAD
-=======
     year;
     month;
     day;
     date;
->>>>>>> master
 }
 export class Table {
 }
@@ -330,10 +259,12 @@ export class QuestionType {
     constructor(question) {
         Object.assign(this, question);
     }
-<<<<<<< HEAD
-=======
-    viewGuard;
-    ViewSection;
+    heading;
+    layout;
+    postion;
+    size;
+    viewport;
+    sections;
     id;
     title;
     index;
@@ -345,31 +276,21 @@ export class QuestionType {
     actions;
     meta;
     viewGuard;
->>>>>>> master
 }
 export class FormType {
     constructor(form) {
         Object.assign(this, form);
     }
-<<<<<<< HEAD
-=======
     sections;
     id;
     actions;
     content;
     viewGuard;
->>>>>>> master
 }
 export class VComponent {
     constructor(comp) {
         Object.assign(this, comp);
     }
-<<<<<<< HEAD
-}
-function insert(view, ...content) {
-    var _a;
-    (_a = view.sections) === null || _a === void 0 ? void 0 : _a.push(...content);
-=======
     id;
     sections;
     content;
@@ -378,37 +299,17 @@ function insert(view, ...content) {
 }
 function insert(view, ...content) {
     view.sections?.push(...content);
->>>>>>> master
 }
 export class TabView extends View {
     constructor(view) {
         super(view);
-<<<<<<< HEAD
-        this.sections = [];
-    }
-=======
     }
     sections = [];
     view;
->>>>>>> master
 }
 export class SectionView extends View {
     constructor(view) {
         super(view);
-<<<<<<< HEAD
-        this.sections = [];
-    }
-}
-export class PageView {
-    constructor(view) {
-        this.sections = [];
-        this.children = [];
-        this.insert = (...content) => {
-            insert(this, ...content);
-        };
-        Object.assign(this, view);
-    }
-=======
     }
     sections = [];
     view;
@@ -425,7 +326,6 @@ export class PageView {
     insert = (...content) => {
         insert(this, ...content);
     };
->>>>>>> master
 }
 export const Layout = {
     top: new View({

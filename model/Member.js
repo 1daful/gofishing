@@ -7,16 +7,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-<<<<<<< HEAD
-import { DataType, PageView, QuestionType } from "../src/utils/types";
-import { getCreateData } from "./DataView";
-import { dbClient } from "../config/model";
-import { PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from "typeorm";
-=======
 import { Action, DataList, DataType, PageView, QuestionType, View } from "../src/utils/types";
 import { dbClient } from "../config/model";
 import { Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToMany, JoinTable, OneToOne } from "typeorm";
->>>>>>> master
 import { foreignColumns } from "@edifiles/services/dist/module/utility/Query";
 import { Group } from "./Group";
 import { Session } from "./Session";
@@ -24,12 +17,6 @@ import { Invitation } from "./Invitation";
 import { Service } from "./Service";
 import { Admin } from "./Admin";
 import { Attendance } from "./Attendance";
-<<<<<<< HEAD
-export class Member {
-    constructor(data) {
-        Object.assign(this, data);
-    }
-=======
 import { useUser } from "../src/utils/useUser";
 import EFileParser from "../src/components/EFileParse.vue";
 export class Member {
@@ -49,7 +36,6 @@ export class Member {
     services;
     admin;
     attendances;
->>>>>>> master
     async getSingleData(id) {
         const groupView = new PageView({
             id: "",
@@ -94,14 +80,6 @@ export class Member {
             sections: [dataType],
             id: "",
             layout: "Grid",
-<<<<<<< HEAD
-            size: "",
-            navType: "top"
-        };
-        return view;
-    }
-    async getCreateData(image) {
-=======
             children: []
         };
         return view;
@@ -168,14 +146,10 @@ export class Member {
         })
     };
     async create(image) {
->>>>>>> master
         const data = new QuestionType({
             id: "",
             title: 'Add new member data',
             index: 0,
-<<<<<<< HEAD
-            actions: {},
-=======
             actions: {
                 fileParse: new Action({
                     label: 'Import members',
@@ -191,7 +165,6 @@ export class Member {
                     }
                 })
             },
->>>>>>> master
             sections: [],
             content: [
                 {
@@ -226,18 +199,6 @@ export class Member {
                 }
             ]
         });
-<<<<<<< HEAD
-        const form = getCreateData({
-            content: data,
-            index: 1
-        });
-        const view = {
-            id: "",
-            layout: "Grid",
-            sections: [form],
-            size: "",
-            navType: "top"
-=======
         const view = {
             id: "",
             layout: "Grid",
@@ -245,7 +206,6 @@ export class Member {
                 data
             ],
             children: []
->>>>>>> master
         };
         return view;
     }
@@ -257,37 +217,6 @@ export class Member {
             columns: []
         };
         const data = await dbClient.get(query);
-<<<<<<< HEAD
-        const dataType = new DataType({
-            id: '',
-            sections: [],
-            items: {
-                header: [
-                    {
-                        avatar: data.avatar
-                    },
-                    {
-                        label: `${data.firstName} ${data.lastName}`
-                    }
-                ],
-                center: [
-                    {
-                        label: `Joined: ${data.created_at}`
-                    },
-                    {
-                        label: `Last seen: ${data.lastTime}`
-                    }
-                ],
-                footer: []
-            }
-        });
-        const view = {
-            sections: [dataType],
-            id: "",
-            layout: "Grid",
-            size: "",
-            navType: "top"
-=======
         const dataList = new DataList({
             items: [],
             actions: [
@@ -351,7 +280,6 @@ export class Member {
             id: "",
             layout: "Grid",
             children: []
->>>>>>> master
         };
         return view;
     }
@@ -374,13 +302,6 @@ export class Member {
     }
 }
 __decorate([
-<<<<<<< HEAD
-    PrimaryGeneratedColumn(),
-    __metadata("design:type", Number)
-], Member.prototype, "id", void 0);
-__decorate([
-=======
->>>>>>> master
     Column(),
     __metadata("design:type", String)
 ], Member.prototype, "firstName", void 0);

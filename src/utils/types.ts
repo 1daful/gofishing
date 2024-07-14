@@ -1,11 +1,8 @@
 import { Component } from "vue"
 import { CarouselStyle, DataPoint, HorizontalPosition, Slides, VerticalPosition, ViewGuard } from "./DataTypes";
 import { IDataView } from "../../model/IDataView";
-<<<<<<< HEAD
-=======
-import { RouteLocationRaw, RouteRecord, RouteRecordRaw } from "vue-router";
 import { QSpinnerAudio } from "quasar";
->>>>>>> master
+import { RouteLocationRaw } from "vue-router";
 
 export function isType<T>(obj: any, classType: new (...args: any[]) => T): obj is T {
     return obj instanceof classType;
@@ -506,8 +503,12 @@ export type OptionsType = ({
 export class QuestionType implements IView{
     constructor(question: QuestionType) {
         Object.assign(this, question)
-    },
-    viewGuard: 
+    }
+    heading?: string | undefined;
+    layout?: LayoutType | undefined;
+    postion?: { y: number; x: number; } | undefined;
+    size?: string | undefined;
+    viewport?: string | undefined;
     sections!: ViewSection[];
     id!: string;
     title!: string;

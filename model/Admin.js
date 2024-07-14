@@ -11,13 +11,10 @@ import { ManyToMany, JoinTable, OneToOne, Column, JoinColumn } from "typeorm";
 import { Group } from "./Group";
 import { Member } from "./Member";
 export class Admin {
-<<<<<<< HEAD
-=======
     id;
     member;
     role;
     groups;
->>>>>>> master
 }
 __decorate([
     OneToOne(() => Member, (member) => member.admin),

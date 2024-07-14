@@ -11,14 +11,6 @@ import { dbClient } from "../config/model";
 import { EdiStorage } from "@edifiles/services";
 import { useRouter } from "vue-router";
 import gql from "graphql-tag";
-<<<<<<< HEAD
-import { Action, DataGraph, PageView, View } from "../src/utils/types";
-import { Member } from "./Member";
-import { Event } from "./Event";
-import { useDate } from "../src/utils/useDate";
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
-let Attendance = class Attendance {
-=======
 import { Action, DataGraph, Filters, PageView } from "../src/utils/types";
 import { Member } from "./Member";
 import { Event } from "./Event";
@@ -34,7 +26,6 @@ let Attendance = class Attendance {
     member;
     timeliness;
     client;
->>>>>>> master
     async captureFaces() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const video = document.createElement('video');
@@ -50,14 +41,11 @@ let Attendance = class Attendance {
         const formData = new FormData();
         formData.append('image', blob);
         const { newFace, existingFace, error } = await this.client.post('recognise_face', formData);
-<<<<<<< HEAD
-=======
         const data = {
             newFace,
             existingFace
         };
         return { data, error };
->>>>>>> master
         if (newFace) {
             const storage = new EdiStorage();
             storage.post('member', '/member', blob);
@@ -155,11 +143,8 @@ let Attendance = class Attendance {
                             label: 'Show Church Average'
                         }
                     ],
-<<<<<<< HEAD
-=======
                     id: undefined,
                     model: []
->>>>>>> master
                 }
             ],
             id: "",
@@ -220,11 +205,7 @@ let Attendance = class Attendance {
             size: "",
             navType: "top"
         };
-<<<<<<< HEAD
-        const view = new View({
-=======
         const view = new PageView({
->>>>>>> master
             sections: [
                 graphView,
                 lateView,
@@ -232,16 +213,9 @@ let Attendance = class Attendance {
                 getDonut("late"),
                 getDonut("early")
             ],
-<<<<<<< HEAD
-            id: "",
-            size: '',
-            navType: 'center',
-            layout: 'Grid'
-=======
             layout: 'Grid',
             id: "",
             children: []
->>>>>>> master
         });
         return view;
     }
@@ -287,27 +261,14 @@ let Attendance = class Attendance {
         const label = data.map((entry) => entry);
         return { series, label };
     }
-<<<<<<< HEAD
-    async getCreateData(eventId) {
-        const members = await dbClient.get(gql `{members}`);
-        const filter = {
-=======
     async filter() {
         const member = await this.members();
         return new Filters({
->>>>>>> master
             indexName: "Members",
             rangeList: [],
             checks: [
                 {
                     attribute: 'Members',
-<<<<<<< HEAD
-                    values: members.map((member) => {
-                        return {
-                            label: `${member.firstName} ${member.lastName}`
-                        };
-                    })
-=======
                     values: member.data.map((member) => {
                         return {
                             label: `${member.firstName} ${member.lastName}`
@@ -315,56 +276,21 @@ let Attendance = class Attendance {
                     }),
                     id: undefined,
                     model: []
->>>>>>> master
                 }
             ],
             id: "",
             sections: [],
             layout: "Grid",
             size: ""
-<<<<<<< HEAD
-        };
-        const memberView = new View({
-            sections: [
-                filter,
-                new Action({
-                    event() {
-                        const query = {
-                            name: "member",
-                            data: members.map((member) => {
-                                return {
-                                    eventId,
-                                    userId: member.id,
-                                    timeTaken: new Date()
-                                };
-                            }),
-                            filters: [],
-                            columns: []
-                        };
-                        dbClient.post(query);
-                    }
-                })
-            ],
-            id: "",
-            layout: "Grid",
-            size: "",
-            navType: "top"
-        });
-=======
         });
     }
     async create() {
->>>>>>> master
         const actions = [
             new Action({
                 event: this.captureFaces,
                 label: 'capture faces',
             }),
             new Action({
-<<<<<<< HEAD
-                event: "Modal",
-                args: memberView,
-=======
                 event: "Route",
                 args: {
                     name: 'categories',
@@ -372,7 +298,6 @@ let Attendance = class Attendance {
                         categories: 'memberView'
                     }
                 },
->>>>>>> master
                 label: "Mark members"
             })
         ];
@@ -384,14 +309,6 @@ let Attendance = class Attendance {
         });
         return view;
     }
-<<<<<<< HEAD
-};
-__decorate([
-    PrimaryGeneratedColumn('uuid'),
-    __metadata("design:type", String)
-], Attendance.prototype, "id", void 0);
-__decorate([
-=======
     async memberView(eventId) {
         const members = await this.members();
         return new PageView({
@@ -432,7 +349,6 @@ __decorate([
     }
 };
 __decorate([
->>>>>>> master
     ManyToOne(() => Event, event => event.attendances),
     __metadata("design:type", Object)
 ], Attendance.prototype, "event", void 0);

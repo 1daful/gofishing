@@ -1,9 +1,5 @@
 export class VideoShare {
-<<<<<<< HEAD
-    getCreateData(data) {
-=======
     create(data) {
->>>>>>> master
         throw new Error("Method not implemented.");
     }
     getListData(query) {
@@ -12,8 +8,5 @@ export class VideoShare {
     getSingleData(id) {
         throw new Error("Method not implemented.");
     }
-<<<<<<< HEAD
-=======
     id;
->>>>>>> master
 }

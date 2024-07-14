@@ -3,10 +3,10 @@ import { SFacebook, STwitter } from "vue-socials";
 import { Action } from "../src/utils/types";
 export class Share {
     constructor(id) {
-        this.id = 'share';
         if (id)
             this.id = id;
     }
+    id = 'share';
     getCreateData(media) {
         useHead({
             meta: [
