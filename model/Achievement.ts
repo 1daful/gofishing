@@ -13,7 +13,7 @@ export class Achievement implements IDataView {
     }
     async getListData(userId: string) {
         //const query = gql`achievement (user_id: ${userId})`
-        const items = await getData('achievement', (data)=> {
+        const items = await getData('achievement', (data) => {
             return new DataType({
                 id: '',
                 items: {
@@ -51,31 +51,31 @@ export class Achievement implements IDataView {
         }
         const data = await getData(query, (data) => {
             return new DataType({
-            items: {
-                header: [
-                    {
-                        label: data.title
-                    },
-                    
-                ],
-                center: undefined,
-                footer: undefined,
-                left: undefined,
-                right: undefined
-            },
-            id: '',
-            sections: []
+                items: {
+                    header: [
+                        {
+                            label: data.title
+                        },
+
+                    ],
+                    center: undefined,
+                    footer: undefined,
+                    left: undefined,
+                    right: undefined
+                },
+                id: '',
+                sections: []
+            })
         })
-    })
-    const view: PageView = new PageView({
-        id: '',
-        layout: 'Grid',
-        sections: [
-            data
-        ],
-        children: []
-    })
-    return view
+        const view: PageView = new PageView({
+            id: '',
+            layout: 'Grid',
+            sections: [
+                data
+            ],
+            children: []
+        })
+        return view
     }
-    
+
 }
